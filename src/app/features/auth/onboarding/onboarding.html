@@ -1,0 +1,88 @@
+<app-auth-layout>
+  <form class="sg-auth-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div>
+      <span class="sg-badge sg-badge-green">Último paso</span>
+      <h1 class="mt-2 mb-1 display-6">Completa tu perfil</h1>
+      <p class="mb-0 text-body-secondary">
+        Necesitamos estos datos para vincular tu cuenta con el gimnasio.
+      </p>
+    </div>
+
+    <div>
+      <label class="form-label" for="ob-name">Nombre completo</label>
+      <input
+        id="ob-name"
+        class="form-control"
+        type="text"
+        autocomplete="name"
+        placeholder="Ej. Ana Pérez"
+        formControlName="name"
+        [readOnly]="nameFromClerk"
+        [class.is-invalid]="!!error('name')"
+        [attr.aria-invalid]="!!error('name')"
+        aria-describedby="ob-name-err"
+      />
+      <div id="ob-name-err" class="invalid-feedback d-block" [hidden]="!error('name')" data-testid="name-error">
+        {{ error('name') }}
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="ob-email">Correo electrónico</label>
+      <input id="ob-email" class="form-control" type="text" readonly [value]="auth.email() ?? ''" />
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label" for="ob-age">Edad</label>
+        <input
+          id="ob-age"
+          class="form-control"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="Ej. 28"
+          formControlName="age"
+          [class.is-invalid]="!!error('age')"
+          [attr.aria-invalid]="!!error('age')"
+          aria-describedby="ob-age-err"
+        />
+        <div id="ob-age-err" class="invalid-feedback d-block" [hidden]="!error('age')" data-testid="age-error">
+          {{ error('age') }}
+        </div>
+      </div>
+      <div class="col-6">
+        <label class="form-label" for="ob-dni">DNI</label>
+        <input
+          id="ob-dni"
+          class="form-control"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="8 dígitos"
+          formControlName="dni"
+          [class.is-invalid]="!!error('dni')"
+          [attr.aria-invalid]="!!error('dni')"
+          aria-describedby="ob-dni-err"
+        />
+        <div id="ob-dni-err" class="invalid-feedback d-block" [hidden]="!error('dni')" data-testid="dni-error">
+          {{ error('dni') }}
+        </div>
+      </div>
+    </div>
+
+    <p class="mb-0 small text-body-secondary">
+      Tu DNI te identifica en recepción y solo se registra una vez.
+    </p>
+
+    <button type="submit" class="btn btn-primary w-100" [disabled]="submitting()" data-testid="onboarding-submit">
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Guardando…</span>
+      } @else {
+        <i class="bi bi-check-lg" aria-hidden="true"></i>
+        <span>Guardar y entrar</span>
+      }
+    </button>
+  </form>
+</app-auth-layout>

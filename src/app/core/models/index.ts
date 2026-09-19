@@ -4,6 +4,7 @@ export * from './booking';
 export * from './customer';
 export * from './health';
 export * from './identity';
+export * from './me';
 export * from './progress';
 export * from './routine';
 export * from './trainer';

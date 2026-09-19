@@ -7,6 +7,14 @@ const isEmpty = (v: unknown) => v === null || v === undefined || v === '';
 export const dniValidator: ValidatorFn = (c) =>
   isEmpty(c.value) || /^\d{8}$/.test(String(c.value).trim()) ? null : { dni: true };
 
+/** Sin `<` ni `>` (el backend los rechaza en nombres). */
+export const noAngleBracketsValidator: ValidatorFn = (c) =>
+  isEmpty(c.value) || !/[<>]/.test(String(c.value)) ? null : { angleBrackets: true };
+
+/** Número entero (sin decimales). */
+export const integerValidator: ValidatorFn = (c) =>
+  isEmpty(c.value) || /^-?\d+$/.test(String(c.value).trim()) ? null : { integer: true };
+
 /** Hora HH:mm en formato de 24 h (00:00–23:59). */
 export const timeValidator: ValidatorFn = (c) =>
   isEmpty(c.value) || /^([01]\d|2[0-3]):[0-5]\d$/.test(String(c.value).trim())
@@ -36,6 +44,8 @@ const MESSAGES: Record<string, (e: ValidationErrors) => string> = {
   required: () => 'Este campo es obligatorio.',
   email: () => 'Ingresa un correo válido.',
   dni: () => 'El DNI debe tener 8 dígitos.',
+  angleBrackets: () => 'No puede contener los caracteres < o >.',
+  integer: () => 'Ingresa un número entero.',
   time: () => 'Usa el formato HH:mm (24 h).',
   weight: () => 'El peso debe estar entre 0.1 y 400 kg.',
   percent: () => 'Debe estar entre 0 y 100.',

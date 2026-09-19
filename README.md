@@ -29,10 +29,62 @@ npm install
 Las variables están en `src/environments/`:
 
 - `apiBase`: prefijo del API (`/api/v1`).
-- `clerkPublishableKey`: clave pública de Clerk (se completa en la fase F2).
+- `clerkPublishableKey`: publishable key de Clerk (`pk_test_...` en desarrollo, ya configurada; `pk_live_...` en producción, pendiente de completar en `environment.ts`).
 
 ## Estructura de estilos
 
 Tema oscuro con Bootstrap 5 (CSS compilado) y overrides propios en `src/styles/`:
 `_tokens.scss` (variables `--sg-*`), `_bootstrap-overrides.scss` y `_base.scss`.
-La vista `features/dev/theme-preview` es temporal y sirve para validar el tema; se elimina al llegar las pantallas reales.
+
+## Autenticación (Clerk)
+
+Login, registro y sesión los maneja [Clerk](https://clerk.com) con el paquete comunitario
+[`ngx-clerk`](https://github.com/anagstef/ngx-clerk) (no existe SDK oficial para Angular). Los textos
+de Clerk van en español (`@clerk/localizations`) y su apariencia sigue el tema oscuro
+(`src/app/core/auth/clerk.config.ts`).
+
+### Claves
+
+| Clave | Dónde | Notas |
+|---|---|---|
+| Publishable key (`pk_...`) | `src/environments/*.ts` | **Es pública**, se puede versionar. |
+| Secret key (`sk_...`) | Solo backend (variable de entorno) | **Nunca** en este repo ni en el frontend. |
+
+### Rutas y roles
+
+- `/` lleva al inicio del rol (o a `/auth/sign-in` sin sesión).
+- `/auth/sign-in/**` y `/auth/sign-up/**`: Clerk con *path routing*. Usa subrutas internas (verificación de
+  correo, `sso-callback` de Google...), por eso el matcher `catchAllRoute` consume todos los segmentos.
+- `/auth/onboarding`: primer ingreso de un cliente (nombre si Clerk no lo tiene, edad y DNI).
+- `/cliente`, `/entrenador`, `/admin`: cada una exige sesión, el rol correspondiente y, para clientes, el perfil
+  completo. Un rol no permitido vuelve a su propio inicio con un aviso.
+- **Rol** = `public_metadata.role` del usuario en Clerk (`cliente`, `entrenador` o `admin`). Sin metadata es
+  `cliente`: cualquiera puede registrarse; entrenadores y admins los asigna el administrador.
+
+Para asignar un rol: Clerk Dashboard -> *Users* -> el usuario -> *Public metadata* -> `{"role": "admin"}`.
+
+### Token hacia el backend
+
+`auth-token.interceptor` agrega `Authorization: Bearer <JWT de Clerk>` a las peticiones a `apiBase`. El backend
+aún no valida el token (pendiente B1 del plan). Para que el token lleve el rol, en Clerk Dashboard ->
+*Sessions* -> *Customize session token* agregar:
+
+```json
+{ "role": "{{user.public_metadata.role}}", "email": "{{user.primary_email_address}}" }
+```
+
+### Usuarios de prueba
+
+En la instancia de desarrollo, un correo con `+clerk_test` (por ejemplo `ana+clerk_test@example.com`) se verifica
+con el código `424242` sin enviar correo ([doc](https://clerk.com/docs/guides/development/testing/test-emails-and-phones)).
+El registro tiene protección contra bots (Cloudflare Turnstile): en pruebas automatizadas funciona con Chrome con
+ventana, no en headless.
+
+### `MeApi` interino
+
+El backend todavía no tiene `GET /me` ni `POST /me/onboarding` (B2). Mientras tanto `core/api/me.api.ts`
+los compone con endpoints existentes: el rol sale de Clerk, "perfil completo" es que exista
+`GET /customers/{email}`, y el onboarding vincula el DNI (`POST /identity/customer`) y luego crea el cliente
+(`POST /customers`). Antes de vincular comprueba que el DNI no pertenezca a otra cuenta, porque el backend
+actual lo sobrescribiría sin avisar. Cuando exista B2 solo se reemplaza el cuerpo de `getMe()` y
+`completeOnboarding()`.

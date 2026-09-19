@@ -47,3 +47,23 @@ a {
   font-size: 1.6rem;
   letter-spacing: 0.06em;
 }
+
+/* Tarjeta de las pantallas de acceso (onboarding, aviso de servicio) */
+.sg-auth-card {
+  width: 100%;
+  max-width: 420px;
+  box-sizing: border-box;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: var(--sg-surface);
+  border: 1px solid var(--sg-line);
+  border-radius: 20px;
+}
+
+@media (max-width: 575.98px) {
+  .sg-auth-card {
+    padding: 24px;
+  }
+}

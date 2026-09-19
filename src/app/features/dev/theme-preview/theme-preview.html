@@ -1,0 +1,112 @@
+<div class="container py-4" style="max-width: 1040px">
+  <header class="d-flex align-items-center gap-3 mb-4">
+    <span class="sg-logo"><i class="bi bi-lightning-charge-fill"></i></span>
+    <span class="sg-brand">SMARTGYM</span>
+    <span class="sg-badge sg-badge-blue ms-2">Vista previa del tema · F0</span>
+  </header>
+
+  <h1 class="display-6 mb-1">Bienvenido, Carlos</h1>
+  <p class="text-body-secondary mb-4">Sábado, 19 de septiembre de 2026</p>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <span class="stat-icon"><i class="bi bi-lightning-charge"></i></span>
+            <span class="fs-5 fw-semibold">Mi Rutina</span>
+          </div>
+          <div>
+            <div class="stat-value">Cardio</div>
+            <div class="text-body-secondary mt-1">Plan de hoy · rutina activa desde el 08 sep</div>
+          </div>
+          <a href="#" class="stat-link green mt-auto">Ver rutina <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <span class="stat-icon blue"><i class="bi bi-calendar-event"></i></span>
+            <span class="fs-5 fw-semibold">Próxima reserva</span>
+          </div>
+          <div>
+            <div class="stat-value">Hoy · 18:30</div>
+            <div class="text-body-secondary mt-1">con Marco Vílchez</div>
+          </div>
+          <a href="#" class="stat-link mt-auto">Ver reservas <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-3 mb-4">
+    <button type="button" class="btn btn-primary"><i class="bi bi-check-circle"></i> Marcar asistencia</button>
+    <button type="button" class="btn btn-outline-secondary"><i class="bi bi-clock-history"></i> Ver historial</button>
+    <button type="button" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Cancelar</button>
+    <button type="button" class="btn btn-primary" disabled>Deshabilitado</button>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-body d-flex flex-column gap-3">
+          <h2 class="h3 mb-0">Nueva reserva</h2>
+          <div>
+            <label class="form-label" for="pv-trainer">Entrenador</label>
+            <select id="pv-trainer" class="form-select">
+              <option>Lucía Paredes · Fuerza e hipertrofia</option>
+              <option>Marco Vílchez · Funcional</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="pv-dni">DNI</label>
+            <input id="pv-dni" class="form-control" placeholder="8 dígitos" inputmode="numeric" />
+            <div class="form-text">Debe estar vinculado a tu cuenta.</div>
+          </div>
+          <div>
+            <label class="form-label" for="pv-weight">Peso (kg)</label>
+            <input id="pv-weight" class="form-control is-invalid" value="450" />
+            <div class="invalid-feedback">El peso debe estar entre 0.1 y 400 kg.</div>
+          </div>
+          <div>
+            <label class="form-label" for="pv-note">Nota (opcional)</label>
+            <textarea id="pv-note" class="form-control" placeholder="Ej. Quiero reforzar piernas"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+      <div class="alert alert-success mb-0" role="alert"><i class="bi bi-check-circle me-2"></i>Reserva creada correctamente.</div>
+      <div class="alert alert-danger mb-0" role="alert"><i class="bi bi-exclamation-triangle me-2"></i>Ese horario ya está ocupado.</div>
+      <div class="alert alert-warning mb-0" role="alert"><i class="bi bi-exclamation-triangle me-2"></i>No se pueden crear reservas en horas pasadas.</div>
+      <div class="alert alert-info mb-0" role="alert"><i class="bi bi-info-circle me-2"></i>Solo se permite un registro de progreso por día.</div>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="sg-badge sg-badge-green">Activa</span>
+        <span class="sg-badge sg-badge-blue">Próxima</span>
+        <span class="sg-badge sg-badge-red">Ocupada</span>
+        <span class="sg-badge sg-badge-amber">Pendiente</span>
+        <span class="sg-badge sg-badge-gray">Anterior</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h3 mb-3">Historial de progreso</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr><th>Fecha</th><th>Peso (kg)</th><th>Grasa (%)</th><th>Músculo (%)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>15 sep 2026</td><td>74.5</td><td>18.2</td><td>42.1</td></tr>
+            <tr><td>31 ago 2026</td><td>75.6</td><td>19.3</td><td>41.4</td></tr>
+            <tr><td>03 ago 2026</td><td>76.9</td><td>20.1</td><td>40.6</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,263 @@
+[data-bs-theme='dark'] {
+  color-scheme: dark;
+
+  --bs-body-bg: var(--sg-bg);
+  --bs-body-bg-rgb: 11, 19, 16;
+  --bs-body-color: var(--sg-text);
+  --bs-body-color-rgb: 234, 243, 238;
+  --bs-body-font-family: var(--sg-font-body);
+  --bs-emphasis-color: #fff;
+  --bs-secondary-color: var(--sg-muted);
+  --bs-secondary-bg: var(--sg-surface-2);
+  --bs-secondary-bg-rgb: 24, 38, 32;
+  --bs-tertiary-color: var(--sg-muted);
+  --bs-tertiary-bg: var(--sg-surface-2);
+  --bs-tertiary-bg-rgb: 24, 38, 32;
+  --bs-border-color: var(--sg-line);
+  --bs-border-color-translucent: var(--sg-line);
+  --bs-border-radius: 0.75rem;
+  --bs-border-radius-sm: 0.5rem;
+  --bs-border-radius-lg: 1rem;
+
+  --bs-primary: #34d399;
+  --bs-primary-rgb: 52, 211, 153;
+  --bs-danger: #f87171;
+  --bs-danger-rgb: 248, 113, 113;
+  --bs-link-color: var(--sg-blue);
+  --bs-link-color-rgb: 124, 184, 255;
+  --bs-link-hover-color: #a9d0ff;
+  --bs-link-hover-color-rgb: 169, 208, 255;
+  --bs-focus-ring-color: rgba(52, 211, 153, 0.35);
+
+  --bs-success-bg-subtle: var(--sg-accent-soft);
+  --bs-success-border-subtle: var(--sg-accent-border);
+  --bs-success-text-emphasis: var(--sg-accent);
+  --bs-danger-bg-subtle: var(--sg-red-soft);
+  --bs-danger-border-subtle: var(--sg-red-border);
+  --bs-danger-text-emphasis: var(--sg-red);
+  --bs-warning-bg-subtle: var(--sg-amber-soft);
+  --bs-warning-border-subtle: var(--sg-amber-border);
+  --bs-warning-text-emphasis: var(--sg-amber);
+  --bs-info-bg-subtle: var(--sg-blue-soft);
+  --bs-info-border-subtle: var(--sg-blue-border);
+  --bs-info-text-emphasis: var(--sg-blue);
+}
+
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  font-family: var(--sg-font-display);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+/* Botones */
+.btn {
+  --bs-btn-font-weight: 600;
+  --bs-btn-border-radius: var(--sg-radius);
+  --bs-btn-padding-x: 1.4rem;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  --bs-btn-focus-shadow-rgb: 52, 211, 153;
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem rgba(52, 211, 153, 0.35);
+
+  &:focus-visible,
+  .btn-check:focus-visible + & {
+    outline: 0;
+    border-color: var(--sg-accent);
+    box-shadow: var(--bs-btn-focus-box-shadow);
+  }
+}
+
+.btn-sm {
+  min-height: 36px;
+  --bs-btn-padding-x: 0.9rem;
+}
+
+.btn-primary {
+  --bs-btn-color: var(--sg-on-accent);
+  --bs-btn-bg: var(--sg-accent);
+  --bs-btn-border-color: var(--sg-accent);
+  --bs-btn-hover-color: var(--sg-on-accent);
+  --bs-btn-hover-bg: #5ee0ab;
+  --bs-btn-hover-border-color: #5ee0ab;
+  --bs-btn-active-color: var(--sg-on-accent);
+  --bs-btn-active-bg: #2bbd88;
+  --bs-btn-active-border-color: #2bbd88;
+  --bs-btn-disabled-color: var(--sg-on-accent);
+  --bs-btn-disabled-bg: var(--sg-accent);
+  --bs-btn-disabled-border-color: var(--sg-accent);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--sg-text);
+  --bs-btn-border-color: var(--sg-input-border);
+  --bs-btn-hover-color: var(--sg-text);
+  --bs-btn-hover-bg: var(--sg-surface-2);
+  --bs-btn-hover-border-color: var(--sg-input-border);
+  --bs-btn-active-color: var(--sg-text);
+  --bs-btn-active-bg: var(--sg-surface-2);
+  --bs-btn-active-border-color: var(--sg-input-border);
+  --bs-btn-disabled-color: var(--sg-muted);
+  --bs-btn-disabled-border-color: var(--sg-line);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--sg-red);
+  --bs-btn-border-color: var(--sg-red-border);
+  --bs-btn-hover-color: var(--sg-red);
+  --bs-btn-hover-bg: var(--sg-red-soft);
+  --bs-btn-hover-border-color: var(--sg-red-border);
+  --bs-btn-active-color: var(--sg-red);
+  --bs-btn-active-bg: var(--sg-red-soft);
+  --bs-btn-active-border-color: var(--sg-red-border);
+}
+
+/* Formularios */
+.form-control,
+.form-select {
+  min-height: 48px;
+  background-color: var(--sg-bg);
+  border: 1px solid var(--sg-input-border);
+  border-radius: var(--sg-radius);
+  color: var(--sg-text);
+  font-size: 1rem;
+
+  &::placeholder {
+    color: var(--sg-placeholder);
+  }
+
+  &:focus {
+    background-color: var(--sg-bg);
+    border-color: var(--sg-accent);
+    color: var(--sg-text);
+    box-shadow: 0 0 0 0.2rem rgba(52, 211, 153, 0.25);
+  }
+
+  &:disabled,
+  &[readonly] {
+    background-color: var(--sg-surface-2);
+    color: var(--sg-muted);
+  }
+}
+
+textarea.form-control {
+  min-height: 96px;
+}
+
+.form-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.form-text {
+  color: var(--sg-muted);
+}
+
+.is-invalid.form-control,
+.is-invalid.form-select {
+  border-color: #f87171;
+}
+
+.invalid-feedback {
+  color: var(--sg-red);
+  font-weight: 500;
+}
+
+/* Tarjetas, tablas, modales */
+.card {
+  --bs-card-bg: var(--sg-surface);
+  --bs-card-border-color: var(--sg-line);
+  --bs-card-border-radius: var(--sg-radius-lg);
+  --bs-card-inner-border-radius: calc(var(--sg-radius-lg) - 1px);
+  --bs-card-spacer-y: 1.5rem;
+  --bs-card-spacer-x: 1.5rem;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--sg-text);
+  --bs-table-border-color: var(--sg-line);
+  --bs-table-hover-bg: var(--sg-surface-2);
+  --bs-table-hover-color: var(--sg-text);
+  margin-bottom: 0;
+
+  th,
+  td {
+    white-space: nowrap;
+  }
+
+  > :not(caption) > * > * {
+    padding: 0.85rem 0.9rem;
+    vertical-align: middle;
+  }
+
+  th {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--sg-muted);
+  }
+}
+
+.modal-content {
+  background-color: var(--sg-surface);
+  border: 1px solid var(--sg-input-border);
+  border-radius: 20px;
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--sg-line);
+}
+
+.alert {
+  --bs-alert-border-radius: var(--sg-radius);
+}
+
+/* Badges suaves */
+.sg-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--sg-surface-2);
+  color: var(--sg-muted);
+
+  &.sg-badge-green {
+    background: var(--sg-accent-soft);
+    color: var(--sg-accent);
+  }
+
+  &.sg-badge-blue {
+    background: var(--sg-blue-soft);
+    color: var(--sg-blue);
+  }
+
+  &.sg-badge-red {
+    background: var(--sg-red-soft);
+    color: var(--sg-red);
+  }
+
+  &.sg-badge-amber {
+    background: var(--sg-amber-soft);
+    color: var(--sg-amber);
+  }
+
+  &.sg-badge-gray {
+    background: var(--sg-surface-2);
+    color: var(--sg-muted);
+  }
+}

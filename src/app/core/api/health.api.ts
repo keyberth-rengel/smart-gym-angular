@@ -1,0 +1,13 @@
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Health } from '../models';
+import { ApiClient } from './api-client';
+
+@Injectable({ providedIn: 'root' })
+export class HealthApi {
+  private readonly api = inject(ApiClient);
+
+  check(): Observable<Health> {
+    return this.api.get<Health>('/health');
+  }
+}

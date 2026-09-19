@@ -1,0 +1,187 @@
+<div class="container py-4" style="max-width: 1040px">
+  <header class="d-flex align-items-center gap-3 mb-4">
+    <span class="sg-logo"><i class="bi bi-lightning-charge-fill"></i></span>
+    <span class="sg-brand">SMARTGYM</span>
+    <span class="sg-badge sg-badge-blue">Playground API · F1</span>
+  </header>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-6 d-flex flex-column gap-4">
+      <section class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">Servicio y clientes</h2>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="health"
+              (click)="checkHealth()"
+            >
+              Health
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-testid="create-customer"
+              (click)="createCustomer()"
+            >
+              Crear cliente
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="create-customer-twice"
+              (click)="createCustomerTwice()"
+            >
+              Crear duplicado (409)
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="get-missing"
+              (click)="getMissingCustomer()"
+            >
+              Buscar inexistente
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">Cliente inválido (400)</h2>
+          <form
+            [formGroup]="form"
+            (ngSubmit)="submitInvalid()"
+            class="d-flex flex-column gap-3"
+            novalidate
+          >
+            <div>
+              <label class="form-label" for="pg-email">Correo</label>
+              <input
+                id="pg-email"
+                class="form-control"
+                formControlName="email"
+                [class.is-invalid]="showError('email')"
+              />
+              <div class="invalid-feedback" data-testid="err-email">{{ showError('email') }}</div>
+            </div>
+            <div>
+              <label class="form-label" for="pg-name">Nombre</label>
+              <input
+                id="pg-name"
+                class="form-control"
+                formControlName="name"
+                [class.is-invalid]="showError('name')"
+              />
+              <div class="invalid-feedback" data-testid="err-name">{{ showError('name') }}</div>
+            </div>
+            <div>
+              <label class="form-label" for="pg-age">Edad</label>
+              <input
+                id="pg-age"
+                class="form-control"
+                formControlName="age"
+                [class.is-invalid]="showError('age')"
+              />
+              <div class="invalid-feedback" data-testid="err-age">{{ showError('age') }}</div>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary align-self-start"
+              data-testid="submit-invalid"
+            >
+              Enviar datos inválidos
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-6 d-flex flex-column gap-4">
+      <section class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">Reservas</h2>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-testid="booking-ok"
+              (click)="bookingOk()"
+            >
+              Reserva exitosa
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="booking-dup"
+              (click)="bookingDuplicate()"
+            >
+              Reserva duplicada (409)
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="booking-past"
+              (click)="bookingPast()"
+            >
+              Reserva pasada (422)
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              data-testid="booking-cancel"
+              (click)="cancelBooking()"
+            >
+              Cancelar reserva
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">Toasts</h2>
+          <div class="d-flex flex-wrap gap-2">
+            @for (kind of toastKinds; track kind) {
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                [attr.data-testid]="'toast-' + kind"
+                (click)="fireToast(kind)"
+              >
+                {{ kind }}
+              </button>
+            }
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-testid="toast-many"
+              (click)="fireManyToasts()"
+            >
+              6 seguidos
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">
+            Resultado
+            @if (busy()) {
+              <span
+                class="spinner-border spinner-border-sm ms-2"
+                role="status"
+                aria-label="Cargando"
+              ></span>
+            }
+          </h2>
+          <pre class="result mb-0" data-testid="result">{{
+            result() || 'Sin resultados todavía.'
+          }}</pre>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

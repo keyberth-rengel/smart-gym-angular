@@ -1,0 +1,23 @@
+<div class="toast-stack" aria-live="polite" aria-atomic="false">
+  @for (toast of service.toasts(); track toast.id) {
+    <div
+      class="toast show sg-toast"
+      [class]="'sg-toast-' + toast.kind"
+      [attr.role]="toast.kind === 'error' ? 'alert' : 'status'"
+      [attr.data-kind]="toast.kind"
+      data-testid="toast"
+    >
+      <i class="bi sg-toast-icon" [class]="icon(toast.kind)" aria-hidden="true"></i>
+      <div class="sg-toast-body">
+        <div class="sg-toast-title">{{ toast.title }}</div>
+        <div class="sg-toast-message">{{ toast.message }}</div>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Cerrar notificación"
+        (click)="service.dismiss(toast.id)"
+      ></button>
+    </div>
+  }
+</div>

@@ -1,0 +1,56 @@
+<section class="card dni-panel" aria-label="Buscar por DNI">
+  <div class="dni-field">
+    <label for="dni-input" class="form-label">{{ label() }}</label>
+    <input
+      id="dni-input"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      class="form-control"
+      placeholder="8 dígitos"
+      [class.is-invalid]="!!message()"
+      [attr.aria-invalid]="message() ? 'true' : null"
+      [attr.aria-describedby]="message() ? 'dni-error' : hint() ? 'dni-hint' : null"
+      [formControl]="control"
+      (input)="onInput()"
+      (blur)="onBlur()"
+      (keydown.enter)="run(enterAction())"
+      data-testid="dni-input"
+    />
+    @if (message(); as msg) {
+      <div id="dni-error" class="invalid-feedback d-block" data-testid="dni-error">{{ msg }}</div>
+    } @else if (hint(); as text) {
+      <div id="dni-hint" class="form-text">{{ text }}</div>
+    }
+  </div>
+  <div class="dni-actions">
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="busy() !== null"
+      (click)="run('primary')"
+      data-testid="dni-primary"
+    >
+      @if (busy() === 'primary') {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      } @else {
+        <i class="bi" [class]="'bi-' + primaryIcon()" aria-hidden="true"></i>
+      }
+      <span>{{ primaryLabel() }}</span>
+    </button>
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      [disabled]="busy() !== null"
+      (click)="run('secondary')"
+      data-testid="dni-secondary"
+    >
+      @if (busy() === 'secondary') {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      } @else {
+        <i class="bi" [class]="'bi-' + secondaryIcon()" aria-hidden="true"></i>
+      }
+      <span>{{ secondaryLabel() }}</span>
+    </button>
+  </div>
+</section>

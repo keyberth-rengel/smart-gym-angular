@@ -2,8 +2,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { SKIP_ERROR_TOAST, skipErrorToast } from '../http/error.interceptor';
+import { AttendanceApi } from './attendance.api';
+import { BookingsApi } from './bookings.api';
 import { CustomersApi } from './customers.api';
 import { HealthApi } from './health.api';
+import { IdentityApi } from './identity.api';
+import { RoutinesApi } from './routines.api';
 import { TrainersApi } from './trainers.api';
 
 const ok = (data: unknown) => ({ success: true, data, timestamp: 't', path: 'p' });
@@ -100,6 +104,108 @@ describe('APIs del admin', () => {
       const req = http.expectOne('/api/v1/health');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok({ status: 'UP', uptimeSeconds: 1, startedAt: 't' }));
+    });
+  });
+  describe('BookingsApi (admin)', () => {
+    it('list: GET /bookings, desenvuelve y propaga el contexto', () => {
+      let result: unknown;
+      TestBed.inject(BookingsApi)
+        .list(skipErrorToast())
+        .subscribe((v) => (result = v));
+      const req = http.expectOne('/api/v1/bookings');
+      expect(req.request.method).toBe('GET');
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok([{ id: 14, customer_email: 'a@x.com', trainer_email: 't@x.com', date: '2026-09-19', time: '16:30', note: null }]));
+      expect(result).toEqual([
+        { id: 14, customer_email: 'a@x.com', trainer_email: 't@x.com', date: '2026-09-19', time: '16:30', note: null },
+      ]);
+    });
+
+    it('cancel: DELETE /bookings/{id} tolera el 204 sin cuerpo', () => {
+      let done = false;
+      TestBed.inject(BookingsApi)
+        .cancel(14)
+        .subscribe({ complete: () => (done = true) });
+      const req = http.expectOne('/api/v1/bookings/14');
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null, { status: 204, statusText: 'No Content' });
+      expect(done).toBe(true);
+    });
+
+    it('cancel: un 404 llega como error HTTP al llamador', () => {
+      let status = 0;
+      TestBed.inject(BookingsApi)
+        .cancel(99)
+        .subscribe({ error: (e) => (status = e.status) });
+      http
+        .expectOne('/api/v1/bookings/99')
+        .flush({ success: false }, { status: 404, statusText: 'Not Found' });
+      expect(status).toBe(404);
+    });
+  });
+
+  describe('RoutinesApi e IdentityApi (admin por DNI)', () => {
+    it('assign: POST /routines/assign con { dni } y contexto opcional', () => {
+      let plan: unknown;
+      TestBed.inject(RoutinesApi)
+        .assign('74582136', skipErrorToast())
+        .subscribe((v) => (plan = v));
+      const req = http.expectOne('/api/v1/routines/assign');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ dni: '74582136' });
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok({ monday: 'Legs' }));
+      expect(plan).toEqual({ monday: 'Legs' });
+    });
+
+    it('history: GET /routines/history/{dni} con el DNI codificado', () => {
+      TestBed.inject(RoutinesApi).history('7458 2136', skipErrorToast()).subscribe();
+      const req = http.expectOne('/api/v1/routines/history/7458%202136');
+      expect(req.request.method).toBe('GET');
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok([]));
+    });
+
+    it('resolve: GET /identity/{dni}', () => {
+      let id: unknown;
+      TestBed.inject(IdentityApi)
+        .resolve('74582136', skipErrorToast())
+        .subscribe((v) => (id = v));
+      const req = http.expectOne('/api/v1/identity/74582136');
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok({ dni: '74582136', email: 'a@x.com' }));
+      expect(id).toEqual({ dni: '74582136', email: 'a@x.com' });
+    });
+  });
+
+  describe('AttendanceApi (admin por DNI)', () => {
+    it('access: POST /access con { dni } y devuelve el texto de bienvenida', () => {
+      let msg: unknown;
+      TestBed.inject(AttendanceApi)
+        .access('74582136')
+        .subscribe((v) => (msg = v));
+      const req = http.expectOne('/api/v1/access');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ dni: '74582136' });
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(false);
+      req.flush(ok('Welcome Ana! Access recorded for a@x.com.'));
+      expect(msg).toBe('Welcome Ana! Access recorded for a@x.com.');
+    });
+
+    it('list: GET /attendance/{dni} y propaga el contexto', () => {
+      TestBed.inject(AttendanceApi).list('74582136', skipErrorToast()).subscribe();
+      const req = http.expectOne('/api/v1/attendance/74582136');
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok([]));
+    });
+  });
+
+  describe('TrainersApi.list', () => {
+    it('propaga el contexto (las cargas de apoyo no muestran toast)', () => {
+      TestBed.inject(TrainersApi).list(skipErrorToast()).subscribe();
+      const req = http.expectOne('/api/v1/trainers');
+      expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
+      req.flush(ok([]));
     });
   });
 });

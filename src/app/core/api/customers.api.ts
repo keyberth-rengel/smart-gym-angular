@@ -22,7 +22,7 @@ export class CustomersApi {
     return this.api.get<Customer>(`/customers/${encodeURIComponent(email)}`);
   }
 
-  getByDni(dni: string): Observable<Customer> {
-    return this.api.get<Customer>(`/customers/by-dni/${encodeURIComponent(dni)}`);
+  getByDni(dni: string, context?: HttpContext): Observable<Customer> {
+    return this.api.get<Customer>(`/customers/by-dni/${encodeURIComponent(dni)}`, { context });
   }
 }

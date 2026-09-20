@@ -41,6 +41,8 @@ export class AdminEntrenadores {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly status = signal<RegistryStatus>('loading');
+  /** La lista falló con un 403 (la cuenta no es admin). */
+  protected readonly forbidden = signal(false);
   protected readonly trainers = signal<Trainer[]>([]);
   protected readonly rows = computed(() => this.trainers().map((t) => ({ ...t })));
   protected readonly columns: readonly RegistryColumn[] = [
@@ -74,6 +76,7 @@ export class AdminEntrenadores {
 
   protected load(): void {
     this.status.set('loading');
+    this.forbidden.set(false);
     this.api
       .list()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -82,7 +85,10 @@ export class AdminEntrenadores {
           this.trainers.set(list);
           this.status.set('ready');
         },
-        error: () => this.status.set('error'),
+        error: (err: unknown) => {
+          this.forbidden.set(err instanceof ApiError && err.status === 403);
+          this.status.set('error');
+        },
       });
   }
 

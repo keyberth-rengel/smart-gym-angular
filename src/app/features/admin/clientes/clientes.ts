@@ -41,6 +41,8 @@ export class AdminClientes {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly status = signal<RegistryStatus>('loading');
+  /** La lista falló con un 403 (la cuenta no es admin). */
+  protected readonly forbidden = signal(false);
   protected readonly customers = signal<Customer[]>([]);
   protected readonly rows = computed(() => this.customers().map((c) => ({ ...c })));
   protected readonly columns: readonly RegistryColumn[] = [
@@ -66,6 +68,7 @@ export class AdminClientes {
 
   protected load(): void {
     this.status.set('loading');
+    this.forbidden.set(false);
     this.api
       .list()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -74,7 +77,10 @@ export class AdminClientes {
           this.customers.set(list);
           this.status.set('ready');
         },
-        error: () => this.status.set('error'),
+        error: (err: unknown) => {
+          this.forbidden.set(err instanceof ApiError && err.status === 403);
+          this.status.set('error');
+        },
       });
   }
 

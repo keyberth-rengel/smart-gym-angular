@@ -91,6 +91,14 @@ describe('AdminClientes', () => {
     setup({ list: () => throwError(() => err(403, 'Forbidden', {}, 'Sin permisos')) });
     expect(q('[data-testid=retry]')).not.toBeNull();
     expect(q('[data-testid=registry-table]')).toBeNull();
+    expect(el.textContent).toContain('No tienes permisos para ver esta sección.');
+    expect(el.textContent).not.toContain('Revisa tu conexión');
+  });
+
+  it('un 500 al listar habla de la conexión (no de permisos)', () => {
+    setup({ list: () => throwError(() => err(500)) });
+    expect(el.textContent).toContain('Revisa tu conexión');
+    expect(el.textContent).not.toContain('No tienes permisos para ver esta sección.');
   });
 
   describe('validaciones (no envían nada)', () => {

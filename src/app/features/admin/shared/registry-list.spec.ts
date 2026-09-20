@@ -22,6 +22,7 @@ const COLUMNS: RegistryColumn[] = [
       [columns]="columns"
       [rows]="rows()"
       [status]="status()"
+      [forbidden]="forbidden()"
       [actionIcon]="action ? 'envelope' : undefined"
       [actionLabel]="label"
       [pending]="pending()"
@@ -34,6 +35,7 @@ class Host {
   columns = COLUMNS;
   rows = signal<RegistryRow[]>(ROWS);
   status = signal<RegistryStatus>('ready');
+  forbidden = signal(false);
   pending = signal<string[]>([]);
   action = false;
   retries = 0;
@@ -115,6 +117,22 @@ describe('RegistryList', () => {
     expect(q('[data-testid=registry-table]')).toBeNull();
     q<HTMLButtonElement>('[data-testid=retry]').click();
     expect(host.retries).toBe(1);
+  });
+
+  it('error de conexión: habla de la conexión; con 403: habla de permisos (y sigue el Reintentar)', () => {
+    setup();
+    host.status.set('error');
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Revisa tu conexión e inténtalo de nuevo.');
+    expect(el.textContent).not.toContain('No tienes permisos');
+    expect(q('.bi-cloud-slash')).not.toBeNull();
+
+    host.forbidden.set(true);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('No tienes permisos para ver esta sección.');
+    expect(el.textContent).not.toContain('Revisa tu conexión');
+    expect(q('.bi-lock')).not.toBeNull();
+    expect(q('[data-testid=retry]')).not.toBeNull();
   });
 
   it('sin actionIcon no hay columna de acción', () => {

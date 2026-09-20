@@ -9,8 +9,8 @@ export class RoutinesApi {
   private readonly api = inject(ApiClient);
 
   /** Asigna un plan semanal aleatorio (lunes a sábado). */
-  assign(dni: string): Observable<RoutinePlan> {
-    return this.api.post<RoutinePlan>('/routines/assign', { dni });
+  assign(dni: string, context?: HttpContext): Observable<RoutinePlan> {
+    return this.api.post<RoutinePlan>('/routines/assign', { dni }, { context });
   }
 
   /** Asigna un plan semanal al cliente por su correo (entrenador: solo a sus clientes). */
@@ -33,8 +33,10 @@ export class RoutinesApi {
   }
 
   /** Historial ordenado de más antiguo a más reciente: la última es la activa. */
-  history(dni: string): Observable<RoutineHistoryItem[]> {
-    return this.api.get<RoutineHistoryItem[]>(`/routines/history/${encodeURIComponent(dni)}`);
+  history(dni: string, context?: HttpContext): Observable<RoutineHistoryItem[]> {
+    return this.api.get<RoutineHistoryItem[]>(`/routines/history/${encodeURIComponent(dni)}`, {
+      context,
+    });
   }
 
   /** El backend falla (500) con el domingo: no llamar con `sunday`. */

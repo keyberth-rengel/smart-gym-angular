@@ -1,0 +1,124 @@
+.bookings-card {
+  /* sin esto la tabla (min-width) ensancha toda la página en vez de desplazarse dentro de la tarjeta */
+  min-width: 0;
+  padding: 22px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.5rem;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clear-btn {
+  min-height: 44px;
+  padding-inline: 8px;
+  color: var(--sg-blue);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.bookings-table {
+  min-width: 780px;
+
+  th,
+  td {
+    padding-inline: 10px;
+    vertical-align: middle;
+  }
+}
+
+.id-col {
+  width: 56px;
+}
+
+.muted {
+  color: var(--sg-muted);
+}
+
+.time {
+  font-family: var(--sg-font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.person-name {
+  display: block;
+  font-weight: 600;
+}
+
+.person-email {
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8125rem;
+  color: var(--sg-muted);
+}
+
+.note {
+  max-width: 200px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.action-col {
+  width: 130px;
+  text-align: right;
+}
+
+.cancel-btn {
+  min-height: 40px;
+  padding-inline: 12px;
+  gap: 6px;
+}
+
+@media (max-width: 767.98px) {
+  .bookings-card {
+    padding: 18px;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-actions {
+    justify-content: space-between;
+
+    .btn-outline-secondary {
+      flex: 1 1 auto;
+    }
+  }
+}

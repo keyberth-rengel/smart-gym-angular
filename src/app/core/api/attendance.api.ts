@@ -1,3 +1,4 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AttendanceRecord } from '../models';
@@ -8,11 +9,11 @@ export class AttendanceApi {
   private readonly api = inject(ApiClient);
 
   /** Registra el ingreso; devuelve el mensaje de bienvenida del backend. */
-  access(dni: string): Observable<string> {
-    return this.api.post<string>('/access', { dni });
+  access(dni: string, context?: HttpContext): Observable<string> {
+    return this.api.post<string>('/access', { dni }, { context });
   }
 
-  list(dni: string): Observable<AttendanceRecord[]> {
-    return this.api.get<AttendanceRecord[]>(`/attendance/${encodeURIComponent(dni)}`);
+  list(dni: string, context?: HttpContext): Observable<AttendanceRecord[]> {
+    return this.api.get<AttendanceRecord[]>(`/attendance/${encodeURIComponent(dni)}`, { context });
   }
 }

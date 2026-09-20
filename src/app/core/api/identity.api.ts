@@ -1,3 +1,4 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Identity, IdentityLinkRequest } from '../models';
@@ -15,7 +16,7 @@ export class IdentityApi {
     return this.api.post<Identity>('/identity/trainer', req);
   }
 
-  resolve(dni: string): Observable<Identity> {
-    return this.api.get<Identity>(`/identity/${encodeURIComponent(dni)}`);
+  resolve(dni: string, context?: HttpContext): Observable<Identity> {
+    return this.api.get<Identity>(`/identity/${encodeURIComponent(dni)}`, { context });
   }
 }

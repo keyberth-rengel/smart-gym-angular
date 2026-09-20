@@ -28,8 +28,8 @@ export class TrainersApi {
   }
 
   /** Entrenadores ordenados por nombre; cualquier usuario autenticado. */
-  list(): Observable<Trainer[]> {
-    return this.api.get<Trainer[]>('/trainers');
+  list(context?: HttpContext): Observable<Trainer[]> {
+    return this.api.get<Trainer[]>('/trainers', { context });
   }
 
   /** Horas ocupadas del entrenador; `date` (yyyy-MM-dd) por defecto es hoy en el servidor. */

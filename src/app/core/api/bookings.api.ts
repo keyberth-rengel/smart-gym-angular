@@ -13,8 +13,8 @@ export class BookingsApi {
     return this.api.post<Booking>('/bookings', booking, { context });
   }
 
-  list(): Observable<Booking[]> {
-    return this.api.get<Booking[]>('/bookings');
+  list(context?: HttpContext): Observable<Booking[]> {
+    return this.api.get<Booking[]>('/bookings', { context });
   }
 
   /** `date` en formato yyyy-MM-dd (obligatoria en el backend actual). */
@@ -24,7 +24,7 @@ export class BookingsApi {
     });
   }
 
-  cancel(id: number): Observable<void> {
-    return this.api.delete(`/bookings/${id}`);
+  cancel(id: number, context?: HttpContext): Observable<void> {
+    return this.api.delete(`/bookings/${id}`, { context });
   }
 }

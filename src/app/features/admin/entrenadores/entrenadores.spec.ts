@@ -102,6 +102,17 @@ describe('AdminEntrenadores', () => {
     expect(qa('[data-testid=registry-row]')).toHaveLength(2);
   });
 
+  it('403 al listar: habla de permisos y no de la conexión; un 500 habla de la conexión', () => {
+    setup({ list: () => throwError(() => err(403)) });
+    expect(el.textContent).toContain('No tienes permisos para ver esta sección.');
+    expect(el.textContent).not.toContain('Revisa tu conexión');
+    expect(q('[data-testid=retry]')).not.toBeNull();
+    TestBed.resetTestingModule();
+
+    setup({ list: () => throwError(() => err(500)) });
+    expect(el.textContent).toContain('Revisa tu conexión');
+  });
+
   describe('validaciones (no envían nada)', () => {
     beforeEach(() => setup());
 

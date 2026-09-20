@@ -1,0 +1,54 @@
+.history-card {
+  min-width: 0;
+  padding: 22px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.history-table {
+  min-width: 520px;
+
+  th,
+  td {
+    padding-inline: 10px;
+    vertical-align: middle;
+  }
+}
+
+.time {
+  font-family: var(--sg-font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.email {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--sg-muted);
+}
+
+@media (max-width: 767.98px) {
+  .history-card {
+    padding: 18px;
+  }
+
+  .card-head {
+    flex-wrap: wrap;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+}

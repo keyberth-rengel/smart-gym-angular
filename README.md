@@ -175,8 +175,9 @@ traen `role: null`). Con un entrenador real de Clerk falta comprobar los datos r
 | `/admin` | Dashboard: estado del servicio, 5 accesos a módulos y reservas de hoy | `GET /health`, `GET /bookings`, `GET /customers` y `GET /trainers` (solo para los nombres) |
 | `/admin/clientes` | Clientes: registrar un cliente (DNI opcional) y consultar el padrón con búsqueda | `GET /customers`, `POST /customers` (`{name,email,age,dni?}`) |
 | `/admin/entrenadores` | Entrenadores: registrar e invitar por Clerk, consultar el equipo y reenviar invitaciones | `GET /trainers`, `POST /trainers` (`{name,email,age,specialty?,dni?}`), `POST /trainers/{email}/invite` |
-
-`/admin/reservas`, `/admin/rutinas` y `/admin/asistencia` siguen como página provisional hasta la fase F6b.
+| `/admin/reservas` | Reservas: consultar con filtros (entrenador y fecha) y cancelar | `GET /bookings`, `DELETE /bookings/{id}`, `GET /customers` y `GET /trainers` (solo nombres) |
+| `/admin/rutinas` | Rutinas: asignar un plan semanal por DNI y ver la rutina activa y el historial | `POST /routines/assign` (`{dni}`), `GET /routines/history/{dni}`, `GET /identity/{dni}` (correo), `GET /customers/by-dni/{dni}` |
+| `/admin/asistencia` | Control de asistencia: registrar el ingreso de un socio o entrenador por DNI y ver su historial | `POST /access` (`{dni}`), `GET /attendance/{dni}` |
 
 - **Acceso:** el rol `admin` viene del claim `role` del token de Clerk (se fija en `public_metadata.role` del usuario).
   Los endpoints de admin responden **403** a clientes y entrenadores; la pantalla lo muestra como error con
@@ -200,3 +201,27 @@ Verificado con las cuentas reales de Clerk (admin, entrenador y cliente) contra 
 `/me`, altas, 409 reales y la matriz de permisos. Como el backend de pruebas no tiene `CLERK_SECRET_KEY`, los estados
 `INVITED`, `ROLE_UPDATED` y `FAILED` se comprobaron simulando solo esa respuesta.
 
+### Reservas, Rutinas y Asistencia
+
+- **Reservas:** una sola llamada a `GET /bookings` (el admin recibe todas; a clientes y entrenadores el backend
+  les filtra las suyas) y los filtros se aplican en el navegador: entrenador (la lista sale de `/trainers`; si falla, de
+  los correos de las reservas) y fecha (por defecto **hoy**; vaciarla muestra todas). "Filtrar" vuelve a pedir los
+  datos. Más reciente primero; los nombres se resuelven con `/customers` y `/trainers` y, si fallan, se ven los correos.
+  "Cancelar" abre una confirmación de peligro con el detalle ("Hoy 16:30 · Cliente con Entrenador"); Esc o "Volver" no
+  cancelan. Un 404 (ya cancelada por otro) avisa y recarga; red caída y 5xx dejan la fila y avisan por toast. Tras
+  cancelar, el foco pasa al título de la tarjeta. Un 403 en la carga habla de permisos, no de la conexión.
+- **`DniPanel`** (`features/admin/shared`) lo comparten Rutinas y Asistencia: campo de DNI de 8 dígitos validado antes de
+  enviar, dos acciones, indicador en la acción en curso y ambos botones deshabilitados mientras dura. El error del
+  servidor para ese DNI llega bajo el campo. **Enter** ejecuta la acción principal, salvo en Rutinas, donde consulta el
+  historial (para no asignar una rutina sin querer).
+- **Rutinas:** "Asignar rutina" (`{dni}`; si ya se muestra una rutina activa de ese DNI pide confirmación, porque la
+  reemplaza) y "Ver historial" (la última es la activa). El correo se resuelve con `/identity/{dni}` y, si no se puede,
+  se muestra el DNI. Si el historial viene vacío se comprueba con `/customers/by-dni/{dni}` que el DNI sea de un
+  cliente: el backend responde `200 []` también para el de un entrenador.
+- **Asistencia:** "Registrar ingreso" muestra la bienvenida en español (se arma con el nombre y el correo que trae el
+  texto en inglés del backend) y refresca el historial; el historial va más reciente primero con el rol (Cliente /
+  Entrenador).
+- **DNI no vinculado** (404) se marca bajo el campo; un DNI que no es de cliente, o un vínculo sin perfil, sale como
+  aviso general. En ambos casos se limpia el resultado anterior: lo que se ve siempre corresponde al DNI consultado.
+- **Tablas anchas:** `.table-responsive` es ahora el bloque contenedor de sus elementos absolutos (el `th` oculto de
+  "Acciones"); sin eso una tabla más ancha que su tarjeta ensanchaba toda la página.

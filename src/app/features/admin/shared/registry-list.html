@@ -3,7 +3,7 @@
     <h2 id="list-title" class="list-title">{{ title() }}</h2>
     @if (status() === 'ready') {
       <app-badge tone="gray"
-        ><span data-testid="total">{{ total() }}</span> registrados</app-badge
+        ><span data-testid="total">{{ total() }}</span>&nbsp;registrados</app-badge
       >
     }
   </div>
@@ -14,9 +14,13 @@
     }
     @case ('error') {
       <app-empty-state
-        icon="cloud-slash"
+        [icon]="forbidden() ? 'lock' : 'cloud-slash'"
         [title]="errorTitle()"
-        text="Revisa tu conexión e inténtalo de nuevo."
+        [text]="
+          forbidden()
+            ? 'No tienes permisos para ver esta sección.'
+            : 'Revisa tu conexión e inténtalo de nuevo.'
+        "
       >
         <button type="button" class="btn btn-primary" (click)="retry.emit()" data-testid="retry">
           <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>

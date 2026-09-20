@@ -40,6 +40,8 @@ export class RegistryList {
   readonly rows = input.required<readonly RegistryRow[]>();
   readonly status = input<RegistryStatus>('ready');
   readonly errorTitle = input('No pudimos cargar la lista');
+  /** El error fue un 403: el texto habla de permisos y no de la conexión. */
+  readonly forbidden = input(false);
   readonly emptyIcon = input('people');
   readonly emptyTitle = input('Aún no hay registros');
   readonly emptyText = input<string>();

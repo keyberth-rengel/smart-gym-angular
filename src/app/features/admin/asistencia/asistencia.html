@@ -1,0 +1,94 @@
+<app-page-header
+  title="Control de asistencia"
+  subtitle="Confirma el ingreso de socios y entrenadores"
+/>
+
+<app-dni-panel
+  label="DNI"
+  hint="Debe estar vinculado a un cliente o entrenador."
+  primaryLabel="Registrar ingreso"
+  primaryIcon="check2-circle"
+  secondaryLabel="Ver historial"
+  secondaryIcon="clock-history"
+  [busy]="busy()"
+  [fieldError]="fieldError()"
+  (primary)="onRegister($event)"
+  (secondary)="onHistory($event)"
+  (edited)="onEdited()"
+/>
+
+@if (success(); as msg) {
+  <div class="alert alert-success mb-0" role="status" data-testid="access-success">
+    <i class="bi bi-check-circle" aria-hidden="true"></i> {{ msg }}
+  </div>
+}
+@if (failure(); as msg) {
+  <div class="alert alert-danger mb-0" role="alert" data-testid="failure">
+    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ msg }}
+  </div>
+}
+
+@switch (historyState()) {
+  @case ('idle') {
+    <app-empty-state
+      icon="person-vcard"
+      title="Registra un ingreso o consulta un historial"
+      text="Escribe el DNI de un socio o entrenador para empezar."
+    />
+  }
+  @case ('loading') {
+    <app-loading variant="table" [rows]="5" label="Cargando el historial…" />
+  }
+  @case ('error') {
+    <app-empty-state
+      icon="cloud-slash"
+      title="No pudimos cargar el historial"
+      text="Revisa tu conexión e inténtalo de nuevo."
+    >
+      <button type="button" class="btn btn-primary" (click)="retry()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @case ('empty') {
+    <app-empty-state
+      icon="calendar-x"
+      title="Sin ingresos registrados"
+      text="Este DNI aún no tiene ingresos. Usa «Registrar ingreso» para anotar el primero."
+    />
+  }
+  @default {
+    <section class="card history-card" aria-labelledby="history-title">
+      <div class="card-head">
+        <h2 id="history-title" class="card-title">Historial de asistencia · DNI {{ shownDni() }}</h2>
+        <app-badge tone="gray"
+          ><span data-testid="count">{{ rows().length }}</span>&nbsp;{{
+            rows().length === 1 ? 'ingreso' : 'ingresos'
+          }}</app-badge
+        >
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" aria-label="Historial de asistencia">
+        <table class="table align-middle mb-0 history-table" data-testid="history-table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Hora</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Rol</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of rows(); track r.id) {
+              <tr data-testid="history-row">
+                <td>{{ r.date }}</td>
+                <td class="time">{{ r.time }}</td>
+                <td class="email" [attr.title]="r.email">{{ r.email }}</td>
+                <td><app-badge [tone]="r.tone">{{ r.roleLabel }}</app-badge></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}

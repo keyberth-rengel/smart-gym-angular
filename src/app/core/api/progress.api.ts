@@ -1,3 +1,4 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProgressCreate, ProgressItem, ProgressList } from '../models';
@@ -14,5 +15,12 @@ export class ProgressApi {
 
   list(dni: string): Observable<ProgressList> {
     return this.api.get<ProgressList>(`/progress/${encodeURIComponent(dni)}`);
+  }
+
+  /** Historial de un cliente por correo (dueño, su entrenador o admin). */
+  listByEmail(email: string, context?: HttpContext): Observable<ProgressList> {
+    return this.api.get<ProgressList>(`/progress/by-email/${encodeURIComponent(email)}`, {
+      context,
+    });
   }
 }

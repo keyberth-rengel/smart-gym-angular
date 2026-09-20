@@ -1,0 +1,204 @@
+<app-page-header title="Mis clientes" subtitle="Socios que han reservado contigo" />
+
+@switch (state()) {
+  @case ('loading') {
+    <app-loading variant="table" [rows]="5" label="Cargando tus clientes…" />
+  }
+  @case ('error') {
+    <app-empty-state
+      icon="cloud-slash"
+      title="No pudimos cargar tus clientes"
+      text="Revisa tu conexión e inténtalo de nuevo."
+    >
+      <button type="button" class="btn btn-primary" (click)="loadList()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @case ('empty') {
+    <app-empty-state
+      icon="people"
+      title="Aún no tienes clientes"
+      text="Aparecerán cuando reserven contigo."
+    />
+  }
+  @default {
+    <div class="clients-layout">
+      <section class="card list-card" aria-labelledby="list-title">
+        <div class="list-head">
+          <h2 id="list-title" class="list-title">Clientes asociados</h2>
+          <app-badge tone="gray"
+            ><span data-testid="total">{{ total() }}</span></app-badge
+          >
+        </div>
+        <label class="search" for="search-input">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <span class="visually-hidden">Buscar por nombre o correo</span>
+          <input
+            id="search-input"
+            type="search"
+            class="search-input"
+            placeholder="Buscar por nombre o correo"
+            autocomplete="off"
+            [value]="query()"
+            (input)="onSearch($any($event.target).value)"
+            data-testid="search"
+          />
+        </label>
+
+        @if (rows().length) {
+          <div class="table-responsive" tabindex="0" role="region" aria-label="Clientes asociados">
+            <table class="table align-middle mb-0 clients-table" data-testid="clients-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col" class="d-none d-lg-table-cell">Correo</th>
+                  <th scope="col" class="num">Sesiones</th>
+                  <th scope="col">
+                    <span class="d-none d-lg-inline">Próxima / última</span>
+                    <span class="d-lg-none">Cita</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of rows(); track r.email) {
+                  <tr
+                    [class.selected]="r.email === selectedEmail()"
+                    (click)="select(r.email)"
+                    data-testid="client-row"
+                  >
+                    <td>
+                      <button
+                        type="button"
+                        class="row-btn"
+                        [attr.aria-current]="r.email === selectedEmail() ? 'true' : null"
+                        data-testid="client-select"
+                      >
+                        {{ r.name }}
+                      </button>
+                    </td>
+                    <td class="d-none d-lg-table-cell email">{{ r.email }}</td>
+                    <td class="num">{{ r.sessions }}</td>
+                    <td>{{ r.last }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="no-results" data-testid="no-results">
+            <p>Sin resultados para «{{ query() }}».</p>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="clearSearch()"
+              data-testid="clear-search"
+            >
+              Limpiar búsqueda
+            </button>
+          </div>
+        }
+      </section>
+
+      @if (selected(); as c) {
+        <section class="card detail" aria-label="Detalle del cliente" data-testid="detail">
+          <div class="detail-head">
+            <span class="avatar" aria-hidden="true">{{ selectedInitials() }}</span>
+            <div class="detail-who">
+              <div class="detail-name" data-testid="detail-name">{{ c.name }}</div>
+              <div class="detail-meta">{{ c.age }} años · {{ c.email }}</div>
+            </div>
+          </div>
+
+          <div class="block-title">Último progreso</div>
+          @switch (progressState()) {
+            @case ('loading') {
+              <app-loading variant="card" label="Cargando progreso…" />
+            }
+            @case ('ready') {
+              @if (latest(); as p) {
+                <div class="metrics" data-testid="progress-block">
+                  <div class="metric">
+                    <span class="metric-label">Peso</span
+                    ><span class="metric-value">{{ p.weight }} kg</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Grasa</span
+                    ><span class="metric-value">{{ p.fat }} %</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Músculo</span
+                    ><span class="metric-value">{{ p.muscle }} %</span>
+                  </div>
+                </div>
+                <div class="metric-date">Registrado el {{ p.date }}</div>
+              }
+            }
+            @case ('empty') {
+              <p class="block-empty" data-testid="progress-empty">
+                Este cliente aún no registra progreso.
+              </p>
+            }
+            @case ('forbidden') {
+              <p class="block-empty" data-testid="progress-forbidden">Sin acceso a este cliente.</p>
+            }
+            @default {
+              <p class="block-empty" data-testid="progress-error">
+                No pudimos cargar el progreso.
+                <button
+                  type="button"
+                  class="link-btn"
+                  (click)="loadProgress()"
+                  data-testid="progress-retry"
+                >
+                  Reintentar
+                </button>
+              </p>
+            }
+          }
+
+          <div class="block-title">Rutina activa</div>
+          @switch (routineState()) {
+            @case ('loading') {
+              <app-loading variant="card" label="Cargando rutina…" />
+            }
+            @case ('ready') {
+              <app-plan-grid [plan]="plan()" [compact]="true" data-testid="routine-block" />
+            }
+            @case ('empty') {
+              <p class="block-empty" data-testid="routine-empty">
+                Este cliente aún no tiene rutina asignada.
+              </p>
+            }
+            @case ('forbidden') {
+              <p class="block-empty" data-testid="routine-forbidden">Sin acceso a este cliente.</p>
+            }
+            @default {
+              <p class="block-empty" data-testid="routine-error">
+                No pudimos cargar la rutina.
+                <button
+                  type="button"
+                  class="link-btn"
+                  (click)="loadRoutine()"
+                  data-testid="routine-retry"
+                >
+                  Reintentar
+                </button>
+              </p>
+            }
+          }
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="assignRoutine()"
+            data-testid="assign-routine"
+          >
+            <i class="bi bi-lightning-charge" aria-hidden="true"></i
+            ><span>Asignar nueva rutina</span>
+          </button>
+        </section>
+      }
+    </div>
+  }
+}

@@ -1,0 +1,104 @@
+<app-page-header title="Mis citas" subtitle="Sesiones programadas con tus clientes" />
+
+<section class="card week" aria-label="Semana">
+  <div class="week-nav">
+    <button
+      type="button"
+      class="btn btn-outline-secondary week-arrow"
+      aria-label="Semana anterior"
+      (click)="shiftWeek(-1)"
+      data-testid="week-prev"
+    >
+      <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    </button>
+    <div class="week-range" aria-live="polite" data-testid="week-range">{{ rangeLabel() }}</div>
+    <button
+      type="button"
+      class="btn btn-outline-secondary week-arrow"
+      aria-label="Semana siguiente"
+      (click)="shiftWeek(1)"
+      data-testid="week-next"
+    >
+      <i class="bi bi-chevron-right" aria-hidden="true"></i>
+    </button>
+    @if (!isCurrentWeek()) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary week-today"
+        (click)="goToday()"
+        data-testid="week-today"
+      >
+        Hoy
+      </button>
+    }
+  </div>
+  <div class="week-days" role="group" aria-label="Días de la semana">
+    @for (d of days(); track d.iso) {
+      <button
+        type="button"
+        class="day"
+        [class.selected]="d.iso === selected()"
+        [attr.aria-pressed]="d.iso === selected()"
+        [attr.aria-label]="
+          d.short + ' ' + d.num + ', ' + (d.count === 1 ? '1 cita' : d.count + ' citas')
+        "
+        (click)="select(d.iso)"
+        data-testid="day"
+      >
+        <span class="day-short">{{ d.short }}</span>
+        <span class="day-num">{{ d.num }}</span>
+        <span class="day-mark" [class.today]="d.isToday">{{ d.isToday ? 'HOY' : '' }}</span>
+        <span class="day-dot" [class.on]="d.count > 0" aria-hidden="true"></span>
+      </button>
+    }
+  </div>
+</section>
+
+@switch (state()) {
+  @case ('loading') {
+    <app-loading variant="table" [rows]="3" label="Cargando tus citas…" />
+  }
+  @case ('error') {
+    <app-empty-state
+      icon="cloud-slash"
+      title="No pudimos cargar tus citas"
+      text="Revisa tu conexión e inténtalo de nuevo."
+    >
+      <button type="button" class="btn btn-primary" (click)="loadWeek()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @default {
+    <section class="card day-card" aria-labelledby="day-title">
+      <div class="day-head">
+        <h2 id="day-title" class="day-title" data-testid="day-title">{{ heading() }}</h2>
+        <app-badge tone="gray"
+          ><span data-testid="day-count">{{ countLabel() }}</span></app-badge
+        >
+      </div>
+      @if (rows().length) {
+        <ul class="slots" data-testid="slots">
+          @for (r of rows(); track r.id) {
+            <li class="slot" data-testid="slot">
+              <span class="slot-time">{{ r.time }}</span>
+              <div class="slot-body">
+                <div class="slot-name">{{ r.name }}</div>
+                <div class="slot-note">Nota: {{ r.note || '—' }}</div>
+              </div>
+              @if (r.next) {
+                <app-badge tone="blue">Próxima</app-badge>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <app-empty-state
+          icon="calendar-x"
+          title="Sin citas este día"
+          text="Cuando un cliente reserve contigo, la cita aparecerá aquí."
+        />
+      }
+    </section>
+  }
+}

@@ -1,3 +1,4 @@
+import { HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActiveRoutineBlock, RoutineHistoryItem, RoutinePlan, WeekdayKey } from '../models';
@@ -10,6 +11,25 @@ export class RoutinesApi {
   /** Asigna un plan semanal aleatorio (lunes a sábado). */
   assign(dni: string): Observable<RoutinePlan> {
     return this.api.post<RoutinePlan>('/routines/assign', { dni });
+  }
+
+  /** Asigna un plan semanal al cliente por su correo (entrenador: solo a sus clientes). */
+  assignByEmail(customerEmail: string, context?: HttpContext): Observable<RoutinePlan> {
+    return this.api.post<RoutinePlan>(
+      '/routines/assign',
+      { customer_email: customerEmail },
+      { context },
+    );
+  }
+
+  /** Historial de un cliente por correo (dueño, su entrenador o admin); la última es la activa. */
+  historyByEmail(email: string, context?: HttpContext): Observable<RoutineHistoryItem[]> {
+    return this.api.get<RoutineHistoryItem[]>(
+      `/routines/by-email/${encodeURIComponent(email)}/history`,
+      {
+        context,
+      },
+    );
   }
 
   /** Historial ordenado de más antiguo a más reciente: la última es la activa. */

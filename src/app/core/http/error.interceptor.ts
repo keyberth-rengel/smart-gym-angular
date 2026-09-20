@@ -1,4 +1,9 @@
-import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import {
+  HttpContext,
+  HttpContextToken,
+  HttpErrorResponse,
+  HttpInterceptorFn,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,6 +12,9 @@ import { ApiError } from './api-error';
 
 /** Con `true` la petición no muestra toast automático ante errores. */
 export const SKIP_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
+
+/** Contexto para una petición cuyos errores muestra el propio componente (sin toast automático). */
+export const skipErrorToast = (): HttpContext => new HttpContext().set(SKIP_ERROR_TOAST, true);
 
 /** Toast que corresponde a un error del API (el mismo que muestra el interceptor). */
 export function notify(toast: ToastService, error: ApiError): void {

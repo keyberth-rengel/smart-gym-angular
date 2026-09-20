@@ -137,4 +137,33 @@ consulta al API. En el registro de progreso el 409 (un registro por día) se mue
   recarga la disponibilidad; 404 (el entrenador ya no existe) muestra un aviso y recarga la lista de entrenadores.
 - **Dashboard:** cada tarjeta carga y falla por separado (`StatCard` con `status`: esqueleto, "No disponible" con
   "Reintentar"). Los toasts idénticos se funden en uno, para que un backend caído no apile cuatro avisos.
-consulta al API. En el registro de progreso el 409 (un registro por día) se muestra dentro del diálogo.
+
+## Módulo Entrenador
+
+| Ruta | Pantalla | Endpoints |
+|---|---|---|
+| `/entrenador` | Dashboard: citas de hoy, clientes asociados, próxima cita, agenda de hoy y "Marcar asistencia" | `GET /trainers/{email}/bookings?date=`, `GET /trainers/{email}/customers`, `POST /access` |
+| `/entrenador/citas` | Mis citas: tira semanal (lunes a domingo, con semana anterior/siguiente) y las citas del día elegido | `GET /trainers/{email}/bookings?from=&to=` (una llamada por semana), `GET /trainers/{email}/customers` (solo para los nombres) |
+| `/entrenador/clientes` | Mis clientes: tabla con búsqueda y detalle (último progreso y rutina activa) | `GET /trainers/{email}/customers`, `GET /progress/by-email/{email}`, `GET /routines/by-email/{email}/history` |
+| `/entrenador/rutinas` | Rutinas: elegir un cliente, ver su rutina activa e historial y asignar una nueva | `GET /trainers/{email}/customers`, `GET /routines/by-email/{email}/history`, `POST /routines/assign` (`{customer_email}`) |
+
+- **Quién es el entrenador:** el correo sale de la sesión (`AuthService.email()`), y el backend solo deja consultar
+  los endpoints del propio entrenador (otro o un cliente recibe **403**; el rol se valida antes que la existencia).
+  "Cliente asociado" es quien tiene al menos una reserva con él.
+- **Nombres:** las reservas solo traen correos; los nombres se resuelven con `GET /trainers/{email}/customers`. Si
+  esa lista no carga, se muestran los correos y la pantalla sigue funcionando.
+- **Dashboard:** la tercera tarjeta es "Próxima cita" y no "Rutinas activas" del diseño: no existe un endpoint
+  agregado y obtenerlo implicaría una llamada por cliente. "Marcar asistencia" usa el DNI de `/me`; si es `null`, el
+  botón queda deshabilitado con el aviso "Tu DNI no está vinculado; pídelo en recepción".
+- **Mis clientes:** el detalle carga el progreso y la rutina por separado con `SKIP_ERROR_TOAST` (cada bloque muestra
+  su propio error, "Sin acceso a este cliente" en 403 y "Reintentar"). Elegir otro cliente cancela las peticiones del
+  anterior. En pantallas < 992 px se oculta la columna del correo.
+- **Rutinas:** `?cliente=<correo>` preselecciona al cliente (solo si es suyo). Si ya tiene una rutina activa, se pide
+  confirmación (`ConfirmService`) porque la nueva reemplaza a la activa; el botón sigue habilitado mientras el
+  diálogo está abierto, para que este devuelva el foco a un control activo. 403 y 404 se muestran en pantalla; 5xx y
+  red caída, como toast.
+- **Componentes compartidos nuevos:** `PlanGrid` (plan lunes a sábado en 3 x 2) y `RoutineHistory` (historial con
+  Activa/Anterior), que también usa Mi Rutina del cliente.
+
+Los roles de las pruebas con navegador se simularon interceptando `GET /me` (los JWT de la cuenta de prueba
+traen `role: null`). Con un entrenador real de Clerk falta comprobar los datos reales de los endpoints del entrenador.

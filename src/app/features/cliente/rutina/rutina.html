@@ -37,19 +37,7 @@
 
     <section class="card history-card" aria-labelledby="hist-title">
       <h2 id="hist-title" class="hist-title">Historial de rutinas</h2>
-      <ul class="hist-list" data-testid="history-list">
-        @for (e of entries(); track e.createdAt) {
-          <li class="hist-row" data-testid="history-row">
-            <span class="hist-date">{{ e.date }}</span>
-            <span class="hist-summary">{{ e.summary }}</span>
-            @if (e.active) {
-              <app-badge tone="green">Activa</app-badge>
-            } @else {
-              <app-badge tone="gray">Anterior</app-badge>
-            }
-          </li>
-        }
-      </ul>
+      <app-routine-history [entries]="entries()" />
     </section>
   }
 }

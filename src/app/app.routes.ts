@@ -23,6 +23,14 @@ const PAGES: Record<string, Route['loadComponent']> = {
     import('./features/cliente/progreso/progreso').then((m) => m.ClienteProgreso),
   '/cliente/asistencia': () =>
     import('./features/cliente/asistencia/asistencia').then((m) => m.ClienteAsistencia),
+  '/entrenador': () =>
+    import('./features/entrenador/dashboard/dashboard').then((m) => m.EntrenadorDashboard),
+  '/entrenador/citas': () =>
+    import('./features/entrenador/citas/citas').then((m) => m.EntrenadorCitas),
+  '/entrenador/clientes': () =>
+    import('./features/entrenador/clientes/clientes').then((m) => m.EntrenadorClientes),
+  '/entrenador/rutinas': () =>
+    import('./features/entrenador/rutinas/rutinas').then((m) => m.EntrenadorRutinas),
 };
 
 /**

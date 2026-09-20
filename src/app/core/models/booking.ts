@@ -17,3 +17,13 @@ export interface BookingCreate {
   /** Máximo 250 caracteres. */
   note?: string;
 }
+
+/** Filtros de `GET /trainers/{email}/bookings`: `date` gana sobre `from`/`to`; sin nada, todas. */
+export interface BookingQuery {
+  /** yyyy-MM-dd */
+  date?: string;
+  /** yyyy-MM-dd, inclusivo */
+  from?: string;
+  /** yyyy-MM-dd, inclusivo */
+  to?: string;
+}

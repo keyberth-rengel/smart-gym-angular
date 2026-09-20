@@ -1,0 +1,134 @@
+<app-page-header title="Rutinas" subtitle="Consulta y asigna planes semanales a tus clientes" />
+
+@switch (state()) {
+  @case ('loading') {
+    <app-loading variant="card" label="Cargando tus clientes…" />
+  }
+  @case ('error') {
+    <app-empty-state
+      icon="cloud-slash"
+      title="No pudimos cargar tus clientes"
+      text="Revisa tu conexión e inténtalo de nuevo."
+    >
+      <button type="button" class="btn btn-primary" (click)="loadCustomers()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @case ('empty') {
+    <app-empty-state
+      icon="people"
+      title="Aún no tienes clientes"
+      text="Podrás asignar rutinas cuando un cliente reserve contigo."
+    />
+  }
+  @default {
+    <section class="card picker" aria-label="Cliente">
+      <div class="picker-field">
+        <label for="client-select" class="form-label">Cliente</label>
+        <select
+          id="client-select"
+          class="form-select"
+          (change)="onSelect($any($event.target).value)"
+          data-testid="client-select"
+        >
+          <option value="" [selected]="!selectedEmail()">Elige un cliente</option>
+          @for (c of customers(); track c.email) {
+            <option [value]="c.email" [selected]="c.email === selectedEmail()">
+              {{ c.name }} · {{ c.email }}
+            </option>
+          }
+        </select>
+      </div>
+      <button
+        #assignButton
+        type="button"
+        class="btn btn-primary"
+        [disabled]="!selected() || sending() || historyState() === 'forbidden'"
+        (click)="assign()"
+        data-testid="assign"
+      >
+        @if (sending()) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span
+          ><span>Asignando…</span>
+        } @else {
+          <i class="bi bi-lightning-charge" aria-hidden="true"></i><span>Asignar nueva rutina</span>
+        }
+      </button>
+    </section>
+
+    @if (success(); as msg) {
+      <div class="alert alert-success mb-0" role="status" data-testid="assign-success">
+        <i class="bi bi-check-circle" aria-hidden="true"></i> {{ msg }}
+      </div>
+    }
+    @if (failure(); as msg) {
+      <div class="alert alert-danger mb-0" role="alert" data-testid="assign-failure">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ msg }}
+      </div>
+    }
+
+    @switch (historyState()) {
+      @case ('idle') {
+        <app-empty-state
+          icon="person-check"
+          title="Elige un cliente"
+          text="Verás su rutina activa y su historial."
+        />
+      }
+      @case ('loading') {
+        <app-loading variant="card" label="Cargando rutina…" />
+        <app-loading variant="table" [rows]="3" label="Cargando historial…" />
+      }
+      @case ('forbidden') {
+        <app-empty-state
+          icon="lock"
+          title="Sin acceso a este cliente"
+          text="Solo puedes ver las rutinas de quienes han reservado contigo."
+        />
+      }
+      @case ('error') {
+        <app-empty-state
+          icon="cloud-slash"
+          title="No pudimos cargar la rutina"
+          text="Revisa tu conexión e inténtalo de nuevo."
+        >
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="loadHistory()"
+            data-testid="history-retry"
+          >
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+          </button>
+        </app-empty-state>
+      }
+      @case ('empty') {
+        <app-empty-state
+          icon="lightning-charge"
+          title="Este cliente aún no tiene rutina"
+          text="Asígnale una rutina semanal con el botón de arriba."
+        />
+      }
+      @default {
+        <div class="cards">
+          <section class="card block" aria-labelledby="active-title" data-testid="active-card">
+            <div class="block-head">
+              <h2 id="active-title" class="block-title">Rutina activa</h2>
+              @if (activeSince(); as since) {
+                <app-badge tone="green">Desde el {{ since }}</app-badge>
+              }
+            </div>
+            <app-plan-grid [plan]="plan()" />
+          </section>
+          <section class="card block" aria-labelledby="hist-title">
+            <div class="block-head">
+              <h2 id="hist-title" class="block-title">Historial de rutinas</h2>
+            </div>
+            <app-routine-history [entries]="entries()" />
+          </section>
+        </div>
+      }
+    }
+  }
+}

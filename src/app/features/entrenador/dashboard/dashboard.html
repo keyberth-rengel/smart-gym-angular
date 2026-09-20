@@ -1,0 +1,133 @@
+<app-page-header [title]="'Hola' + (firstName() ? ', ' + firstName() : '')" [subtitle]="today" />
+
+<div class="dash-grid" data-testid="dash-grid">
+  <app-stat-card
+    icon="calendar-event"
+    label="Citas hoy"
+    [status]="bookings().status"
+    [value]="todayCard().value"
+    [sub]="todayCard().sub"
+    linkText="Ver mis citas"
+    linkTo="/entrenador/citas"
+    (retry)="loadBookings()"
+    data-testid="card-today"
+  />
+  <app-stat-card
+    icon="people"
+    tone="blue"
+    label="Clientes asociados"
+    [status]="customers().status"
+    [value]="customersCard().value"
+    [sub]="customersCard().sub"
+    linkText="Ver mis clientes"
+    linkTo="/entrenador/clientes"
+    (retry)="loadCustomers()"
+    data-testid="card-customers"
+  />
+  <app-stat-card
+    icon="clock"
+    label="Próxima cita"
+    [status]="bookings().status"
+    [value]="nextCard().value"
+    [sub]="nextCard().sub"
+    linkText="Ver mis citas"
+    linkTo="/entrenador/citas"
+    (retry)="loadBookings()"
+    data-testid="card-next"
+  />
+</div>
+
+<section class="card agenda" aria-labelledby="agenda-title">
+  <div class="agenda-head">
+    <h2 id="agenda-title" class="agenda-title">Agenda de hoy</h2>
+    <a class="agenda-link" routerLink="/entrenador/citas" data-testid="agenda-link"
+      >Ver mis citas</a
+    >
+  </div>
+  @switch (bookings().status) {
+    @case ('loading') {
+      <app-loading variant="table" [rows]="2" label="Cargando la agenda…" />
+    }
+    @case ('error') {
+      <app-empty-state
+        icon="cloud-slash"
+        title="No pudimos cargar tu agenda"
+        text="Revisa tu conexión e inténtalo de nuevo."
+      >
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="loadBookings()"
+          data-testid="agenda-retry"
+        >
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+        </button>
+      </app-empty-state>
+    }
+    @default {
+      @if (agenda().length) {
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Agenda de hoy">
+          <table class="table align-middle mb-0" data-testid="agenda-table">
+            <thead>
+              <tr>
+                <th scope="col">Hora</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of agenda(); track r.id) {
+                <tr data-testid="agenda-row">
+                  <td class="agenda-time">{{ r.time }}</td>
+                  <td>{{ r.name }}</td>
+                  <td class="agenda-note">{{ r.note || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="agenda-empty" data-testid="agenda-empty">No tienes citas hoy.</p>
+      }
+    }
+  }
+</section>
+
+<section class="card banner" aria-labelledby="banner-title">
+  <div class="banner-row">
+    <div>
+      <h2 id="banner-title" class="banner-title">¿Llegaste a la sede?</h2>
+      <p class="banner-text">Registra tu ingreso con un toque.</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="submitting() || !dni()"
+      (click)="markAttendance()"
+      data-testid="mark-attendance"
+    >
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span
+        ><span>Registrando…</span>
+      } @else {
+        <i class="bi bi-check2-circle" aria-hidden="true"></i><span>Marcar asistencia</span>
+      }
+    </button>
+  </div>
+  @if (!dni()) {
+    <p class="banner-note" data-testid="banner-no-dni">
+      <i class="bi bi-info-circle" aria-hidden="true"></i> Tu DNI no está vinculado; pídelo en
+      recepción.
+    </p>
+  }
+  @if (success(); as msg) {
+    <div class="alert alert-success mb-0" role="status" data-testid="att-success">
+      <i class="bi bi-check-circle" aria-hidden="true"></i> {{ msg }}
+    </div>
+  }
+  @if (failure(); as msg) {
+    <div class="alert alert-danger mb-0" role="alert" data-testid="att-failure">
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ msg }}
+    </div>
+  }
+</section>

@@ -11,6 +11,7 @@ import { DayPills } from '../../../shared/ui/day-pills/day-pills';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { Loading } from '../../../shared/ui/loading/loading';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
+import { RoutineHistory } from '../../../shared/ui/routine-history/routine-history';
 import { activePlan, historyEntries } from './routine-view';
 
 type ViewState = 'loading' | 'error' | 'empty' | 'ready';
@@ -18,7 +19,7 @@ type ViewState = 'loading' | 'error' | 'empty' | 'ready';
 /** Mi Rutina: plan semanal activo por día e historial de rutinas asignadas. */
 @Component({
   selector: 'app-cliente-rutina',
-  imports: [PageHeader, Badge, DayPills, EmptyState, Loading],
+  imports: [PageHeader, Badge, DayPills, EmptyState, Loading, RoutineHistory],
   host: { class: 'sg-page' },
   templateUrl: './rutina.html',
   styleUrl: './rutina.scss',

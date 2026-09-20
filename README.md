@@ -69,16 +69,19 @@ de Clerk van en español (`@clerk/localizations`) y su apariencia sigue el tema 
 - `/auth/onboarding`: primer ingreso de un cliente (nombre si Clerk no lo tiene, edad y DNI).
 - `/cliente`, `/entrenador`, `/admin`: cada una exige sesión, el rol correspondiente y, para clientes, el perfil
   completo. Un rol no permitido vuelve a su propio inicio con un aviso.
-- **Rol** = `public_metadata.role` del usuario en Clerk (`cliente`, `entrenador` o `admin`). Sin metadata es
-  `cliente`: cualquiera puede registrarse; entrenadores y admins los asigna el administrador.
+- **Rol**: lo devuelve el backend en `GET /me`, que lo toma del claim `role` del token de Clerk (es decir, de
+  `public_metadata.role` del usuario: `cliente`, `entrenador` o `admin`). Sin valor es `cliente`: cualquiera
+  puede registrarse; entrenadores y admins los asigna el administrador. El front no lee `public_metadata`.
 
 Para asignar un rol: Clerk Dashboard -> *Users* -> el usuario -> *Public metadata* -> `{"role": "admin"}`.
+**Un cambio de rol solo se ve al cerrar sesión y volver a entrar**, porque el rol viaja dentro del token de
+sesión, que Clerk refresca al iniciar sesión.
 
 ### Token hacia el backend
 
-`auth-token.interceptor` agrega `Authorization: Bearer <JWT de Clerk>` a las peticiones a `apiBase`. El backend
-aún no valida el token (pendiente B1 del plan). Para que el token lleve el rol, en Clerk Dashboard ->
-*Sessions* -> *Customize session token* agregar:
+`auth-token.interceptor` agrega `Authorization: Bearer <JWT de Clerk>` a las peticiones a `apiBase`, y el backend
+lo valida (B1). Para que el token lleve el rol y el correo, en Clerk Dashboard -> *Sessions* -> *Customize
+session token* debe estar:
 
 ```json
 { "role": "{{user.public_metadata.role}}", "email": "{{user.primary_email_address}}" }
@@ -91,23 +94,23 @@ con el código `424242` sin enviar correo ([doc](https://clerk.com/docs/guides/d
 El registro tiene protección contra bots (Cloudflare Turnstile): en pruebas automatizadas funciona con Chrome con
 ventana, no en headless.
 
-### `MeApi` interino
+### Perfil desde el backend (`/me`)
 
-El backend todavía no tiene `GET /me` ni `POST /me/onboarding` (B2). Mientras tanto `core/api/me.api.ts`
-los compone con endpoints existentes: el rol sale de Clerk, "perfil completo" es que exista
-`GET /customers/{email}`, y el onboarding vincula el DNI (`POST /identity/customer`) y luego crea el cliente
-(`POST /customers`). Antes de vincular comprueba que el DNI no pertenezca a otra cuenta, porque el backend
-actual lo sobrescribiría sin avisar. Cuando exista B2 solo se reemplaza el cuerpo de `getMe()` y
-`completeOnboarding()`.
+`core/api/me.api.ts` usa `GET /me` y `POST /me/onboarding`. `AuthService` carga `/me` una vez tras iniciar sesión
+(las llamadas simultáneas de los guards comparten una sola petición) y de ahí salen el **rol**, el **nombre**,
+el **DNI** y `profile_complete`; el DNI ya no se guarda en Clerk.
 
-### DNI del cliente (interino)
+| Respuesta de `/me` | Qué hace la app |
+|---|---|
+| Cliente con `profile_complete: false` | `/auth/onboarding` (nombre si falta, edad y DNI -> `POST /me/onboarding`) |
+| Cliente completo / admin | Su inicio (`/cliente`, `/admin`) |
+| Entrenador sin perfil registrado | `/auth/unavailable` ("Registro pendiente": lo registra el administrador) |
+| 401 | Cierra la sesión de Clerk y vuelve a `/auth/sign-in` |
+| 403 (el token no trae el correo) | `/auth/unavailable` ("Sesión incompleta") |
+| 5xx o sin red | `/auth/unavailable` con "Reintentar" |
+| Clerk no carga en 15 s (su script viene de un CDN) | `/auth/unavailable` ("No pudimos iniciar tu sesión"); "Reintentar" recarga la página. Antes los guards esperaban para siempre y la app quedaba en blanco |
 
-Los endpoints de rutina, progreso y asistencia usan el DNI en la URL, y el front no lo puede deducir del
-correo. Por eso el onboarding lo guarda también en `user.unsafeMetadata.dni` de Clerk y `AuthService.dni()`
-lo expone. Las cuentas que ya tenían perfil pero no tienen ese dato pasan por `/auth/confirm-dni`, que solo
-acepta un DNI ya vinculado a su propio correo (`MeApi.confirmDni`). Cuando exista `GET /me` (B2) el DNI vendrá
-del backend y este paso desaparece. `unsafeMetadata` lo puede editar el propio usuario: la autorización real
-debe hacerla el backend (B8).
+En el onboarding, un 409 (DNI de otra cuenta, o cuenta con otro DNI) se muestra junto al campo DNI.
 
 ## Módulo Cliente
 

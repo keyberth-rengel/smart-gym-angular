@@ -4,7 +4,9 @@ import { RoutinesApi } from '../../../core/api/routines.api';
 import { MeApi } from '../../../core/api/me.api';
 import { ApiError } from '../../../core/http/api-error';
 import { RoutineHistoryItem } from '../../../core/models';
+import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { ClienteRutina } from './rutina';
 
 const week = { monday: 'Legs', tuesday: 'Chest', wednesday: 'Back', thursday: 'Shoulders', friday: 'Arms', saturday: 'Cardio' };
@@ -23,11 +25,12 @@ describe('ClienteRutina', () => {
     TestBed.configureTestingModule({
       imports: [ClienteRutina],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', dni: dni ?? undefined }) })),
+        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com' }) })),
         { provide: MeApi, useValue: {} },
         { provide: RoutinesApi, useValue: { history } },
       ],
     });
+    TestBed.inject(AuthService).applyMe(testMe({ dni: dni }));
     fixture = TestBed.createComponent(ClienteRutina);
     el = fixture.nativeElement;
     fixture.detectChanges();

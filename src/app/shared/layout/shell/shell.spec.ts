@@ -3,17 +3,21 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { MeApi } from '../../../core/api/me.api';
 import { NAV_ITEMS } from '../../../core/nav/nav-items';
+import { AuthService } from '../../../core/auth/auth.service';
+import { Me } from '../../../core/models';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { Shell } from './shell';
 
 async function render(role: string) {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
-      provideFakeClerk(createFakeClerk({ user: fakeUser({ role }) })),
+      provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com' }) })),
       { provide: MeApi, useValue: { getMe: () => of({}) } },
     ],
   });
+  TestBed.inject(AuthService).applyMe(testMe({ role: role as Me['role'] }));
   const fixture = TestBed.createComponent(Shell);
   fixture.detectChanges();
   await fixture.whenStable();

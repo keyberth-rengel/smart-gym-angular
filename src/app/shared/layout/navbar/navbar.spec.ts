@@ -2,14 +2,18 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { MeApi } from '../../../core/api/me.api';
+import { AuthService } from '../../../core/auth/auth.service';
+import { Me } from '../../../core/models';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { Navbar, initialsOf } from './navbar';
 
-function setup(user: ReturnType<typeof fakeUser>) {
+function setup(user: ReturnType<typeof fakeUser>, me: Partial<Me> = {}) {
   const clerk = createFakeClerk({ user });
   TestBed.configureTestingModule({
     providers: [provideRouter([{ path: 'auth/sign-in', children: [] }]), provideFakeClerk(clerk), { provide: MeApi, useValue: { getMe: () => of({}) } }],
   });
+  TestBed.inject(AuthService).applyMe(testMe({ email: user.primaryEmailAddress!.emailAddress.toLowerCase(), name: null, ...me }));
   const fixture = TestBed.createComponent(Navbar);
   fixture.detectChanges();
   return { clerk, fixture, el: fixture.nativeElement as HTMLElement };
@@ -41,12 +45,12 @@ describe('Navbar', () => {
     ['admin', 'ADMIN'],
     ['entrenador', 'ENTRENADOR'],
   ])('rol %s muestra el badge %s', (role, text) => {
-    const { el } = setup(fakeUser({ role }));
+    const { el } = setup(fakeUser(), { role: role as Me['role'] });
     expect(q(el, 'navbar-role-badge')?.textContent?.trim()).toBe(text);
   });
 
   it('sin nombre en Clerk usa el correo y el rol como subtítulo', () => {
-    const { el } = setup(fakeUser({ name: null, email: 'ana@correo.com', role: 'admin' }));
+    const { el } = setup(fakeUser({ name: null, email: 'ana@correo.com' }), { role: 'admin' });
     expect(q(el, 'navbar-name')?.textContent?.trim()).toBe('ana@correo.com');
     expect(q(el, 'navbar-sub')?.textContent?.trim()).toBe('Administración');
   });

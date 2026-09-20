@@ -8,13 +8,12 @@ export interface FakeUser {
   lastName: string | null;
   primaryEmailAddress: { emailAddress: string } | null;
   publicMetadata: Record<string, unknown>;
-  unsafeMetadata: Record<string, unknown>;
   updates: unknown[];
   update(params: unknown): Promise<void>;
 }
 
 export function fakeUser(
-  options: { role?: unknown; email?: string; name?: string | null; dni?: string } = {},
+  options: { role?: unknown; email?: string; name?: string | null } = {},
 ): FakeUser {
   const name = options.name === undefined ? 'Ana Pérez' : options.name;
   const [first = null, ...rest] = name ? name.split(' ') : [];
@@ -24,7 +23,6 @@ export function fakeUser(
     lastName: rest.join(' ') || null,
     primaryEmailAddress: { emailAddress: options.email ?? 'Ana@Correo.com' },
     publicMetadata: options.role === undefined ? {} : { role: options.role },
-    unsafeMetadata: options.dni === undefined ? {} : { dni: options.dni },
     updates: [],
     async update(params: unknown) {
       this.updates.push(params);

@@ -5,7 +5,9 @@ import { ProgressApi } from '../../../core/api/progress.api';
 import { ApiError } from '../../../core/http/api-error';
 import { ProgressList } from '../../../core/models';
 import { patchDialog } from '../../../testing/dialog';
+import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { ClienteProgreso } from './progreso';
 
 const LIST: ProgressList = {
@@ -32,11 +34,12 @@ describe('ClienteProgreso', () => {
     TestBed.configureTestingModule({
       imports: [ClienteProgreso],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', dni: dni ?? undefined }) })),
+        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com' }) })),
         { provide: MeApi, useValue: {} },
         { provide: ProgressApi, useValue: { list, add: vi.fn() } },
       ],
     });
+    TestBed.inject(AuthService).applyMe(testMe({ dni: dni }));
     fixture = TestBed.createComponent(ClienteProgreso);
     el = fixture.nativeElement;
     fixture.detectChanges();

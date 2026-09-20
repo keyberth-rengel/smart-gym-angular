@@ -2,8 +2,6 @@ import { Route, Routes } from '@angular/router';
 import { catchAllRoute } from 'ngx-clerk';
 import {
   authGuard,
-  confirmDniGuard,
-  dniGuard,
   guestGuard,
   homeGuard,
   onboardingGuard,
@@ -30,7 +28,7 @@ const PAGES: Record<string, Route['loadComponent']> = {
 function roleBranch(role: Role): Route {
   return {
     path: role,
-    canActivate: [authGuard, roleGuard([role]), profileCompleteGuard, dniGuard],
+    canActivate: [authGuard, roleGuard([role]), profileCompleteGuard],
     loadComponent: () => import('./shared/layout/shell/shell').then((m) => m.Shell),
     children: NAV_ITEMS[role].map((item) => ({
       path: relativePath(item),
@@ -67,12 +65,6 @@ export const routes: Routes = [
         canActivate: [authGuard, onboardingGuard],
         loadComponent: () =>
           import('./features/auth/onboarding/onboarding').then((m) => m.Onboarding),
-      },
-      {
-        path: 'confirm-dni',
-        canActivate: [authGuard, confirmDniGuard],
-        loadComponent: () =>
-          import('./features/auth/confirm-dni/confirm-dni').then((m) => m.ConfirmDni),
       },
       {
         path: 'unavailable',

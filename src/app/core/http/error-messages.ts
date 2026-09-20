@@ -28,6 +28,14 @@ const MESSAGE_RULES: Rule[] = [
     pattern: /^Trainer (not found|does not exist)/i,
     text: 'No encontramos un entrenador con esos datos.',
   },
+  {
+    pattern: /^DNI already linked to another account/i,
+    text: 'Este DNI ya está vinculado a otra cuenta.',
+  },
+  {
+    pattern: /^This account is already linked to a different DNI/i,
+    text: 'Tu cuenta ya tiene otro DNI vinculado.',
+  },
   { pattern: /^Booking not found/i, text: 'La reserva no existe o ya fue cancelada.' },
   { pattern: /^No active routine/i, text: 'Aún no hay una rutina activa.' },
   { pattern: /^No enum constant/i, text: 'El día indicado no es válido.' },

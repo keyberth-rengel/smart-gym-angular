@@ -4,7 +4,9 @@ import { AttendanceApi } from '../../../core/api/attendance.api';
 import { MeApi } from '../../../core/api/me.api';
 import { ApiError } from '../../../core/http/api-error';
 import { AttendanceRecord } from '../../../core/models';
+import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { ClienteAsistencia } from './asistencia';
 
 const rec = (id: number, timestamp: string): AttendanceRecord => ({ id, email: 'ana@correo.com', role: 'CUSTOMER', timestamp });
@@ -26,11 +28,12 @@ describe('ClienteAsistencia', () => {
     TestBed.configureTestingModule({
       imports: [ClienteAsistencia],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez', dni: dni ?? undefined }) })),
+        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) })),
         { provide: MeApi, useValue: {} },
         { provide: AttendanceApi, useValue: { list, access } },
       ],
     });
+    TestBed.inject(AuthService).applyMe(testMe({ dni: dni }));
     fixture = TestBed.createComponent(ClienteAsistencia);
     el = fixture.nativeElement;
     fixture.detectChanges();

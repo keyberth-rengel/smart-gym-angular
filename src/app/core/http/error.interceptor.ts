@@ -8,7 +8,8 @@ import { ApiError } from './api-error';
 /** Con `true` la petición no muestra toast automático ante errores. */
 export const SKIP_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
 
-function notify(toast: ToastService, error: ApiError): void {
+/** Toast que corresponde a un error del API (el mismo que muestra el interceptor). */
+export function notify(toast: ToastService, error: ApiError): void {
   if (error.isNetwork || error.isServer) {
     toast.error(error.message, 'Servicio no disponible');
   } else if (error.status === 401 || error.status === 403) {

@@ -4,7 +4,7 @@ import { Observable, Subject, of, throwError } from 'rxjs';
 import { MeApi } from '../../../core/api/me.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
-import { OnboardingInput } from '../../../core/models';
+import { Me, OnboardingInput } from '../../../core/models';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { FakeUser, createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
 import { Onboarding } from './onboarding';
@@ -12,11 +12,21 @@ import { Onboarding } from './onboarding';
 describe('Onboarding', () => {
   let fixture: ComponentFixture<Onboarding>;
   let el: HTMLElement;
-  let complete: ReturnType<typeof vi.fn<(i: OnboardingInput) => Observable<void>>>;
+  let complete: ReturnType<typeof vi.fn<(i: OnboardingInput) => Observable<Me>>>;
   let router: Router;
   let clerkUser: FakeUser;
 
-  function setup(result: () => Observable<void> = () => of(undefined), name: string | null = 'Ana Pérez') {
+  const backendMe = (over: Partial<Me> = {}): Me => ({
+    role: 'cliente',
+    email: 'ana@correo.com',
+    name: 'Ana Pérez',
+    dni: '12345678',
+    profile_complete: true,
+    profile: { email: 'ana@correo.com', name: 'Ana Pérez', age: 28 },
+    ...over,
+  });
+
+  function setup(result: () => Observable<Me> = () => of(backendMe()), name: string | null = 'Ana Pérez') {
     clerkUser = fakeUser({ name, email: 'Ana@Correo.com' });
     complete = vi.fn((_: OnboardingInput) => result());
     TestBed.configureTestingModule({
@@ -45,9 +55,6 @@ describe('Onboarding', () => {
     input.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
   }
-
-  /** Espera a las promesas encadenadas de `finish()` (Clerk + navegación). */
-  const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
   const submit = () => {
     q<HTMLFormElement>('form').dispatchEvent(new Event('submit'));
@@ -100,18 +107,15 @@ describe('Onboarding', () => {
       expect(complete).not.toHaveBeenCalled();
     });
 
-    it('envía el nombre escrito (sin espacios sobrantes) y lo guarda en Clerk', async () => {
+    it('envía el nombre escrito (sin espacios sobrantes)', () => {
       setup(undefined, null);
       typeName('  Luis Ramírez Soto ');
       fill();
       submit();
       expect(complete).toHaveBeenCalledWith(expect.objectContaining({ name: 'Luis Ramírez Soto' }));
-      await vi.waitFor(() =>
-        expect(clerkUser.updates).toEqual([{ firstName: 'Luis', lastName: 'Ramírez Soto' }]),
-      );
     });
 
-    it('si Clerk ya tiene nombre no lo vuelve a guardar', () => {
+    it('no guarda nada en Clerk: el nombre vive en el backend', () => {
       setup();
       fill();
       submit();
@@ -177,40 +181,24 @@ describe('Onboarding', () => {
     });
   });
 
-  it('datos válidos: envía el payload, guarda el DNI en Clerk, avisa y navega al inicio del cliente', async () => {
+  it('datos válidos: envía el payload sin correo, guarda el perfil del backend, avisa y navega al inicio', () => {
     setup();
     const toast = TestBed.inject(ToastService);
     fill('28', '12345678');
     submit();
-    await settle();
 
-    expect(complete).toHaveBeenCalledWith({
-      name: 'Ana Pérez',
-      email: 'ana@correo.com',
-      age: 28,
-      dni: '12345678',
-    });
+    expect(complete).toHaveBeenCalledWith({ name: 'Ana Pérez', age: 28, dni: '12345678' });
     const auth = TestBed.inject(AuthService);
     expect(auth.profileComplete()).toBe(true);
     expect(auth.dni()).toBe('12345678');
-    expect(clerkUser.updates).toContainEqual({ unsafeMetadata: { dni: '12345678' } });
+    expect(auth.role()).toBe('cliente');
+    expect(clerkUser.updates).toEqual([]); // ya no se usa unsafeMetadata
     expect(toast.toasts().map((t) => t.kind)).toEqual(['success']);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/cliente');
   });
 
-  it('si Clerk falla al guardar el DNI, igual entra (luego se confirma en /auth/confirm-dni)', async () => {
-    setup();
-    clerkUser.update = async () => {
-      throw new Error('clerk caído');
-    };
-    fill('28', '12345678');
-    submit();
-    await settle();
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/cliente');
-  });
-
   it('mientras envía, el botón queda deshabilitado y no hay doble envío', () => {
-    const pending = new Subject<void>();
+    const pending = new Subject<Me>();
     setup(() => pending);
     fill();
     submit();
@@ -219,14 +207,14 @@ describe('Onboarding', () => {
     expect(complete).toHaveBeenCalledTimes(1);
     expect(text('[data-testid=onboarding-submit]')).toContain('Guardando');
 
-    pending.next();
+    pending.next(backendMe());
     pending.complete();
     fixture.detectChanges();
   });
 
   it('DNI de otra cuenta: error en el campo, botón habilitado y sin navegar', () => {
     setup(() =>
-      throwError(() => new ApiError(409, 'DNI_TAKEN', 'Este DNI ya está vinculado a otra cuenta.', { dni: 'Este DNI ya está vinculado a otra cuenta.' })),
+      throwError(() => new ApiError(409, 'CONFLICT', 'Este DNI ya está vinculado a otra cuenta.', {}, 'DNI already linked to another account')),
     );
     fill();
     submit();
@@ -236,7 +224,7 @@ describe('Onboarding', () => {
   });
 
   it('el error del servidor desaparece al corregir el campo', () => {
-    setup(() => throwError(() => new ApiError(409, 'DNI_TAKEN', 'x', { dni: 'Este DNI ya está vinculado a otra cuenta.' })));
+    setup(() => throwError(() => new ApiError(409, 'CONFLICT', 'Este DNI ya está vinculado a otra cuenta.')));
     fill();
     submit();
     expect(visible('[data-testid=dni-error]')).toBe(true);
@@ -258,6 +246,22 @@ describe('Onboarding', () => {
     submit();
     expect(visible('[data-testid=dni-error]')).toBe(false);
     expect(q<HTMLButtonElement>('[data-testid=onboarding-submit]').disabled).toBe(false);
+    expect(TestBed.inject(ToastService).toasts()[0].kind).toBe('error'); // la petición no muestra toast por sí sola
     expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('400 con errores por campo: se muestran junto al campo, sin toast', () => {
+    setup(() => throwError(() => new ApiError(400, 'BAD_REQUEST', 'Revisa los datos ingresados.', { age: 'Debe ser mayor o igual a 0.' })));
+    fill();
+    submit();
+    expect(text('[data-testid=age-error]')).toBe('Debe ser mayor o igual a 0.');
+    expect(TestBed.inject(ToastService).toasts()).toEqual([]);
+  });
+
+  it('cuenta que ya tiene otro DNI (409): error en el campo del DNI', () => {
+    setup(() => throwError(() => new ApiError(409, 'CONFLICT', 'Tu cuenta ya tiene otro DNI vinculado.')));
+    fill();
+    submit();
+    expect(text('[data-testid=dni-error]')).toBe('Tu cuenta ya tiene otro DNI vinculado.');
   });
 });

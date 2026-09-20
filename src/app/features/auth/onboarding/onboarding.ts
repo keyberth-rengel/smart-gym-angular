@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MeApi } from '../../../core/api/me.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
+import { notify } from '../../../core/http/error.interceptor';
 import {
   applyServerErrors,
   dniValidator,
@@ -17,7 +18,7 @@ import { AuthLayout } from '../auth-layout/auth-layout';
 export const MIN_AGE = 14;
 export const MAX_AGE = 100;
 
-/** Primer ingreso de un cliente: completa edad y DNI para vincular su cuenta. */
+/** Primer ingreso de un cliente: completa nombre, edad y DNI para vincular su cuenta. */
 @Component({
   selector: 'app-onboarding',
   imports: [ReactiveFormsModule, AuthLayout],
@@ -52,46 +53,38 @@ export class Onboarding {
     return control.touched || control.dirty ? errorMessage(control) : null;
   }
 
-  /** Guarda el DNI y el nombre en Clerk (mejor esfuerzo) y entra a la app. */
-  private async finish(name: string, dni: string): Promise<void> {
-    await this.auth.syncClerkName(name);
-    try {
-      await this.auth.saveDni(dni);
-    } catch {
-      // El DNI ya está vinculado en el backend; si Clerk falla, `/auth/confirm-dni` lo pedirá de nuevo.
-    }
-    this.auth.markProfileComplete();
-    this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
-    await this.router.navigateByUrl(this.auth.home());
-  }
-
   protected submit(): void {
     if (this.submitting()) return;
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
-    const email = this.auth.email();
-    if (!email) return;
-
     const { name, age, dni } = this.form.getRawValue();
     this.submitting.set(true);
     this.me
-      .completeOnboarding({
-        name: name.trim(),
-        email,
-        age: Number(age),
-        dni: dni.trim(),
-      })
+      .completeOnboarding({ name: name.trim(), age: Number(age), dni: dni.trim() })
       .subscribe({
-        next: () => void this.finish(name, dni.trim()),
+        next: (me) => {
+          this.auth.applyMe(me);
+          this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
+          void this.router.navigateByUrl(this.auth.home());
+        },
         error: (err: unknown) => {
           this.submitting.set(false);
           if (!(err instanceof ApiError)) return;
-          const unmatched = applyServerErrors(this.form, err);
-          // 400 con campos sin control en el formulario: el interceptor no muestra toast.
-          if (err.status === 400 && (unmatched.length || !Object.keys(err.fieldErrors).length)) {
-            this.toast.error(err.message, 'Revisa los datos');
+          if (err.status === 409) {
+            // DNI de otra cuenta, o cuenta que ya tiene otro DNI: se muestra junto al campo.
+            this.form.controls.dni.setErrors({ server: err.message });
+            this.form.controls.dni.markAsTouched();
+            return;
           }
+          if (err.status === 400) {
+            const unmatched = applyServerErrors(this.form, err);
+            if (unmatched.length || !Object.keys(err.fieldErrors).length) {
+              this.toast.error(err.message, 'Revisa los datos');
+            }
+            return;
+          }
+          notify(this.toast, err); // red caída, 5xx, 403...: el formulario sigue utilizable
         },
       });
   }

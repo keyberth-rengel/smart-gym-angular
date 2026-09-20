@@ -6,7 +6,9 @@ import { SKIP_ERROR_TOAST } from '../../../core/http/error.interceptor';
 import { ApiError } from '../../../core/http/api-error';
 import { ProgressItem } from '../../../core/models';
 import { patchDialog } from '../../../testing/dialog';
+import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
+import { testMe } from '../../../testing/test-me';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { ProgressDialog } from './progress-dialog';
 
@@ -24,11 +26,12 @@ describe('ProgressDialog', () => {
     TestBed.configureTestingModule({
       imports: [ProgressDialog],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez', dni: '12345678' }) })),
+        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez'}) })),
         { provide: MeApi, useValue: {} },
         { provide: ProgressApi, useValue: { add } },
       ],
     });
+    TestBed.inject(AuthService).applyMe(testMe({ dni: '12345678' }));
     fixture = TestBed.createComponent(ProgressDialog);
     saved = vi.fn<() => void>();
     fixture.componentInstance.saved.subscribe(saved);

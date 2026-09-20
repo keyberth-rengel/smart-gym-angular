@@ -36,6 +36,17 @@ Las variables están en `src/environments/`:
 Tema oscuro con Bootstrap 5 (CSS compilado) y overrides propios en `src/styles/`:
 `_tokens.scss` (variables `--sg-*`), `_bootstrap-overrides.scss` y `_base.scss`.
 
+## Layout y componentes compartidos
+
+- `src/app/shared/layout/`: `Shell` (skip link + navbar + menú + `<main>`), `Navbar` y `NavMenu`. A partir de 768 px
+  el menú es un sidebar de 240 px; por debajo pasa a una barra de pestañas con scroll y la activa siempre visible.
+- `src/app/core/nav/nav-items.ts`: ítems de navegación por rol (cliente, entrenador, admin).
+- `src/app/shared/ui/`: `PageHeader`, `StatCard`, `Badge`, `EmptyState`, `Loading`, `DayPills`, `ConfirmService`
+  (diálogo sobre `<dialog>` nativo: `confirm({ title, message, danger }) -> Promise<boolean>`), toasts y
+  `PlaceholderPage` (marca las secciones que se construyen en fases posteriores).
+- Las tres ramas de rutas (`/cliente`, `/entrenador`, `/admin`) cuelgan de `Shell`; sus hijos aún sin construir usan
+  `PlaceholderPage`.
+
 ## Autenticación (Clerk)
 
 Login, registro y sesión los maneja [Clerk](https://clerk.com) con el paquete comunitario

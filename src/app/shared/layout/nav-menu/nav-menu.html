@@ -1,0 +1,15 @@
+<nav aria-label="Navegación principal" class="menu" data-testid="nav-menu">
+  @for (item of items(); track item.path) {
+    <a
+      class="menu-item"
+      data-testid="nav-item"
+      [routerLink]="item.path"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      [routerLinkActiveOptions]="{ exact: !!item.exact }"
+    >
+      <i class="bi" [class]="'bi-' + item.icon" aria-hidden="true"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</nav>

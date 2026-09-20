@@ -1,0 +1,17 @@
+<div class="card stat" [class.tone-blue]="tone() === 'blue'" data-testid="stat-card">
+  <div class="stat-head">
+    <span class="stat-icon" aria-hidden="true"><i class="bi" [class]="'bi-' + icon()"></i></span>
+    <span class="stat-label">{{ label() }}</span>
+  </div>
+  <div>
+    <div class="stat-value" data-testid="stat-value">{{ value() }}</div>
+    @if (sub()) {
+      <div class="stat-sub">{{ sub() }}</div>
+    }
+  </div>
+  @if (linkText() && linkTo()) {
+    <a class="stat-link" [routerLink]="linkTo()">
+      {{ linkText() }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
+    </a>
+  }
+</div>

@@ -1,0 +1,76 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.menu {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 14px;
+  background: var(--sg-surface);
+  border-right: 1px solid var(--sg-line);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  color: var(--sg-text);
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+
+  .bi {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  &:hover {
+    background: var(--sg-surface-2);
+    text-decoration: none;
+  }
+
+  &.active {
+    background: var(--sg-accent-soft);
+    color: var(--sg-accent);
+    font-weight: 600;
+  }
+
+  /* dentro de un contenedor con scroll el anillo va hacia adentro para que no se recorte */
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .menu {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 8px 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--sg-line);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .menu-item {
+    flex-shrink: 0;
+    height: 44px;
+    gap: 8px;
+    font-size: 0.9375rem;
+
+    .bi {
+      font-size: 1.125rem;
+    }
+  }
+}

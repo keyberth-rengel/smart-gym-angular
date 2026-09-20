@@ -1,6 +1,7 @@
 .toast-stack {
   position: fixed;
-  top: 16px;
+  /* debajo de la barra (64px) para no tapar el usuario ni "Salir" */
+  top: 76px;
   right: 16px;
   z-index: 1090;
   display: flex;
@@ -71,7 +72,7 @@
 /* Móvil: ancho completo arriba. */
 @media (max-width: 575.98px) {
   .toast-stack {
-    top: 12px;
+    top: 72px; /* barra de 60px */
     right: 12px;
     left: 12px;
     width: auto;

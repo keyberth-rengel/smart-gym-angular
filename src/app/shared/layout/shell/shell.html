@@ -1,0 +1,8 @@
+<a class="skip-link" href="#contenido" (click)="skipToContent($event)">Saltar al contenido</a>
+<div class="shell">
+  <app-navbar class="shell-header" />
+  <app-nav-menu #menu class="shell-menu" [items]="items()" />
+  <main #main id="contenido" class="shell-main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

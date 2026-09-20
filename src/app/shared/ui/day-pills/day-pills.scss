@@ -1,0 +1,102 @@
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.pills {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pill {
+  height: 92px;
+  min-width: 0;
+  padding: 0 6px;
+  border-radius: 14px;
+  border: 1px solid var(--sg-line);
+  background: var(--sg-surface);
+  color: var(--sg-text);
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sg-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sg-accent);
+    outline-offset: 2px;
+  }
+
+  &.selected {
+    background: var(--sg-accent-soft);
+    border-color: var(--sg-accent);
+    color: var(--sg-accent);
+  }
+}
+
+.pill-day {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sg-muted);
+}
+
+.selected .pill-day {
+  color: var(--sg-accent);
+}
+
+.pill-block {
+  font-size: 1.125rem;
+  font-weight: 700;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.pill-block-short {
+  display: none;
+}
+
+.pill-today {
+  min-height: 14px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--sg-accent);
+}
+
+/* Variante compacta: se activa por el ancho del propio contenedor, no de la pantalla */
+@container (max-width: 520px) {
+  .pills {
+    gap: 5px;
+  }
+  .pill {
+    height: 76px;
+    padding: 0;
+    border-radius: 12px;
+    gap: 3px;
+  }
+  .pill-block {
+    font-size: 0.6875rem;
+  }
+  .pill-block-full {
+    display: none;
+  }
+  .pill-block-short {
+    display: block;
+  }
+  .pill-day {
+    font-size: 0.75rem;
+  }
+  .pill-today {
+    min-height: 10px;
+    font-size: 0.5625rem;
+  }
+}

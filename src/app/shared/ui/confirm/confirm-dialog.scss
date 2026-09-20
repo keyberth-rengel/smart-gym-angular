@@ -1,0 +1,46 @@
+.sg-dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--sg-input-border);
+  border-radius: 16px;
+  background: var(--sg-surface);
+  color: var(--sg-text);
+
+  &::backdrop {
+    background: rgba(4, 10, 7, 0.72);
+  }
+}
+
+.sg-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 24px 24px;
+}
+
+.sg-dialog-title {
+  margin: 0;
+  font-size: 1.625rem;
+}
+
+.sg-dialog-message {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--sg-muted);
+}
+
+.sg-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 479.98px) {
+  .sg-dialog-actions {
+    flex-direction: column-reverse;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

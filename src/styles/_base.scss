@@ -67,3 +67,14 @@ a {
     padding: 24px;
   }
 }
+
+/* Página dentro del shell: bloques apilados con el espacio del diseño */
+.sg-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (max-width: 767.98px) {
+    gap: 1rem;
+  }
+}

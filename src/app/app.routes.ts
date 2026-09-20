@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { catchAllRoute } from 'ngx-clerk';
 import {
   authGuard,
@@ -8,6 +8,27 @@ import {
   profileCompleteGuard,
   roleGuard,
 } from './core/auth/guards';
+import { Role } from './core/auth/roles';
+import { NAV_ITEMS, relativePath } from './core/nav/nav-items';
+
+/**
+ * Rama de un rol: el shell como padre y un hijo por ítem del menú. Cada hijo apunta a una
+ * página provisional hasta que su fase la reemplace (basta con cambiar su `loadComponent`).
+ */
+function roleBranch(role: Role): Route {
+  return {
+    path: role,
+    canActivate: [authGuard, roleGuard([role]), profileCompleteGuard],
+    loadComponent: () => import('./shared/layout/shell/shell').then((m) => m.Shell),
+    children: NAV_ITEMS[role].map((item) => ({
+      path: relativePath(item),
+      pathMatch: item.exact ? ('full' as const) : ('prefix' as const),
+      data: { title: item.label },
+      loadComponent: () =>
+        import('./shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    })),
+  };
+}
 
 export const routes: Routes = [
   // "/" lleva al inicio del rol (o al inicio de sesión).
@@ -42,20 +63,8 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'sign-in' },
     ],
   },
-  {
-    path: 'cliente',
-    canActivate: [authGuard, roleGuard(['cliente']), profileCompleteGuard],
-    loadComponent: () => import('./features/cliente/home/home').then((m) => m.ClienteHome),
-  },
-  {
-    path: 'entrenador',
-    canActivate: [authGuard, roleGuard(['entrenador']), profileCompleteGuard],
-    loadComponent: () => import('./features/entrenador/home/home').then((m) => m.EntrenadorHome),
-  },
-  {
-    path: 'admin',
-    canActivate: [authGuard, roleGuard(['admin']), profileCompleteGuard],
-    loadComponent: () => import('./features/admin/home/home').then((m) => m.AdminHome),
-  },
+  roleBranch('cliente'),
+  roleBranch('entrenador'),
+  roleBranch('admin'),
   { path: '**', pathMatch: 'full', canActivate: [homeGuard], children: [] },
 ];

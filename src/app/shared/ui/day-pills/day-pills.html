@@ -1,0 +1,19 @@
+<div class="pills" role="group" aria-label="Días de la semana" data-testid="day-pills">
+  @for (d of days(); track d.key; let i = $index) {
+    <button
+      type="button"
+      class="pill"
+      [class.selected]="d.isSelected"
+      [attr.aria-pressed]="d.isSelected"
+      [attr.data-day]="d.key"
+      [attr.aria-label]="d.long + (d.block ? ', ' + d.block : '') + (d.isToday ? ', hoy' : '')"
+      (click)="pick(d.key)"
+      (keydown)="onKeydown($event, i)"
+    >
+      <span class="pill-day" aria-hidden="true">{{ d.short }}</span>
+      <span class="pill-block pill-block-full" aria-hidden="true">{{ d.block }}</span>
+      <span class="pill-block pill-block-short" aria-hidden="true">{{ d.blockShort }}</span>
+      <span class="pill-today" aria-hidden="true">{{ d.isToday ? 'HOY' : '' }}</span>
+    </button>
+  }
+</div>

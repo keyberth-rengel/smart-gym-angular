@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  --sg-header-h: 64px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--sg-accent);
+  color: var(--sg-on-accent);
+  font-weight: 600;
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: none;
+    outline: 2px solid var(--sg-accent);
+    outline-offset: 3px;
+  }
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: var(--sg-header-h) 1fr;
+  min-height: 100vh;
+}
+
+.shell-header {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.shell-menu {
+  position: sticky;
+  top: var(--sg-header-h);
+  height: calc(100vh - var(--sg-header-h));
+  align-self: start;
+}
+
+.shell-main {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  :host {
+    --sg-header-h: 60px;
+  }
+
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--sg-header-h) auto 1fr;
+  }
+
+  .shell-menu {
+    top: var(--sg-header-h);
+    height: auto;
+    z-index: 1020;
+  }
+
+  .shell-main {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+}

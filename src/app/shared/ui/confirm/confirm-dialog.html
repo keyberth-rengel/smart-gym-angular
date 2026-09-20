@@ -1,0 +1,38 @@
+<dialog
+  #dialog
+  class="sg-dialog"
+  aria-labelledby="confirm-title"
+  aria-describedby="confirm-message"
+  (close)="onClosed()"
+  (click)="onBackdropClick($event)"
+  data-testid="confirm-dialog"
+>
+  @if (service.request(); as req) {
+    <div class="sg-dialog-body">
+      <h2 id="confirm-title" class="sg-dialog-title">{{ req.options.title }}</h2>
+      <p id="confirm-message" class="sg-dialog-message">{{ req.options.message }}</p>
+      <div class="sg-dialog-actions">
+        <button
+          #cancelButton
+          type="button"
+          class="btn btn-outline-secondary"
+          data-testid="confirm-cancel"
+          (click)="close(false)"
+        >
+          {{ req.options.cancelLabel }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn-outline-danger]="req.options.danger"
+          [class.btn-primary]="!req.options.danger"
+          data-testid="confirm-accept"
+          (click)="close(true)"
+        >
+          <i class="bi" [class]="req.options.danger ? 'bi-trash' : 'bi-check-lg'" aria-hidden="true"></i>
+          <span>{{ req.options.confirmLabel }}</span>
+        </button>
+      </div>
+    </div>
+  }
+</dialog>

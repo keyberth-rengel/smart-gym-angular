@@ -1,0 +1,92 @@
+<app-page-header title="Panel de administración" [subtitle]="today">
+  <button
+    actions
+    type="button"
+    class="health"
+    [class.up]="healthState() === 'up'"
+    [class.down]="healthState() === 'down'"
+    (click)="checkHealth()"
+    [disabled]="healthState() === 'checking'"
+    aria-live="polite"
+    data-testid="health"
+  >
+    <i
+      class="bi"
+      [class.bi-activity]="healthState() !== 'down'"
+      [class.bi-wifi-off]="healthState() === 'down'"
+      aria-hidden="true"
+    ></i>
+    <span>
+      @switch (healthState()) {
+        @case ('up') {
+          Servicio en línea
+        }
+        @case ('down') {
+          Sin conexión
+        }
+        @default {
+          Comprobando…
+        }
+      }
+    </span>
+  </button>
+</app-page-header>
+
+<nav class="modules" aria-label="Módulos" data-testid="modules">
+  @for (m of modules; track m.path) {
+    <a class="card module" [routerLink]="m.path" data-testid="module">
+      <span class="module-icon" aria-hidden="true"><i class="bi" [class]="'bi-' + m.icon"></i></span>
+      <span class="module-title">{{ m.title }}</span>
+      <span class="module-text">{{ m.text }}</span>
+    </a>
+  }
+</nav>
+
+<section class="card today" aria-labelledby="today-title">
+  <div class="today-head">
+    <h2 id="today-title" class="today-title">Reservas de hoy</h2>
+    <a class="today-link" routerLink="/admin/reservas" data-testid="all-bookings">Ver todas</a>
+  </div>
+  @switch (bookingsStatus()) {
+    @case ('loading') {
+      <app-loading variant="table" [rows]="3" label="Cargando las reservas de hoy…" />
+    }
+    @case ('error') {
+      <app-empty-state
+        icon="cloud-slash"
+        title="No pudimos cargar las reservas"
+        text="Revisa tu conexión e inténtalo de nuevo."
+      >
+        <button type="button" class="btn btn-primary" (click)="loadBookings()" data-testid="bookings-retry">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+        </button>
+      </app-empty-state>
+    }
+    @default {
+      @if (rows().length) {
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Reservas de hoy">
+          <table class="table align-middle mb-0" data-testid="today-table">
+            <thead>
+              <tr>
+                <th scope="col">Hora</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Entrenador</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of rows(); track r.id) {
+                <tr data-testid="today-row">
+                  <td class="time">{{ r.time }}</td>
+                  <td>{{ r.customer }}</td>
+                  <td>{{ r.trainer }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="today-empty" data-testid="today-empty">No hay reservas para hoy.</p>
+      }
+    }
+  }
+</section>

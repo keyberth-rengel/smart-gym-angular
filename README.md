@@ -167,3 +167,36 @@ consulta al API. En el registro de progreso el 409 (un registro por día) se mue
 
 Los roles de las pruebas con navegador se simularon interceptando `GET /me` (los JWT de la cuenta de prueba
 traen `role: null`). Con un entrenador real de Clerk falta comprobar los datos reales de los endpoints del entrenador.
+
+## Módulo Admin
+
+| Ruta | Pantalla | Endpoints |
+|---|---|---|
+| `/admin` | Dashboard: estado del servicio, 5 accesos a módulos y reservas de hoy | `GET /health`, `GET /bookings`, `GET /customers` y `GET /trainers` (solo para los nombres) |
+| `/admin/clientes` | Clientes: registrar un cliente (DNI opcional) y consultar el padrón con búsqueda | `GET /customers`, `POST /customers` (`{name,email,age,dni?}`) |
+| `/admin/entrenadores` | Entrenadores: registrar e invitar por Clerk, consultar el equipo y reenviar invitaciones | `GET /trainers`, `POST /trainers` (`{name,email,age,specialty?,dni?}`), `POST /trainers/{email}/invite` |
+
+`/admin/reservas`, `/admin/rutinas` y `/admin/asistencia` siguen como página provisional hasta la fase F6b.
+
+- **Acceso:** el rol `admin` viene del claim `role` del token de Clerk (se fija en `public_metadata.role` del usuario).
+  Los endpoints de admin responden **403** a clientes y entrenadores; la pantalla lo muestra como error con
+  "Reintentar" (listas) o como toast "Sin permisos" (registro), sin perder lo escrito en el formulario.
+- **Estado del servicio:** `GET /health` se consulta sin toast; un fallo (red, 5xx o `status` distinto de `UP`) se
+  muestra como "Sin conexión" y un clic vuelve a comprobarlo.
+- **Reservas de hoy:** solo las de la fecha de hoy, por hora. Los nombres salen de `/customers` y `/trainers`; si
+  alguna de las dos llamadas falla, la tabla muestra los correos (sin error propio). Cada bloque carga por separado.
+- **Clientes y entrenadores comparten** `RegistryList` (tabla con búsqueda sin acentos ni mayúsculas, estados de
+  carga/vacío/error y una acción opcional por fila) y los estilos de `features/admin/shared/`. Por debajo de 1200 px el
+  formulario queda arriba y la tabla debajo.
+- **Errores del registro:** un 409 se muestra junto al campo (correo repetido, o DNI ya vinculado a otro correo: el
+  backend responde `DNI already linked to another email: <dni>` y no crea nada) y un 400 con `error.details` junto a cada
+  campo; red caída, 5xx y 403 salen como toast. Sin doble envío.
+- **Invitación de entrenadores:** `POST /trainers` devuelve `invitation.status` (`message` es un código estable, no
+  un texto): `INVITED` y `ROLE_UPDATED` => toast de éxito (este último avisa de que la persona debe cerrar y abrir
+  sesión), `SKIPPED` (el backend no tiene `CLERK_SECRET_KEY`) => aviso ámbar persistente en el formulario y `FAILED` =>
+  aviso rojo; en ambos el entrenador queda registrado y se puede reenviar la invitación desde la tabla.
+
+Verificado con las cuentas reales de Clerk (admin, entrenador y cliente) contra el backend real: `role` en el JWT,
+`/me`, altas, 409 reales y la matriz de permisos. Como el backend de pruebas no tiene `CLERK_SECRET_KEY`, los estados
+`INVITED`, `ROLE_UPDATED` y `FAILED` se comprobaron simulando solo esa respuesta.
+

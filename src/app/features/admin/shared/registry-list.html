@@ -1,0 +1,114 @@
+<section class="card list-card" [attr.aria-labelledby]="'list-title'">
+  <div class="list-head">
+    <h2 id="list-title" class="list-title">{{ title() }}</h2>
+    @if (status() === 'ready') {
+      <app-badge tone="gray"
+        ><span data-testid="total">{{ total() }}</span> registrados</app-badge
+      >
+    }
+  </div>
+
+  @switch (status()) {
+    @case ('loading') {
+      <app-loading variant="table" [rows]="5" label="Cargando…" />
+    }
+    @case ('error') {
+      <app-empty-state
+        icon="cloud-slash"
+        [title]="errorTitle()"
+        text="Revisa tu conexión e inténtalo de nuevo."
+      >
+        <button type="button" class="btn btn-primary" (click)="retry.emit()" data-testid="retry">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+        </button>
+      </app-empty-state>
+    }
+    @default {
+      @if (total() === 0) {
+        <app-empty-state [icon]="emptyIcon()" [title]="emptyTitle()" [text]="emptyText()" />
+      } @else {
+        <label class="search" for="registry-search">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <span class="visually-hidden">Buscar por nombre o correo</span>
+          <input
+            id="registry-search"
+            type="search"
+            class="search-input"
+            placeholder="Buscar por nombre o correo"
+            autocomplete="off"
+            [value]="query()"
+            (input)="onSearch($any($event.target).value)"
+            data-testid="search"
+          />
+        </label>
+
+        @if (visible().length) {
+          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="title()">
+            <table class="table align-middle mb-0 registry-table" data-testid="registry-table">
+              <thead>
+                <tr>
+                  @for (col of columns(); track col.key) {
+                    <th
+                      scope="col"
+                      [class.num]="col.end"
+                      [class.d-none]="col.hideBelowLg"
+                      [class.d-lg-table-cell]="col.hideBelowLg"
+                    >
+                      {{ col.label }}
+                    </th>
+                  }
+                  @if (actionIcon()) {
+                    <th scope="col" class="action-col"><span class="visually-hidden">Acciones</span></th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of visible(); track row.email) {
+                  <tr data-testid="registry-row">
+                    @for (col of columns(); track col.key) {
+                      <td
+                        [class.num]="col.end"
+                        [class.muted]="col.muted"
+                        [class.d-none]="col.hideBelowLg"
+                        [class.d-lg-table-cell]="col.hideBelowLg"
+                        [attr.title]="col.muted ? cell(row, col.key) : null"
+                      >
+                        {{ cell(row, col.key) }}
+                      </td>
+                    }
+                    @if (actionIcon(); as icon) {
+                      <td class="action-col">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary btn-sm action-btn"
+                          [disabled]="isPending(row)"
+                          [attr.aria-label]="actionLabel()(row)"
+                          [attr.title]="actionLabel()(row)"
+                          (click)="action.emit(row)"
+                          data-testid="row-action"
+                        >
+                          @if (isPending(row)) {
+                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                          } @else {
+                            <i class="bi" [class]="'bi-' + icon" aria-hidden="true"></i>
+                          }
+                        </button>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="no-results" data-testid="no-results">
+            <p>Sin resultados para «{{ query() }}».</p>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="onSearch('')" data-testid="clear-search">
+              Limpiar búsqueda
+            </button>
+          </div>
+        }
+      }
+    }
+  }
+</section>

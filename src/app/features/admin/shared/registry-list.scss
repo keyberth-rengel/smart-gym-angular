@@ -1,0 +1,97 @@
+:host {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.list-card {
+  padding: 22px;
+}
+
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--sg-input-border);
+  border-radius: 12px;
+  background: var(--sg-bg);
+  color: var(--sg-muted);
+
+  &:focus-within {
+    border-color: var(--sg-accent);
+    box-shadow: 0 0 0 0.2rem rgba(52, 211, 153, 0.25);
+  }
+}
+
+.search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--sg-text);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.registry-table {
+  th,
+  td {
+    padding-inline: 10px;
+  }
+
+  /* un nombre o especialidad largos bajan de línea en vez de forzar el scroll de la tabla */
+  td:first-child {
+    min-width: 120px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
+}
+
+.num {
+  text-align: right;
+}
+
+td.muted {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--sg-muted);
+}
+
+.action-col {
+  width: 56px;
+  text-align: right;
+}
+
+.action-btn {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+}
+
+.no-results {
+  padding: 24px 8px;
+  text-align: center;
+  color: var(--sg-muted);
+
+  p {
+    margin: 0 0 12px;
+  }
+}

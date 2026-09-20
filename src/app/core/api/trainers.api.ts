@@ -7,6 +7,8 @@ import {
   Trainer,
   TrainerAvailability,
   TrainerCreate,
+  TrainerCreated,
+  Invitation,
   TrainerCustomer,
 } from '../models';
 import { ApiClient } from './api-client';
@@ -15,8 +17,14 @@ import { ApiClient } from './api-client';
 export class TrainersApi {
   private readonly api = inject(ApiClient);
 
-  create(trainer: TrainerCreate): Observable<Trainer> {
-    return this.api.post<Trainer>('/trainers', trainer);
+  /** Solo ADMIN: crea al entrenador (y vincula el DNI) y lo invita en Clerk; devuelve el resultado de la invitación. */
+  create(trainer: TrainerCreate, context?: HttpContext): Observable<TrainerCreated> {
+    return this.api.post<TrainerCreated>('/trainers', trainer, { context });
+  }
+
+  /** Solo ADMIN: reintenta la invitación de un entrenador existente. */
+  invite(email: string, context?: HttpContext): Observable<Invitation> {
+    return this.api.post<Invitation>(`/trainers/${encodeURIComponent(email)}/invite`, {}, { context });
   }
 
   /** Entrenadores ordenados por nombre; cualquier usuario autenticado. */

@@ -1,0 +1,43 @@
+/* Maqueta compartida por Clientes y Entrenadores: formulario a la izquierda y tabla a la derecha. */
+.registry-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.form-card {
+  flex: 0 0 380px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.form-note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--sg-muted);
+}
+
+/* por debajo de 1200 px el formulario queda arriba y la tabla debajo (misma interfaz compactada) */
+@media (max-width: 1199.98px) {
+  .registry-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-card {
+    flex: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .form-card {
+    padding: 20px;
+  }
+}

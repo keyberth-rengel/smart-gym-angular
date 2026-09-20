@@ -29,7 +29,7 @@ const MESSAGE_RULES: Rule[] = [
     text: 'No encontramos un entrenador con esos datos.',
   },
   {
-    pattern: /^DNI already linked to another account/i,
+    pattern: /^DNI already linked to another (account|email)/i,
     text: 'Este DNI ya está vinculado a otra cuenta.',
   },
   {

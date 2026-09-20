@@ -10,6 +10,22 @@ export interface TrainerCreate {
   name: string;
   age: number;
   specialty?: string;
+  /** 8 dígitos; si viene, el backend lo vincula al correo del entrenador. */
+  dni?: string;
+}
+
+/** Resultado de invitar al entrenador en Clerk (`message` es un código estable, no un texto para mostrar). */
+export type InvitationStatus = 'INVITED' | 'ROLE_UPDATED' | 'SKIPPED' | 'FAILED';
+
+export interface Invitation {
+  status: InvitationStatus;
+  message: string;
+}
+
+/** `POST /trainers`: el entrenador creado más el resultado de la invitación. */
+export interface TrainerCreated extends Trainer {
+  dni: string | null;
+  invitation: Invitation;
 }
 
 /** Horas ocupadas de un entrenador en una fecha (sin datos personales). */

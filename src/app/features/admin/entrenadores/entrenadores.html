@@ -1,0 +1,141 @@
+<app-page-header title="Entrenadores" subtitle="Equipo de la sede" />
+
+<div class="registry-layout">
+  <form class="card form-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <h2 class="form-title">Registrar entrenador</h2>
+
+    <div>
+      <label class="form-label" for="tr-name">Nombre completo</label>
+      <input
+        id="tr-name"
+        class="form-control"
+        type="text"
+        autocomplete="off"
+        placeholder="Ej. Luis Ramírez"
+        formControlName="name"
+        [class.is-invalid]="!!error('name')"
+        [attr.aria-invalid]="!!error('name')"
+        aria-describedby="tr-name-err"
+      />
+      <div id="tr-name-err" class="invalid-feedback d-block" [hidden]="!error('name')" data-testid="name-error">
+        {{ error('name') }}
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="tr-email">Correo electrónico</label>
+      <input
+        id="tr-email"
+        class="form-control"
+        type="text"
+        inputmode="email"
+        autocomplete="off"
+        placeholder="nombre@smartgym.pe"
+        formControlName="email"
+        [class.is-invalid]="!!error('email')"
+        [attr.aria-invalid]="!!error('email')"
+        aria-describedby="tr-email-err"
+      />
+      <div id="tr-email-err" class="invalid-feedback d-block" [hidden]="!error('email')" data-testid="email-error">
+        {{ error('email') }}
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label" for="tr-specialty">Especialidad <span class="text-body-secondary fw-normal">(opcional)</span></label>
+      <input
+        id="tr-specialty"
+        class="form-control"
+        type="text"
+        autocomplete="off"
+        placeholder="Ej. Funcional"
+        formControlName="specialty"
+        [class.is-invalid]="!!error('specialty')"
+        [attr.aria-invalid]="!!error('specialty')"
+        aria-describedby="tr-specialty-err"
+      />
+      <div id="tr-specialty-err" class="invalid-feedback d-block" [hidden]="!error('specialty')" data-testid="specialty-error">
+        {{ error('specialty') }}
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label" for="tr-age">Edad</label>
+        <input
+          id="tr-age"
+          class="form-control"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="Ej. 30"
+          formControlName="age"
+          [class.is-invalid]="!!error('age')"
+          [attr.aria-invalid]="!!error('age')"
+          aria-describedby="tr-age-err"
+        />
+        <div id="tr-age-err" class="invalid-feedback d-block" [hidden]="!error('age')" data-testid="age-error">
+          {{ error('age') }}
+        </div>
+      </div>
+      <div class="col-6">
+        <label class="form-label" for="tr-dni">DNI <span class="text-body-secondary fw-normal">(opcional)</span></label>
+        <input
+          id="tr-dni"
+          class="form-control"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="8 dígitos"
+          formControlName="dni"
+          [class.is-invalid]="!!error('dni')"
+          [attr.aria-invalid]="!!error('dni')"
+          aria-describedby="tr-dni-err"
+        />
+        <div id="tr-dni-err" class="invalid-feedback d-block" [hidden]="!error('dni')" data-testid="dni-error">
+          {{ error('dni') }}
+        </div>
+      </div>
+    </div>
+
+    <p class="form-note">Se envía una invitación por correo con el rol Entrenador.</p>
+
+    @if (notice(); as n) {
+      <div
+        class="alert mb-0"
+        [class.alert-warning]="n.tone === 'warning'"
+        [class.alert-danger]="n.tone === 'danger'"
+        role="alert"
+        data-testid="invitation-notice"
+      >
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ n.text }}
+      </div>
+    }
+
+    <button type="submit" class="btn btn-primary w-100" [disabled]="submitting()" data-testid="submit">
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Registrando…</span>
+      } @else {
+        <i class="bi bi-envelope-plus" aria-hidden="true"></i>
+        <span>Registrar e invitar</span>
+      }
+    </button>
+  </form>
+
+  <app-registry-list
+    title="Entrenadores"
+    [columns]="columns"
+    [rows]="rows()"
+    [status]="status()"
+    errorTitle="No pudimos cargar los entrenadores"
+    emptyIcon="person-badge"
+    emptyTitle="Aún no hay entrenadores"
+    emptyText="Registra al primero con el formulario."
+    actionIcon="envelope-arrow-up"
+    [actionLabel]="inviteLabel"
+    [pending]="pending()"
+    (retry)="load()"
+    (action)="resend($event)"
+  />
+</div>

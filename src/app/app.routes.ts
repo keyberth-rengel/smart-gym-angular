@@ -31,6 +31,11 @@ const PAGES: Record<string, Route['loadComponent']> = {
     import('./features/entrenador/clientes/clientes').then((m) => m.EntrenadorClientes),
   '/entrenador/rutinas': () =>
     import('./features/entrenador/rutinas/rutinas').then((m) => m.EntrenadorRutinas),
+  '/admin': () => import('./features/admin/dashboard/dashboard').then((m) => m.AdminDashboard),
+  '/admin/clientes': () =>
+    import('./features/admin/clientes/clientes').then((m) => m.AdminClientes),
+  '/admin/entrenadores': () =>
+    import('./features/admin/entrenadores/entrenadores').then((m) => m.AdminEntrenadores),
 };
 
 /**

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Customer, CustomerCreate } from '../models';
 import { ApiClient } from './api-client';
@@ -7,8 +8,14 @@ import { ApiClient } from './api-client';
 export class CustomersApi {
   private readonly api = inject(ApiClient);
 
-  create(customer: CustomerCreate): Observable<Customer> {
-    return this.api.post<Customer>('/customers', customer);
+  /** Solo ADMIN; con `dni` también vincula el DNI al correo. */
+  create(customer: CustomerCreate, context?: HttpContext): Observable<Customer> {
+    return this.api.post<Customer>('/customers', customer, { context });
+  }
+
+  /** Clientes ordenados por nombre; solo ADMIN (otros roles reciben 403). */
+  list(context?: HttpContext): Observable<Customer[]> {
+    return this.api.get<Customer[]>('/customers', { context });
   }
 
   getByEmail(email: string): Observable<Customer> {

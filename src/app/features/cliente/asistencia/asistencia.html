@@ -1,0 +1,71 @@
+<app-page-header title="Asistencia" subtitle="Registra tu ingreso y revisa tu historial" />
+
+<div class="att-grid">
+  <section class="card att-card" aria-labelledby="att-title">
+    <div class="att-dni"><i class="bi bi-person-vcard" aria-hidden="true"></i><span data-testid="att-dni">DNI {{ auth.dni() }}</span></div>
+    <h2 id="att-title" class="att-title">Registrar mi ingreso</h2>
+    <button type="button" class="btn btn-primary att-button" [disabled]="submitting()" (click)="markAttendance()" data-testid="mark-attendance">
+      @if (submitting()) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span>Registrando…</span>
+      } @else {
+        <i class="bi bi-check2-circle" aria-hidden="true"></i><span>Marcar asistencia</span>
+      }
+    </button>
+    @if (success(); as msg) {
+      <div class="alert alert-success mb-0" role="status" data-testid="att-success">
+        <i class="bi bi-check-circle" aria-hidden="true"></i> {{ msg }}
+      </div>
+    }
+    @if (failure(); as msg) {
+      <div class="alert alert-danger mb-0" role="alert" data-testid="att-failure">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ msg }}
+      </div>
+    }
+  </section>
+
+  <div class="att-history">
+    @switch (state()) {
+      @case ('loading') {
+        <app-loading variant="table" [rows]="5" label="Cargando historial…" />
+      }
+      @case ('error') {
+        <app-empty-state icon="cloud-slash" title="No pudimos cargar tu historial" text="Revisa tu conexión e inténtalo de nuevo.">
+          <button type="button" class="btn btn-primary" (click)="load()" data-testid="retry">
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+          </button>
+        </app-empty-state>
+      }
+      @case ('empty') {
+        <app-empty-state icon="check2-circle" title="Aún no tienes ingresos registrados" text="Cuando marques tu asistencia, tu historial aparecerá aquí." />
+      }
+      @default {
+        <section class="card hist-card" aria-labelledby="hist-title">
+          <div class="hist-head">
+            <h2 id="hist-title" class="hist-title">Historial de asistencia</h2>
+            <app-badge tone="gray"><span data-testid="att-count">{{ countLabel() }}</span></app-badge>
+          </div>
+          <div class="table-responsive" tabindex="0" role="region" aria-label="Historial de asistencia">
+            <table class="table align-middle mb-0" data-testid="att-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Hora<span class="d-none d-md-inline"> de ingreso</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (r of rows(); track r.key) {
+                  <tr data-testid="att-row">
+                    <td>{{ r.n }}</td>
+                    <td>{{ r.day }}<span class="year"> {{ r.year }}</span></td>
+                    <td>{{ r.time }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>

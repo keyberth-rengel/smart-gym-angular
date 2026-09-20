@@ -46,6 +46,9 @@ describe('Onboarding', () => {
     fixture.detectChanges();
   }
 
+  /** Espera a las promesas encadenadas de `finish()` (Clerk + navegación). */
+  const settle = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
   const submit = () => {
     q<HTMLFormElement>('form').dispatchEvent(new Event('submit'));
     fixture.detectChanges();
@@ -174,11 +177,12 @@ describe('Onboarding', () => {
     });
   });
 
-  it('datos válidos: envía el payload, avisa y navega al inicio del cliente', () => {
+  it('datos válidos: envía el payload, guarda el DNI en Clerk, avisa y navega al inicio del cliente', async () => {
     setup();
     const toast = TestBed.inject(ToastService);
     fill('28', '12345678');
     submit();
+    await settle();
 
     expect(complete).toHaveBeenCalledWith({
       name: 'Ana Pérez',
@@ -186,8 +190,22 @@ describe('Onboarding', () => {
       age: 28,
       dni: '12345678',
     });
-    expect(TestBed.inject(AuthService).profileComplete()).toBe(true);
+    const auth = TestBed.inject(AuthService);
+    expect(auth.profileComplete()).toBe(true);
+    expect(auth.dni()).toBe('12345678');
+    expect(clerkUser.updates).toContainEqual({ unsafeMetadata: { dni: '12345678' } });
     expect(toast.toasts().map((t) => t.kind)).toEqual(['success']);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/cliente');
+  });
+
+  it('si Clerk falla al guardar el DNI, igual entra (luego se confirma en /auth/confirm-dni)', async () => {
+    setup();
+    clerkUser.update = async () => {
+      throw new Error('clerk caído');
+    };
+    fill('28', '12345678');
+    submit();
+    await settle();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/cliente');
   });
 

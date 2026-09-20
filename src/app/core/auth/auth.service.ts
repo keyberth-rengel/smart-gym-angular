@@ -63,6 +63,30 @@ export class AuthService {
     return me.profile_complete;
   }
 
+  // DNI guardado en esta sesión (Clerk tarda en reflejar `unsafeMetadata` en el objeto usuario).
+  private readonly savedDni = signal<{ email: string; dni: string } | null>(null);
+
+  /**
+   * DNI del cliente, guardado en `unsafeMetadata.dni` de Clerk. Interino hasta que exista
+   * `GET /me` (B2), que lo devolverá desde el backend. `null` si aún no se conoce.
+   */
+  readonly dni = computed<string | null>(() => {
+    const saved = this.savedDni();
+    if (saved && saved.email === this.email()) return saved.dni;
+    const value = this.user()?.unsafeMetadata?.['dni'];
+    return typeof value === 'string' && /^\d{8}$/.test(value.trim()) ? value.trim() : null;
+  });
+
+  /** Guarda el DNI en Clerk. Queda disponible al instante en `dni()`; un fallo de Clerk se propaga. */
+  async saveDni(dni: string): Promise<void> {
+    const user = this.user();
+    const email = this.email();
+    if (!user || !email) return;
+    const clean = dni.trim();
+    this.savedDni.set({ email, dni: clean });
+    await user.update({ unsafeMetadata: { ...(user.unsafeMetadata ?? {}), dni: clean } });
+  }
+
   /** Marca el perfil como completo tras el onboarding. */
   markProfileComplete(): void {
     const email = this.email();
@@ -84,6 +108,7 @@ export class AuthService {
   async signOut(): Promise<void> {
     await this.clerk.signOut();
     this.profile.set(null);
+    this.savedDni.set(null);
     await this.router.navigateByUrl(SIGN_IN_PATH);
   }
 }

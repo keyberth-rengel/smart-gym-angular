@@ -43,3 +43,14 @@ export function isToday(value: string | Date, now: Date = new Date()): boolean {
 export function dayLabel(value: string | Date, now: Date = new Date()): string {
   return isToday(value, now) ? 'Hoy' : formatDate(value);
 }
+
+/** "15 sep" (fecha sin año, para tablas angostas). */
+export function formatDayMonth(value: string | Date): string {
+  const d = toDate(value);
+  return `${pad(d.getDate())} ${MONTHS[d.getMonth()]}`;
+}
+
+/** "2026" */
+export function formatYear(value: string | Date): string {
+  return String(toDate(value).getFullYear());
+}

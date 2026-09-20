@@ -1,0 +1,55 @@
+<app-page-header title="Mi Rutina" subtitle="Consulta tu plan de entrenamiento por día" />
+
+@switch (state()) {
+  @case ('loading') {
+    <app-loading variant="card" label="Cargando tu rutina…" />
+    <app-loading variant="table" [rows]="3" label="Cargando historial…" />
+  }
+  @case ('error') {
+    <app-empty-state icon="cloud-slash" title="No pudimos cargar tu rutina" text="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn-primary" (click)="load()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @case ('empty') {
+    <app-empty-state
+      icon="lightning-charge"
+      title="Aún no tienes una rutina asignada"
+      text="Tu entrenador o recepción te asignará una rutina semanal. Cuando la tengas, la verás aquí."
+    />
+  }
+  @default {
+    <app-day-pills [plan]="plan()" [(selected)]="selected" />
+
+    <section class="card plan-card" aria-label="Plan del día" data-testid="plan-card">
+      <span class="plan-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
+      <div class="plan-text">
+        <div class="plan-kicker" data-testid="plan-kicker">
+          {{ day().long }} · {{ day().rest ? 'Día de descanso' : 'Plan del día' }}{{ day().isToday ? ' · Hoy' : '' }}
+        </div>
+        <div class="plan-block" data-testid="plan-block">{{ day().block }}</div>
+      </div>
+      @if (!day().rest) {
+        <app-badge tone="green">Rutina activa</app-badge>
+      }
+    </section>
+
+    <section class="card history-card" aria-labelledby="hist-title">
+      <h2 id="hist-title" class="hist-title">Historial de rutinas</h2>
+      <ul class="hist-list" data-testid="history-list">
+        @for (e of entries(); track e.createdAt) {
+          <li class="hist-row" data-testid="history-row">
+            <span class="hist-date">{{ e.date }}</span>
+            <span class="hist-summary">{{ e.summary }}</span>
+            @if (e.active) {
+              <app-badge tone="green">Activa</app-badge>
+            } @else {
+              <app-badge tone="gray">Anterior</app-badge>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+}

@@ -12,6 +12,7 @@ export const ROLE_HOME: Record<Role, string> = {
 export const SIGN_IN_PATH = '/auth/sign-in';
 export const ONBOARDING_PATH = '/auth/onboarding';
 export const UNAVAILABLE_PATH = '/auth/unavailable';
+export const CONFIRM_DNI_PATH = '/auth/confirm-dni';
 
 /**
  * Rol a partir de `public_metadata.role` de Clerk. Sin metadata (o con un valor

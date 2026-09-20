@@ -52,6 +52,19 @@ export class Onboarding {
     return control.touched || control.dirty ? errorMessage(control) : null;
   }
 
+  /** Guarda el DNI y el nombre en Clerk (mejor esfuerzo) y entra a la app. */
+  private async finish(name: string, dni: string): Promise<void> {
+    await this.auth.syncClerkName(name);
+    try {
+      await this.auth.saveDni(dni);
+    } catch {
+      // El DNI ya está vinculado en el backend; si Clerk falla, `/auth/confirm-dni` lo pedirá de nuevo.
+    }
+    this.auth.markProfileComplete();
+    this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
+    await this.router.navigateByUrl(this.auth.home());
+  }
+
   protected submit(): void {
     if (this.submitting()) return;
     this.form.markAllAsTouched();
@@ -70,12 +83,7 @@ export class Onboarding {
         dni: dni.trim(),
       })
       .subscribe({
-        next: () => {
-          void this.auth.syncClerkName(name);
-          this.auth.markProfileComplete();
-          this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
-          void this.router.navigateByUrl(this.auth.home());
-        },
+        next: () => void this.finish(name, dni.trim()),
         error: (err: unknown) => {
           this.submitting.set(false);
           if (!(err instanceof ApiError)) return;

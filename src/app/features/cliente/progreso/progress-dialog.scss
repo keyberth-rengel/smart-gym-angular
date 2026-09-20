@@ -1,0 +1,81 @@
+.progress-dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--sg-input-border);
+  border-radius: 20px;
+  background: var(--sg-surface);
+  color: var(--sg-text);
+
+  &::backdrop {
+    background: rgba(4, 10, 7, 0.72);
+  }
+}
+
+.sg-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 28px 28px;
+}
+
+.pd-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pd-title {
+  margin: 0;
+  font-size: 1.875rem;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sg-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+
+  &:hover {
+    background: var(--sg-surface-2);
+    color: var(--sg-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sg-accent);
+    outline-offset: 2px;
+  }
+}
+
+.pd-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9375rem;
+  color: var(--sg-muted);
+}
+
+.pd-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 479.98px) {
+  .sg-dialog-body {
+    padding: 20px;
+  }
+
+  .pd-actions {
+    flex-direction: column-reverse;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

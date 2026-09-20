@@ -1,0 +1,115 @@
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.metric {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px;
+}
+
+.metric-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sg-muted);
+}
+
+.metric-value {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.metric-number {
+  font-family: var(--sg-font-display);
+  font-weight: 700;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.metric-unit {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--sg-muted);
+}
+
+.metric-delta {
+  margin-top: 8px;
+}
+
+/* "Sin registro anterior" no cabe en una tarjeta angosta (tablet/móvil): el badge puede envolver. */
+.metric-badge {
+  height: auto;
+  min-height: 26px;
+  padding: 3px 10px;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.history-card {
+  padding: 22px;
+}
+
+.hist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-bottom: 14px;
+}
+
+.hist-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.hist-avg {
+  font-size: 0.875rem;
+  color: var(--sg-muted);
+}
+
+@media (max-width: 767.98px) {
+  .metrics {
+    gap: 10px;
+  }
+
+  .metric {
+    padding: 14px;
+    align-items: flex-start;
+  }
+
+  .metric-label {
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    min-height: 32px;
+  }
+
+  .metric-number {
+    font-size: 2.25rem;
+  }
+
+  .metric-unit {
+    font-size: 0.875rem;
+  }
+
+  .metric-spark,
+  .vs {
+    display: none;
+  }
+
+  .history-card {
+    padding: 16px;
+  }
+
+  .year {
+    display: none;
+  }
+}

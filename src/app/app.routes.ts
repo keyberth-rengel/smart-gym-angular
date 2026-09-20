@@ -2,6 +2,8 @@ import { Route, Routes } from '@angular/router';
 import { catchAllRoute } from 'ngx-clerk';
 import {
   authGuard,
+  confirmDniGuard,
+  dniGuard,
   guestGuard,
   homeGuard,
   onboardingGuard,
@@ -11,6 +13,16 @@ import {
 import { Role } from './core/auth/roles';
 import { NAV_ITEMS, relativePath } from './core/nav/nav-items';
 
+/** Pantallas ya construidas, por ruta completa; el resto usa la página provisional. */
+const PAGES: Record<string, Route['loadComponent']> = {
+  '/cliente/rutina': () =>
+    import('./features/cliente/rutina/rutina').then((m) => m.ClienteRutina),
+  '/cliente/progreso': () =>
+    import('./features/cliente/progreso/progreso').then((m) => m.ClienteProgreso),
+  '/cliente/asistencia': () =>
+    import('./features/cliente/asistencia/asistencia').then((m) => m.ClienteAsistencia),
+};
+
 /**
  * Rama de un rol: el shell como padre y un hijo por ítem del menú. Cada hijo apunta a una
  * página provisional hasta que su fase la reemplace (basta con cambiar su `loadComponent`).
@@ -18,14 +30,16 @@ import { NAV_ITEMS, relativePath } from './core/nav/nav-items';
 function roleBranch(role: Role): Route {
   return {
     path: role,
-    canActivate: [authGuard, roleGuard([role]), profileCompleteGuard],
+    canActivate: [authGuard, roleGuard([role]), profileCompleteGuard, dniGuard],
     loadComponent: () => import('./shared/layout/shell/shell').then((m) => m.Shell),
     children: NAV_ITEMS[role].map((item) => ({
       path: relativePath(item),
       pathMatch: item.exact ? ('full' as const) : ('prefix' as const),
       data: { title: item.label },
-      loadComponent: () =>
-        import('./shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+      loadComponent:
+        PAGES[item.path] ??
+        (() =>
+          import('./shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage)),
     })),
   };
 }
@@ -53,6 +67,12 @@ export const routes: Routes = [
         canActivate: [authGuard, onboardingGuard],
         loadComponent: () =>
           import('./features/auth/onboarding/onboarding').then((m) => m.Onboarding),
+      },
+      {
+        path: 'confirm-dni',
+        canActivate: [authGuard, confirmDniGuard],
+        loadComponent: () =>
+          import('./features/auth/confirm-dni/confirm-dni').then((m) => m.ConfirmDni),
       },
       {
         path: 'unavailable',

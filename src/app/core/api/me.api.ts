@@ -71,11 +71,32 @@ export class MeApi {
       ),
     );
   }
+
+  /**
+   * Comprueba que el DNI esté vinculado al correo del usuario (cuentas creadas antes de que
+   * el DNI se guardara en Clerk). No modifica nada en el backend.
+   */
+  confirmDni(dni: string, email: string): Observable<void> {
+    return this.identity.resolve(dni.trim()).pipe(
+      catchError((err) => (notFound(err) ? throwError(() => dniNotLinkedError()) : throwError(() => err))),
+      switchMap((link) =>
+        link.email.toLowerCase() === email.trim().toLowerCase()
+          ? of(undefined)
+          : throwError(() => dniTakenError()),
+      ),
+    );
+  }
 }
 
 const notFound = (err: unknown): boolean => err instanceof ApiError && err.isNotFound;
 
 const DNI_TAKEN_MESSAGE = 'Este DNI ya está vinculado a otra cuenta.';
+
+const DNI_NOT_LINKED_MESSAGE = 'Este DNI no está vinculado a ninguna cuenta de SmartGym.';
+
+function dniNotLinkedError(): ApiError {
+  return new ApiError(404, 'NOT_FOUND', DNI_NOT_LINKED_MESSAGE, { dni: DNI_NOT_LINKED_MESSAGE });
+}
 
 function dniTakenError(): ApiError {
   return new ApiError(409, 'DNI_TAKEN', DNI_TAKEN_MESSAGE, { dni: DNI_TAKEN_MESSAGE });

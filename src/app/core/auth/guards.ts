@@ -4,7 +4,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { filter, firstValueFrom } from 'rxjs';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { AuthService } from './auth.service';
-import { ONBOARDING_PATH, ROLE_HOME, Role, SIGN_IN_PATH, UNAVAILABLE_PATH } from './roles';
+import { CONFIRM_DNI_PATH, ONBOARDING_PATH, ROLE_HOME, Role, SIGN_IN_PATH, UNAVAILABLE_PATH } from './roles';
 
 /** Espera a que Clerk termine de cargar antes de decidir nada. */
 async function whenLoaded(auth: AuthService): Promise<void> {
@@ -80,4 +80,25 @@ export const onboardingGuard: CanActivateFn = async (): Promise<boolean | UrlTre
   const state = await profileState(auth);
   if (state === 'error') return router.parseUrl(UNAVAILABLE_PATH);
   return state ? router.parseUrl(auth.home()) : true;
+};
+
+/** Un cliente cuyo DNI aún no conocemos (cuenta anterior al DNI en Clerk) debe confirmarlo. */
+export const dniGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  await whenLoaded(auth);
+  if (auth.role() !== 'cliente') return true;
+  return auth.dni() ? true : router.parseUrl(CONFIRM_DNI_PATH);
+};
+
+/** Paso "confirma tu DNI": solo clientes con perfil completo y sin DNI conocido. */
+export const confirmDniGuard: CanActivateFn = async (): Promise<boolean | UrlTree> => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  await whenLoaded(auth);
+  if (auth.role() !== 'cliente') return router.parseUrl(auth.home());
+  const state = await profileState(auth);
+  if (state === 'error') return router.parseUrl(UNAVAILABLE_PATH);
+  if (!state) return router.parseUrl(ONBOARDING_PATH);
+  return auth.dni() ? router.parseUrl(auth.home()) : true;
 };

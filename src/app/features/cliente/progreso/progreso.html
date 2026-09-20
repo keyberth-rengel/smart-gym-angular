@@ -1,0 +1,86 @@
+<app-page-header title="Mi Progreso" subtitle="Evolución de tus métricas corporales">
+  <button actions type="button" class="btn btn-primary" (click)="openDialog()" data-testid="open-progress">
+    <i class="bi bi-plus-lg" aria-hidden="true"></i><span>Registrar<span class="d-none d-md-inline"> progreso</span></span>
+  </button>
+</app-page-header>
+
+@switch (state()) {
+  @case ('loading') {
+    <div class="metrics">
+      <app-loading variant="card" /><app-loading variant="card" /><app-loading variant="card" />
+    </div>
+    <app-loading variant="table" [rows]="4" label="Cargando historial…" />
+  }
+  @case ('error') {
+    <app-empty-state icon="cloud-slash" title="No pudimos cargar tu progreso" text="Revisa tu conexión e inténtalo de nuevo.">
+      <button type="button" class="btn btn-primary" (click)="load()" data-testid="retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
+      </button>
+    </app-empty-state>
+  }
+  @case ('empty') {
+    <app-empty-state icon="graph-up-arrow" title="Aún no registras tu progreso" text="Registra tu peso, grasa corporal y músculo para ver tu evolución.">
+      <button type="button" class="btn btn-primary" (click)="openDialog()" data-testid="empty-cta">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i><span>Registrar progreso</span>
+      </button>
+    </app-empty-state>
+  }
+  @default {
+    <div class="metrics" data-testid="metrics">
+      @for (m of metrics(); track m.key) {
+        <section class="card metric" [attr.data-metric]="m.key" [attr.aria-label]="m.label">
+          <div class="metric-main">
+            <div class="metric-label">{{ m.label }}</div>
+            <div class="metric-value">
+              <span class="metric-number" data-testid="metric-value">{{ m.value }}</span>
+              <span class="metric-unit">{{ m.unit }}</span>
+            </div>
+            <div class="metric-delta">
+              @if (m.delta) {
+                <span class="sg-badge metric-badge" [class]="'sg-badge-' + m.tone"><span data-testid="metric-delta">{{ m.delta }}</span><span class="vs">&nbsp;vs. anterior</span></span>
+              } @else {
+                <span class="sg-badge sg-badge-blue metric-badge"><span data-testid="metric-delta">Sin registro anterior</span></span>
+              }
+            </div>
+          </div>
+          @if (m.series.length > 1) {
+            <app-sparkline class="metric-spark" [values]="m.series" [tone]="m.tone" [label]="'Evolución de ' + m.label.toLowerCase()" />
+          }
+        </section>
+      }
+    </div>
+
+    <section class="card history-card" aria-labelledby="hist-title">
+      <div class="hist-head">
+        <h2 id="hist-title" class="hist-title">Historial de progreso</h2>
+        @if (averages(); as avg) {
+          <span class="hist-avg" data-testid="averages">{{ avg }}</span>
+        }
+      </div>
+      <div class="table-responsive" tabindex="0" role="region" aria-label="Historial de progreso">
+        <table class="table align-middle mb-0" data-testid="progress-table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Peso (kg)</th>
+              <th scope="col">Grasa (%)</th>
+              <th scope="col"><span class="d-none d-md-inline">Músculo (%)</span><span class="d-md-none">Músc.</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of rows(); track r.key) {
+              <tr data-testid="progress-row">
+                <td>{{ r.day }}<span class="year"> {{ r.year }}</span></td>
+                <td>{{ r.weight }}</td>
+                <td>{{ r.fat }}</td>
+                <td>{{ r.muscle }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+}
+
+<app-progress-dialog (saved)="load(true)" />

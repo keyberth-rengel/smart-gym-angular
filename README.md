@@ -99,3 +99,24 @@ los compone con endpoints existentes: el rol sale de Clerk, "perfil completo" es
 (`POST /customers`). Antes de vincular comprueba que el DNI no pertenezca a otra cuenta, porque el backend
 actual lo sobrescribiría sin avisar. Cuando exista B2 solo se reemplaza el cuerpo de `getMe()` y
 `completeOnboarding()`.
+
+### DNI del cliente (interino)
+
+Los endpoints de rutina, progreso y asistencia usan el DNI en la URL, y el front no lo puede deducir del
+correo. Por eso el onboarding lo guarda también en `user.unsafeMetadata.dni` de Clerk y `AuthService.dni()`
+lo expone. Las cuentas que ya tenían perfil pero no tienen ese dato pasan por `/auth/confirm-dni`, que solo
+acepta un DNI ya vinculado a su propio correo (`MeApi.confirmDni`). Cuando exista `GET /me` (B2) el DNI vendrá
+del backend y este paso desaparece. `unsafeMetadata` lo puede editar el propio usuario: la autorización real
+debe hacerla el backend (B8).
+
+## Módulo Cliente
+
+| Ruta | Pantalla | Endpoints |
+|---|---|---|
+| `/cliente/rutina` | Mi Rutina: plan activo por día e historial | `GET /routines/history/{dni}` (una sola llamada; la última rutina es la activa) |
+| `/cliente/progreso` | Mi Progreso: métricas, gráfica, historial y registro | `GET /progress/{dni}`, `POST /progress` |
+| `/cliente/asistencia` | Asistencia: marcar ingreso e historial | `POST /access`, `GET /attendance/{dni}` |
+
+Cada pantalla tiene estados de carga (esqueleto), vacío y error con "Reintentar". El backend responde 422
+(no 404) cuando no hay datos, y `ApiError.isNotFound` lo trata como vacío. El domingo no tiene plan y no se
+consulta al API. En el registro de progreso el 409 (un registro por día) se muestra dentro del diálogo.

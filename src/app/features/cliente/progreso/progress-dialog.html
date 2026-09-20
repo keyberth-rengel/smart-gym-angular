@@ -1,0 +1,101 @@
+<dialog
+  #dialog
+  class="sg-dialog progress-dialog"
+  aria-labelledby="pd-title"
+  (click)="onBackdropClick($event)"
+  data-testid="progress-dialog"
+>
+  <form class="sg-dialog-body" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="pd-head">
+      <h2 id="pd-title" class="pd-title">Registrar progreso</h2>
+      <button type="button" class="btn-icon" aria-label="Cerrar" (click)="close()" data-testid="pd-close">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="pd-who"><i class="bi bi-person-vcard" aria-hidden="true"></i><span>{{ who() }}</span></div>
+
+    <div>
+      <label class="form-label" for="pd-weight">Peso (kg)</label>
+      <input
+        #firstField
+        id="pd-weight"
+        class="form-control"
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        placeholder="Ej. 74.5"
+        formControlName="weightKg"
+        [class.is-invalid]="!!error('weightKg')"
+        [attr.aria-invalid]="!!error('weightKg')"
+        aria-describedby="pd-weight-msg"
+      />
+      <div id="pd-weight-msg" class="form-text" [class.invalid-feedback]="!!error('weightKg')" [class.d-block]="!!error('weightKg')" data-testid="pd-weight-msg">
+        {{ error('weightKg') ?? 'Entre 0.1 y 400 kg' }}
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <label class="form-label" for="pd-fat">Grasa corporal (%)</label>
+        <input
+          id="pd-fat"
+          class="form-control"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="Ej. 18.2"
+          formControlName="bodyFatPct"
+          [class.is-invalid]="!!error('bodyFatPct')"
+          [attr.aria-invalid]="!!error('bodyFatPct')"
+          aria-describedby="pd-fat-msg"
+        />
+        <div id="pd-fat-msg" class="form-text" [class.invalid-feedback]="!!error('bodyFatPct')" [class.d-block]="!!error('bodyFatPct')" data-testid="pd-fat-msg">
+          {{ error('bodyFatPct') ?? 'Entre 0 y 100' }}
+        </div>
+      </div>
+      <div class="col-6">
+        <label class="form-label" for="pd-muscle">Músculo (%)</label>
+        <input
+          id="pd-muscle"
+          class="form-control"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="Ej. 42.1"
+          formControlName="musclePct"
+          [class.is-invalid]="!!error('musclePct')"
+          [attr.aria-invalid]="!!error('musclePct')"
+          aria-describedby="pd-muscle-msg"
+        />
+        <div id="pd-muscle-msg" class="form-text" [class.invalid-feedback]="!!error('musclePct')" [class.d-block]="!!error('musclePct')" data-testid="pd-muscle-msg">
+          {{ error('musclePct') ?? 'Entre 0 y 100' }}
+        </div>
+      </div>
+    </div>
+
+    @if (formError(); as msg) {
+      <div class="alert alert-danger mb-0" role="alert" data-testid="pd-error">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ msg }}
+      </div>
+    } @else {
+      <div class="alert alert-info mb-0" role="note">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        Solo se permite un registro de progreso por día.
+      </div>
+    }
+
+    <div class="pd-actions">
+      <button type="button" class="btn btn-outline-secondary" (click)="close()" data-testid="pd-cancel">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()" data-testid="pd-submit">
+        @if (submitting()) {
+          <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          <span>Guardando…</span>
+        } @else {
+          <i class="bi bi-check-lg" aria-hidden="true"></i>
+          <span>Guardar registro</span>
+        }
+      </button>
+    </div>
+  </form>
+</dialog>

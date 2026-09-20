@@ -1,15 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProgressCreate, ProgressItem, ProgressList } from '../models';
-import { ApiClient } from './api-client';
+import { ApiClient, ApiRequestOptions } from './api-client';
 
 @Injectable({ providedIn: 'root' })
 export class ProgressApi {
   private readonly api = inject(ApiClient);
 
   /** Se envía en camelCase; un solo registro por cliente y día (409 si ya existe). */
-  add(progress: ProgressCreate): Observable<ProgressItem> {
-    return this.api.post<ProgressItem>('/progress', progress);
+  add(progress: ProgressCreate, options?: ApiRequestOptions): Observable<ProgressItem> {
+    return this.api.post<ProgressItem>('/progress', progress, options);
   }
 
   list(dni: string): Observable<ProgressList> {

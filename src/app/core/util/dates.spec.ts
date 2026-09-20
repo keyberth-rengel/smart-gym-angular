@@ -33,3 +33,12 @@ describe('dates', () => {
     expect(dayLabel('2026-09-12', now)).toBe('12 sep 2026');
   });
 });
+
+describe('formatDayMonth / formatYear', () => {
+  it('separa día y mes del año', async () => {
+    const { formatDayMonth, formatYear } = await import('./dates');
+    expect(formatDayMonth('2026-09-15')).toBe('15 sep');
+    expect(formatYear('2026-09-15')).toBe('2026');
+    expect(formatDayMonth('2026-01-05T08:30:00')).toBe('05 ene');
+  });
+});

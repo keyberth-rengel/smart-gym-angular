@@ -116,10 +116,25 @@ En el onboarding, un 409 (DNI de otra cuenta, o cuenta con otro DNI) se muestra 
 
 | Ruta | Pantalla | Endpoints |
 |---|---|---|
+| `/cliente` | Dashboard: 4 tarjetas (rutina de hoy, próxima reserva, progreso, asistencia) y acceso rápido a asistencia | `GET /routines/history/{dni}`, `GET /bookings`, `GET /trainers`, `GET /progress/{dni}`, `GET /attendance/{dni}` |
 | `/cliente/rutina` | Mi Rutina: plan activo por día e historial | `GET /routines/history/{dni}` (una sola llamada; la última rutina es la activa) |
 | `/cliente/progreso` | Mi Progreso: métricas, gráfica, historial y registro | `GET /progress/{dni}`, `POST /progress` |
+| `/cliente/reservas` | Reservas: nueva reserva con un entrenador y "Mis reservas" | `GET /trainers`, `GET /trainers/{email}/availability`, `GET /bookings`, `POST /bookings` |
 | `/cliente/asistencia` | Asistencia: marcar ingreso e historial | `POST /access`, `GET /attendance/{dni}` |
 
-Cada pantalla tiene estados de carga (esqueleto), vacío y error con "Reintentar". El backend responde 422
-(no 404) cuando no hay datos, y `ApiError.isNotFound` lo trata como vacío. El domingo no tiene plan y no se
+Cada pantalla tiene estados de carga (esqueleto), vacío y error con "Reintentar". `ApiError.isNotFound` cubre el
+404 actual y el 422 de versiones anteriores del backend, y se trata como vacío. El domingo no tiene plan y no se
+consulta al API. En el registro de progreso el 409 (un registro por día) se muestra dentro del diálogo.
+
+### Reservas y Dashboard
+
+- **Horas:** chips cada 30 minutos de 06:00 a 21:30 (`SLOT_START`, `SLOT_END`, `SLOT_STEP_MIN` en
+  `core/util/booking-slots.ts`). Las horas pasadas se ocultan según el reloj del navegador (el backend rechaza con
+  422 una hora anterior al instante actual, en la zona horaria del servidor) y se refrescan cada 30 s. Las ocupadas
+  vienen de `availability`, que solo devuelve horas y no expone datos de otros clientes.
+- **Fecha:** la fija el servidor (hoy); la pantalla solo la muestra.
+- **Errores al crear:** 409 (horario ocupado) y 422 (hora pasada) los avisa el interceptor con un toast y la pantalla
+  recarga la disponibilidad; 404 (el entrenador ya no existe) muestra un aviso y recarga la lista de entrenadores.
+- **Dashboard:** cada tarjeta carga y falla por separado (`StatCard` con `status`: esqueleto, "No disponible" con
+  "Reintentar"). Los toasts idénticos se funden en uno, para que un backend caído no apile cuatro avisos.
 consulta al API. En el registro de progreso el 409 (un registro por día) se muestra dentro del diálogo.

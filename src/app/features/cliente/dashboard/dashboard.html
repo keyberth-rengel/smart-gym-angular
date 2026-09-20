@@ -1,0 +1,60 @@
+<app-page-header [title]="'Bienvenido' + (firstName() ? ', ' + firstName() : '')" [subtitle]="today" />
+
+<div class="dash-grid" data-testid="dash-grid">
+  <app-stat-card
+    icon="lightning-charge"
+    label="Mi Rutina"
+    [status]="card('routine').status"
+    [value]="value('routine')"
+    [sub]="sub('routine')"
+    linkText="Ver rutina"
+    linkTo="/cliente/rutina"
+    (retry)="load('routine')"
+    data-testid="card-routine"
+  />
+  <app-stat-card
+    icon="calendar-event"
+    tone="blue"
+    label="Próxima reserva"
+    [status]="card('booking').status"
+    [value]="value('booking')"
+    [sub]="sub('booking')"
+    linkText="Ver reservas"
+    linkTo="/cliente/reservas"
+    (retry)="load('booking')"
+    data-testid="card-booking"
+  />
+  <app-stat-card
+    icon="graph-up-arrow"
+    label="Mi Progreso"
+    [status]="card('progress').status"
+    [value]="value('progress')"
+    [sub]="sub('progress')"
+    linkText="Ver progreso"
+    linkTo="/cliente/progreso"
+    (retry)="load('progress')"
+    data-testid="card-progress"
+  />
+  <app-stat-card
+    icon="check2-circle"
+    tone="blue"
+    label="Asistencia"
+    [status]="card('attendance').status"
+    [value]="value('attendance')"
+    [sub]="sub('attendance')"
+    linkText="Ver historial"
+    linkTo="/cliente/asistencia"
+    (retry)="load('attendance')"
+    data-testid="card-attendance"
+  />
+</div>
+
+<section class="card banner" aria-labelledby="banner-title">
+  <div>
+    <h2 id="banner-title" class="banner-title">¿Ya llegaste al gimnasio?</h2>
+    <p class="banner-text">Registra tu ingreso con un toque.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/cliente/asistencia" data-testid="banner-attendance">
+    <i class="bi bi-check2-circle" aria-hidden="true"></i><span>Marcar asistencia</span>
+  </a>
+</section>

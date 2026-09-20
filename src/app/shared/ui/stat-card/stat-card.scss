@@ -55,6 +55,54 @@
   color: var(--sg-muted);
 }
 
+.stat-value-error {
+  font-size: 1.75rem;
+  color: var(--sg-muted);
+}
+
+.stat-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sk {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--sg-surface-2) 25%, var(--sg-line) 50%, var(--sg-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.sk-value {
+  height: 40px;
+  width: 65%;
+}
+
+.sk-sub {
+  height: 16px;
+  width: 85%;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+}
+
+.stat-retry {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
 .stat-link {
   margin-top: auto;
   display: inline-flex;
@@ -81,6 +129,10 @@
   }
   .stat-value {
     font-size: 2.125rem;
+  }
+  .stat-value-long {
+    font-size: 1.625rem;
+    line-height: 1.05;
   }
   .stat-sub {
     font-size: 0.8125rem;

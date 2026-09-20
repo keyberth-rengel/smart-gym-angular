@@ -45,8 +45,16 @@ export class ToastService {
   }
 
   show(kind: ToastKind, message: string, title?: string): number {
+    const finalTitle = title ?? DEFAULT_TITLES[kind];
+    // Un aviso idéntico ya visible no se repite (p. ej. cuatro tarjetas que fallan a la vez): se reinicia su tiempo.
+    const same = this._toasts().find((t) => t.kind === kind && t.message === message && t.title === finalTitle);
+    if (same) {
+      this.startTimer(same.id, kind);
+      return same.id;
+    }
+
     const id = this.nextId++;
-    const toast: Toast = { id, kind, message, title: title ?? DEFAULT_TITLES[kind] };
+    const toast: Toast = { id, kind, message, title: finalTitle };
 
     const list = [...this._toasts(), toast];
     // Máximo apilado: descarta los más antiguos.
@@ -56,12 +64,17 @@ export class ToastService {
     }
     this._toasts.set(list);
 
+    this.startTimer(id, kind);
+    return id;
+  }
+
+  private startTimer(id: number, kind: ToastKind): void {
+    this.clearTimer(id);
     const ms = kind === 'error' ? TOAST_ERROR_DURATION_MS : TOAST_DURATION_MS;
     this.timers.set(
       id,
       setTimeout(() => this.dismiss(id), ms),
     );
-    return id;
   }
 
   dismiss(id: number): void {

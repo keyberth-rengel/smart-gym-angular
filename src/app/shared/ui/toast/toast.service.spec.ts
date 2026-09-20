@@ -59,4 +59,26 @@ describe('ToastService', () => {
     service.dismiss(999);
     expect(service.toasts()).toHaveLength(1);
   });
+
+  it('un aviso idéntico ya visible no se repite y reinicia su tiempo', () => {
+    vi.useFakeTimers();
+    const first = service.error('El servicio no está disponible.', 'Servicio no disponible');
+    vi.advanceTimersByTime(5000);
+    const second = service.error('El servicio no está disponible.', 'Servicio no disponible');
+    expect(second).toBe(first);
+    expect(service.toasts()).toHaveLength(1);
+    vi.advanceTimersByTime(3000); // 8 s desde el primero: sigue porque el tiempo se reinició a los 5 s
+    expect(service.toasts()).toHaveLength(1);
+    vi.advanceTimersByTime(4100);
+    expect(service.toasts()).toHaveLength(0);
+    vi.useRealTimers();
+  });
+
+  it('avisos con distinto tipo, título o mensaje sí se apilan', () => {
+    service.error('Mismo texto');
+    service.warning('Mismo texto');
+    service.error('Mismo texto', 'Otro título');
+    service.error('Otro texto');
+    expect(service.toasts()).toHaveLength(4);
+  });
 });

@@ -66,3 +66,36 @@ describe('componentes UI básicos', () => {
     expect(el.querySelector('[data-testid=loading-spinner] .visually-hidden')?.textContent).toContain('Cargando');
   });
 });
+
+describe('StatCard con estado', () => {
+  @Component({
+    imports: [StatCard],
+    template: `<app-stat-card icon="x" label="Progreso" [status]="status" value="74.5 kg" (retry)="retried = retried + 1" />`,
+  })
+  class StatusHost {
+    status: 'ready' | 'loading' | 'error' = 'ready';
+    retried = 0;
+  }
+
+  it('loading: esqueleto accesible y sin valor; error: aviso con Reintentar que emite; ready: valor', async () => {
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    const f = TestBed.createComponent(StatusHost);
+    const el: HTMLElement = f.nativeElement;
+    f.detectChanges();
+    expect(el.querySelector('[data-testid=stat-value]')?.textContent).toContain('74.5 kg');
+
+    f.componentInstance.status = 'loading';
+    f.changeDetectorRef.markForCheck();
+    f.detectChanges();
+    expect(el.querySelector('[data-testid=stat-loading]')?.getAttribute('role')).toBe('status');
+    expect(el.querySelector('[data-testid=stat-value]')).toBeNull();
+    expect(el.querySelector('[data-testid=stat-card]')?.getAttribute('aria-busy')).toBe('true');
+
+    f.componentInstance.status = 'error';
+    f.changeDetectorRef.markForCheck();
+    f.detectChanges();
+    expect(el.querySelector('[data-testid=stat-value]')?.textContent).toContain('No disponible');
+    (el.querySelector('[data-testid=stat-retry]') as HTMLButtonElement).click();
+    expect(f.componentInstance.retried).toBe(1);
+  });
+});

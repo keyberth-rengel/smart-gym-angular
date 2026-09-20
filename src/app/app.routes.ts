@@ -13,6 +13,10 @@ import { NAV_ITEMS, relativePath } from './core/nav/nav-items';
 
 /** Pantallas ya construidas, por ruta completa; el resto usa la página provisional. */
 const PAGES: Record<string, Route['loadComponent']> = {
+  '/cliente': () =>
+    import('./features/cliente/dashboard/dashboard').then((m) => m.ClienteDashboard),
+  '/cliente/reservas': () =>
+    import('./features/cliente/reservas/reservas').then((m) => m.ClienteReservas),
   '/cliente/rutina': () =>
     import('./features/cliente/rutina/rutina').then((m) => m.ClienteRutina),
   '/cliente/progreso': () =>

@@ -1,17 +1,41 @@
-<div class="card stat" [class.tone-blue]="tone() === 'blue'" data-testid="stat-card">
+<div
+  class="card stat"
+  [class.tone-blue]="tone() === 'blue'"
+  [attr.aria-busy]="status() === 'loading' ? 'true' : null"
+  data-testid="stat-card"
+>
   <div class="stat-head">
     <span class="stat-icon" aria-hidden="true"><i class="bi" [class]="'bi-' + icon()"></i></span>
     <span class="stat-label">{{ label() }}</span>
   </div>
-  <div>
-    <div class="stat-value" data-testid="stat-value">{{ value() }}</div>
-    @if (sub()) {
-      <div class="stat-sub">{{ sub() }}</div>
+  @switch (status()) {
+    @case ('loading') {
+      <div class="stat-skeleton" role="status" [attr.aria-label]="'Cargando ' + label()" data-testid="stat-loading">
+        <div class="sk sk-value"></div>
+        <div class="sk sk-sub"></div>
+      </div>
     }
-  </div>
-  @if (linkText() && linkTo()) {
-    <a class="stat-link" [routerLink]="linkTo()">
-      {{ linkText() }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
-    </a>
+    @case ('error') {
+      <div>
+        <div class="stat-value stat-value-error" data-testid="stat-value">No disponible</div>
+        <div class="stat-sub">No pudimos cargar este dato.</div>
+      </div>
+      <button type="button" class="stat-link stat-retry" (click)="retry.emit()" data-testid="stat-retry">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Reintentar
+      </button>
+    }
+    @default {
+      <div>
+        <div class="stat-value" [class.stat-value-long]="longValue()" data-testid="stat-value">{{ value() }}</div>
+        @if (sub()) {
+          <div class="stat-sub">{{ sub() }}</div>
+        }
+      </div>
+      @if (linkText() && linkTo()) {
+        <a class="stat-link" [routerLink]="linkTo()">
+          {{ linkText() }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+      }
+    }
   }
 </div>

@@ -121,13 +121,11 @@ describe('errorInterceptor', () => {
     expect(toast.toasts()[0].message).toContain('El servicio no está disponible');
   });
 
-  it('401 y 403 muestran falta de permisos', () => {
+  it('401 y 403 muestran falta de permisos (un solo aviso si se repite)', () => {
     fail(401, envelope('Unauthorized', 'UNAUTHORIZED'));
+    expect(toast.toasts().map((t) => t.message)).toEqual(['No tienes permisos para esta acción.']);
     fail(403, envelope('Forbidden', 'FORBIDDEN'));
-    expect(toast.toasts().map((t) => t.message)).toEqual([
-      'No tienes permisos para esta acción.',
-      'No tienes permisos para esta acción.',
-    ]);
+    expect(toast.toasts().map((t) => t.message)).toEqual(['No tienes permisos para esta acción.']);
   });
 
   it('SKIP_ERROR_TOAST silencia el toast pero conserva el ApiError', () => {

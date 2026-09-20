@@ -68,8 +68,9 @@ Abre <http://localhost:4200>. El proxy (`proxy.conf.json`) evita CORS en desarro
 
 ## Configuración de Clerk, paso a paso
 
-1. **Crear la aplicación** en el [Dashboard de Clerk](https://dashboard.clerk.com) y activar **correo + contraseña** y,
-   si se quiere, **Google** como métodos de inicio de sesión.
+1. **Crear la aplicación** en el [Dashboard de Clerk](https://dashboard.clerk.com) y activar **solo correo + contraseña**
+   como método de inicio de sesión. Si aparece **Google** activado, **desactívalo**: *User & authentication → Social
+   connections* → apagar Google (el frontend no tiene lógica propia de Google; Clerk muestra solo lo que esté activo).
 2. **Claves** (*API keys*): la *publishable key* (`pk_test_...`) va en `src/environments/environment.development.ts`
    (`clerkPublishableKey`). La *secret key* (`sk_test_...`) **solo** va en el backend, como variable de entorno.
 3. **Session token**: en *Sessions → Customize session token* agregar
@@ -177,7 +178,6 @@ Las rutas se cargan de forma diferida (un *chunk* por pantalla) y cada rama de r
 - **Las reservas son para hoy:** la fecha la fija el servidor (no hay agenda a futuro); los horarios pasados se ocultan.
 - **Horario del servidor:** las horas pasadas se ocultan con el reloj del navegador y el backend usa su propia zona
   horaria (America/Lima); con zonas distintas puede haber desfase.
-- **Google Login:** configurado pero **sin probar** de extremo a extremo.
 - **Invitaciones de entrenadores:** las invitaciones reales dependen de `CLERK_SECRET_KEY` en el backend; sin ella el alta
   funciona y la invitación queda como "no configurada". Los estados `INVITED`, `ROLE_UPDATED` y `FAILED` se probaron
   simulando la respuesta del backend, no contra Clerk.

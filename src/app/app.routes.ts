@@ -65,7 +65,7 @@ export const routes: Routes = [
   {
     path: 'auth',
     children: [
-      // Clerk usa subrutas internas (factor-one, verify-email-address, sso-callback...):
+      // Clerk usa subrutas internas (factor-one, verify-email-address...):
       // el matcher consume todos los segmentos que empiezan por sign-in / sign-up.
       {
         matcher: catchAllRoute('sign-in'),

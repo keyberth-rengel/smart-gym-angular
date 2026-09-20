@@ -3,7 +3,8 @@
     <h2 id="list-title" class="list-title">{{ title() }}</h2>
     @if (status() === 'ready') {
       <app-badge tone="gray"
-        ><span data-testid="total">{{ total() }}</span>&nbsp;registrados</app-badge
+        ><span data-testid="total">{{ total() }}</span
+        >&nbsp;registrados</app-badge
       >
     }
   </div>
@@ -47,7 +48,12 @@
         </label>
 
         @if (visible().length) {
-          <div class="table-responsive" tabindex="0" role="region" [attr.aria-label]="title()">
+          <div
+            class="table-responsive"
+            tabindex="0"
+            role="region"
+            [attr.aria-label]="'Tabla: ' + title()"
+          >
             <table class="table align-middle mb-0 registry-table" data-testid="registry-table">
               <thead>
                 <tr>
@@ -62,7 +68,9 @@
                     </th>
                   }
                   @if (actionIcon()) {
-                    <th scope="col" class="action-col"><span class="visually-hidden">Acciones</span></th>
+                    <th scope="col" class="action-col">
+                      <span class="visually-hidden">Acciones</span>
+                    </th>
                   }
                 </tr>
               </thead>
@@ -92,7 +100,10 @@
                           data-testid="row-action"
                         >
                           @if (isPending(row)) {
-                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            <span
+                              class="spinner-border spinner-border-sm"
+                              aria-hidden="true"
+                            ></span>
                           } @else {
                             <i class="bi" [class]="'bi-' + icon" aria-hidden="true"></i>
                           }
@@ -107,7 +118,12 @@
         } @else {
           <div class="no-results" data-testid="no-results">
             <p>Sin resultados para «{{ query() }}».</p>
-            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="onSearch('')" data-testid="clear-search">
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm"
+              (click)="onSearch('')"
+              data-testid="clear-search"
+            >
               Limpiar búsqueda
             </button>
           </div>

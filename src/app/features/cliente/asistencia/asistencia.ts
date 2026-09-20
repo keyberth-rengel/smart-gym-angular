@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AttendanceApi } from '../../../core/api/attendance.api';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -35,7 +42,9 @@ export class ClienteAsistencia {
   protected readonly failure = signal<string | null>(null);
 
   protected readonly count = computed(() => this.records().length);
-  protected readonly countLabel = computed(() => `${this.count()} ${this.count() === 1 ? 'ingreso' : 'ingresos'}`);
+  protected readonly countLabel = computed(
+    () => `${this.count()} ${this.count() === 1 ? 'ingreso' : 'ingresos'}`,
+  );
 
   /** Más reciente primero; la numeración cuenta desde el primer ingreso. */
   protected readonly rows = computed(() => {
@@ -90,7 +99,9 @@ export class ClienteAsistencia {
         next: () => {
           this.submitting.set(false);
           const name = this.auth.fullName() ?? '';
-          this.success.set(`¡Bienvenido ${name}! Ingreso registrado hoy a las ${formatTime(new Date())}.`);
+          this.success.set(
+            `¡Bienvenido ${name}! Ingreso registrado hoy a las ${formatTime(new Date())}.`,
+          );
           this.load(true);
         },
         error: (err: unknown) => {

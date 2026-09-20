@@ -28,7 +28,10 @@ describe('sparkPoints', () => {
 
   it('respeta un tamaño distinto', () => {
     const pts = sparkPoints([1, 2], 60, 20);
-    expect(pts).toEqual([{ x: 4, y: 16 }, { x: 56, y: 4 }]);
+    expect(pts).toEqual([
+      { x: 4, y: 16 },
+      { x: 56, y: 4 },
+    ]);
   });
 });
 

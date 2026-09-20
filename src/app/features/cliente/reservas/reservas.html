@@ -9,17 +9,36 @@
         <app-loading variant="card" label="Cargando entrenadores…" />
       }
       @case ('error') {
-        <app-empty-state icon="cloud-slash" title="No pudimos cargar los entrenadores" text="Revisa tu conexión e inténtalo de nuevo.">
-          <button type="button" class="btn btn-primary" (click)="loadTrainers()" data-testid="trainers-retry">
+        <app-empty-state
+          icon="cloud-slash"
+          title="No pudimos cargar los entrenadores"
+          text="Revisa tu conexión e inténtalo de nuevo."
+        >
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="loadTrainers()"
+            data-testid="trainers-retry"
+          >
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
           </button>
         </app-empty-state>
       }
       @case ('empty') {
-        <app-empty-state icon="person-badge" title="Aún no hay entrenadores registrados" text="Cuando recepción registre a un entrenador podrás reservar con él." />
+        <app-empty-state
+          icon="person-badge"
+          title="Aún no hay entrenadores registrados"
+          text="Cuando recepción registre a un entrenador podrás reservar con él."
+        />
       }
       @default {
-        <form class="res-form" [formGroup]="form" (ngSubmit)="submit()" novalidate data-testid="booking-form">
+        <form
+          class="res-form"
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+          data-testid="booking-form"
+        >
           <div>
             <label class="form-label" for="res-trainer">Entrenador</label>
             <select
@@ -34,15 +53,24 @@
             >
               <option value="" disabled>Selecciona un entrenador</option>
               @for (t of trainers(); track t.email) {
-                <option [value]="t.email">{{ t.name }}@if (t.specialty) { · {{ t.specialty }}}</option>
+                <option [value]="t.email">
+                  {{ t.name }}
+                  @if (t.specialty) {
+                    · {{ t.specialty }}
+                  }
+                </option>
               }
             </select>
-            <div id="res-trainer-msg" class="invalid-feedback" [class.d-block]="!!error('trainer')">{{ error('trainer') }}</div>
+            <div id="res-trainer-msg" class="invalid-feedback" [class.d-block]="!!error('trainer')">
+              {{ error('trainer') }}
+            </div>
           </div>
 
           <div class="res-date">
             <i class="bi bi-calendar-event" aria-hidden="true"></i>
-            <span>Fecha: <b data-testid="today-label">{{ today() }}</b> · la asigna el sistema</span>
+            <span
+              >Fecha: <b data-testid="today-label">{{ today() }}</b> · la asigna el sistema</span
+            >
           </div>
 
           <div role="group" aria-labelledby="res-time-label">
@@ -51,20 +79,40 @@
             </div>
             @switch (slotsState()) {
               @case ('idle') {
-                <p class="res-note" data-testid="slots-idle">Selecciona un entrenador para ver los horarios de hoy.</p>
+                <p class="res-note" data-testid="slots-idle">
+                  Selecciona un entrenador para ver los horarios de hoy.
+                </p>
               }
               @case ('loading') {
                 <app-loading label="Cargando horarios…" />
               }
               @case ('error') {
-                <div class="alert alert-danger d-flex align-items-center justify-content-between gap-2 mb-0" role="alert" data-testid="slots-error">
-                  <span><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> No pudimos cargar los horarios.</span>
-                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="loadAvailability()" data-testid="slots-retry">Reintentar</button>
+                <div
+                  class="alert alert-danger d-flex align-items-center justify-content-between gap-2 mb-0"
+                  role="alert"
+                  data-testid="slots-error"
+                >
+                  <span
+                    ><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> No pudimos cargar
+                    los horarios.</span
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="loadAvailability()"
+                    data-testid="slots-retry"
+                  >
+                    Reintentar
+                  </button>
                 </div>
               }
               @default {
                 @if (noSlotsLeft()) {
-                  <app-empty-state icon="clock-history" title="Ya no hay horarios disponibles hoy" text="Vuelve mañana para reservar una nueva sesión." />
+                  <app-empty-state
+                    icon="clock-history"
+                    title="Ya no hay horarios disponibles hoy"
+                    text="Vuelve mañana para reservar una nueva sesión."
+                  />
                 } @else {
                   <div class="chips" data-testid="chips">
                     @for (s of slots(); track s.time) {
@@ -78,12 +126,16 @@
                         [attr.aria-label]="s.booked ? s.time + ', ocupada' : s.time"
                         (click)="pickTime(s.time)"
                         data-testid="chip"
-                      >{{ s.time }}</button>
+                      >
+                        {{ s.time }}
+                      </button>
                     }
                   </div>
                 }
                 @if (error('time')) {
-                  <div class="invalid-feedback d-block" data-testid="time-msg">{{ error('time') }}</div>
+                  <div class="invalid-feedback d-block" data-testid="time-msg">
+                    {{ error('time') }}
+                  </div>
                 }
               }
             }
@@ -102,7 +154,12 @@
               aria-describedby="res-note-count"
               data-testid="note"
             ></textarea>
-            <div id="res-note-count" class="res-count" [class.res-count-over]="noteLength() > noteMax" data-testid="note-count">
+            <div
+              id="res-note-count"
+              class="res-count"
+              [class.res-count-over]="noteLength() > noteMax"
+              data-testid="note-count"
+            >
               {{ noteLength() }} / {{ noteMax }}
             </div>
             @if (error('note'); as msg) {
@@ -116,9 +173,15 @@
             </div>
           }
 
-          <button type="submit" class="btn btn-primary res-submit" [disabled]="submitting()" data-testid="submit">
+          <button
+            type="submit"
+            class="btn btn-primary res-submit"
+            [disabled]="submitting()"
+            data-testid="submit"
+          >
             @if (submitting()) {
-              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span><span>Creando…</span>
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span
+              ><span>Creando…</span>
             } @else {
               <i class="bi bi-check2-circle" aria-hidden="true"></i><span>Crear reserva</span>
             }
@@ -135,14 +198,27 @@
         <app-loading variant="table" [rows]="3" label="Cargando reservas…" />
       }
       @case ('error') {
-        <app-empty-state icon="cloud-slash" title="No pudimos cargar tus reservas" text="Revisa tu conexión e inténtalo de nuevo.">
-          <button type="button" class="btn btn-primary" (click)="loadBookings()" data-testid="bookings-retry">
+        <app-empty-state
+          icon="cloud-slash"
+          title="No pudimos cargar tus reservas"
+          text="Revisa tu conexión e inténtalo de nuevo."
+        >
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="loadBookings()"
+            data-testid="bookings-retry"
+          >
             <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
           </button>
         </app-empty-state>
       }
       @case ('empty') {
-        <app-empty-state icon="calendar-x" title="Aún no tienes reservas" text="Cuando reserves una sesión aparecerá aquí." />
+        <app-empty-state
+          icon="calendar-x"
+          title="Aún no tienes reservas"
+          text="Cuando reserves una sesión aparecerá aquí."
+        />
       }
       @default {
         <ul class="mine-list" data-testid="bookings-list">

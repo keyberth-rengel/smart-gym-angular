@@ -6,7 +6,11 @@
     <app-loading variant="table" [rows]="3" label="Cargando historial…" />
   }
   @case ('error') {
-    <app-empty-state icon="cloud-slash" title="No pudimos cargar tu rutina" text="Revisa tu conexión e inténtalo de nuevo.">
+    <app-empty-state
+      icon="cloud-slash"
+      title="No pudimos cargar tu rutina"
+      text="Revisa tu conexión e inténtalo de nuevo."
+    >
       <button type="button" class="btn btn-primary" (click)="load()" data-testid="retry">
         <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
       </button>
@@ -26,7 +30,8 @@
       <span class="plan-icon" aria-hidden="true"><i class="bi bi-lightning-charge"></i></span>
       <div class="plan-text">
         <div class="plan-kicker" data-testid="plan-kicker">
-          {{ day().long }} · {{ day().rest ? 'Día de descanso' : 'Plan del día' }}{{ day().isToday ? ' · Hoy' : '' }}
+          {{ day().long }} · {{ day().rest ? 'Día de descanso' : 'Plan del día'
+          }}{{ day().isToday ? ' · Hoy' : '' }}
         </div>
         <div class="plan-block" data-testid="plan-block">{{ day().block }}</div>
       </div>

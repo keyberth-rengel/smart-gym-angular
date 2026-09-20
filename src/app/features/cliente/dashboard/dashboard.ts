@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Observable, catchError, forkJoin, map, of, throwError } from 'rxjs';
@@ -13,7 +20,13 @@ import { AttendanceRecord, ProgressList, RoutineHistoryItem } from '../../../cor
 import { formatLongDate } from '../../../core/util/dates';
 import { PageHeader } from '../../../shared/ui/page-header/page-header';
 import { StatCard } from '../../../shared/ui/stat-card/stat-card';
-import { CardText, attendanceCard, nextBookingCard, progressCard, routineCard } from './dashboard-view';
+import {
+  CardText,
+  attendanceCard,
+  nextBookingCard,
+  progressCard,
+  routineCard,
+} from './dashboard-view';
 
 type CardKey = 'routine' | 'booking' | 'progress' | 'attendance';
 type CardState = { status: 'loading' } | { status: 'error' } | ({ status: 'ready' } & CardText);
@@ -87,12 +100,10 @@ export class ClienteDashboard {
     switch (key) {
       case 'routine':
         return this.withDni(dni, (d) =>
-          this.routinesApi
-            .history(d)
-            .pipe(
-              catchError((e) => this.emptyOn404<RoutineHistoryItem[]>(e, [])),
-              map((h) => routineCard(h, now)),
-            ),
+          this.routinesApi.history(d).pipe(
+            catchError((e) => this.emptyOn404<RoutineHistoryItem[]>(e, [])),
+            map((h) => routineCard(h, now)),
+          ),
         );
       case 'booking':
         return forkJoin({
@@ -102,26 +113,25 @@ export class ClienteDashboard {
         }).pipe(map(({ bookings, trainers }) => nextBookingCard(bookings, trainers, now)));
       case 'progress':
         return this.withDni(dni, (d) =>
-          this.progressApi
-            .list(d)
-            .pipe(
-              catchError((e) => this.emptyOn404<Pick<ProgressList, 'items'>>(e, { items: [] })),
-              map((l) => progressCard(l)),
-            ),
+          this.progressApi.list(d).pipe(
+            catchError((e) => this.emptyOn404<Pick<ProgressList, 'items'>>(e, { items: [] })),
+            map((l) => progressCard(l)),
+          ),
         );
       case 'attendance':
         return this.withDni(dni, (d) =>
-          this.attendanceApi
-            .list(d)
-            .pipe(
-              catchError((e) => this.emptyOn404<AttendanceRecord[]>(e, [])),
-              map((r) => attendanceCard(r, now)),
-            ),
+          this.attendanceApi.list(d).pipe(
+            catchError((e) => this.emptyOn404<AttendanceRecord[]>(e, [])),
+            map((r) => attendanceCard(r, now)),
+          ),
         );
     }
   }
 
-  private withDni(dni: string | null, run: (dni: string) => Observable<CardText>): Observable<CardText> {
+  private withDni(
+    dni: string | null,
+    run: (dni: string) => Observable<CardText>,
+  ): Observable<CardText> {
     return dni ? run(dni) : throwError(() => new Error('Sin DNI'));
   }
 }

@@ -1,11 +1,23 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinesApi } from '../../../core/api/routines.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { RoutineHistoryItem, WeekdayKey } from '../../../core/models';
 import { formatDate } from '../../../core/util/dates';
-import { blockLabel, hasRoutineFor, todayKey, weekdayInfo } from '../../../core/util/routine-blocks';
+import {
+  blockLabel,
+  hasRoutineFor,
+  todayKey,
+  weekdayInfo,
+} from '../../../core/util/routine-blocks';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { DayPills } from '../../../shared/ui/day-pills/day-pills';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';

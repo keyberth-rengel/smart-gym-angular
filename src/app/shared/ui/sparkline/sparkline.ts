@@ -9,7 +9,11 @@ export interface SparkPoint {
  * Puntos del sparkline dentro de un recuadro `width` x `height` con 4 px de margen.
  * Con un solo valor queda centrado; con todos iguales, en línea recta al medio.
  */
-export function sparkPoints(values: readonly number[], width: number, height: number): SparkPoint[] {
+export function sparkPoints(
+  values: readonly number[],
+  width: number,
+  height: number,
+): SparkPoint[] {
   const n = values.length;
   if (n === 0) return [];
   const lo = Math.min(...values);
@@ -78,7 +82,9 @@ export class Sparkline {
   readonly tone = input<'green' | 'blue'>('green');
   readonly label = input('Evolución');
 
-  protected readonly points = computed(() => sparkPoints(this.values(), this.width(), this.height()));
+  protected readonly points = computed(() =>
+    sparkPoints(this.values(), this.width(), this.height()),
+  );
   protected readonly polyline = computed(() =>
     this.points()
       .map((p) => `${p.x},${p.y}`)

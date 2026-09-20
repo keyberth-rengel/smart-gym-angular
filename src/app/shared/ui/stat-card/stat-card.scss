@@ -68,7 +68,12 @@
 
 .sk {
   border-radius: 8px;
-  background: linear-gradient(90deg, var(--sg-surface-2) 25%, var(--sg-line) 50%, var(--sg-surface-2) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--sg-surface-2) 25%,
+    var(--sg-line) 50%,
+    var(--sg-surface-2) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
 }

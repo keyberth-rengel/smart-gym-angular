@@ -51,7 +51,9 @@ export class DayPills {
   /** Flechas, Inicio y Fin mueven el foco entre los días (Tab sigue funcionando). */
   protected onKeydown(event: KeyboardEvent, index: number): void {
     const buttons = Array.from(
-      (event.currentTarget as HTMLElement).parentElement!.querySelectorAll<HTMLButtonElement>('button'),
+      (event.currentTarget as HTMLElement).parentElement!.querySelectorAll<HTMLButtonElement>(
+        'button',
+      ),
     );
     let next = -1;
     if (event.key === 'ArrowRight') next = (index + 1) % buttons.length;

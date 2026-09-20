@@ -12,7 +12,12 @@ import { testMe } from '../../../testing/test-me';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { ProgressDialog } from './progress-dialog';
 
-const SAVED: ProgressItem = { date: '2026-09-19', weight_kg: 74.5, body_fat_pct: 18.2, muscle_pct: 42.1 };
+const SAVED: ProgressItem = {
+  date: '2026-09-19',
+  weight_kg: 74.5,
+  body_fat_pct: 18.2,
+  muscle_pct: 42.1,
+};
 
 describe('ProgressDialog', () => {
   let fixture: ComponentFixture<ProgressDialog>;
@@ -26,7 +31,9 @@ describe('ProgressDialog', () => {
     TestBed.configureTestingModule({
       imports: [ProgressDialog],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez'}) })),
+        provideFakeClerk(
+          createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) }),
+        ),
         { provide: MeApi, useValue: {} },
         { provide: ProgressApi, useValue: { add } },
       ],
@@ -65,7 +72,9 @@ describe('ProgressDialog', () => {
     setup();
     expect(dialog().hasAttribute('open')).toBe(true);
     expect(q('.pd-who').textContent).toContain('DNI 12345678 · Ana Pérez');
-    expect(q('[role=note]').textContent).toContain('Solo se permite un registro de progreso por día');
+    expect(q('[role=note]').textContent).toContain(
+      'Solo se permite un registro de progreso por día',
+    );
     expect(document.activeElement === q('#pd-weight') || true).toBe(true); // el foco real se mide en el navegador
   });
 
@@ -118,7 +127,8 @@ describe('ProgressDialog', () => {
     fill(value);
     submit();
     expect(add.mock.calls.length).toBe(valid ? 1 : 0);
-    if (!valid) expect(q('[data-testid=pd-weight-msg]').textContent).toContain('entre 0.1 y 400 kg');
+    if (!valid)
+      expect(q('[data-testid=pd-weight-msg]').textContent).toContain('entre 0.1 y 400 kg');
   });
 
   it.each([
@@ -177,7 +187,14 @@ describe('ProgressDialog', () => {
   });
 
   it('error de campo del servidor (400): se marca junto al campo', () => {
-    setup(() => throwError(() => new ApiError(400, 'BAD_REQUEST', 'x', { weightKg: 'El peso debe estar entre 0.1 y 400 kg.' })));
+    setup(() =>
+      throwError(
+        () =>
+          new ApiError(400, 'BAD_REQUEST', 'x', {
+            weightKg: 'El peso debe estar entre 0.1 y 400 kg.',
+          }),
+      ),
+    );
     fill();
     submit();
     expect(q('[data-testid=pd-weight-msg]').textContent).toContain('entre 0.1 y 400');
@@ -186,17 +203,27 @@ describe('ProgressDialog', () => {
   });
 
   it('caída del servicio: toast de servicio no disponible, diálogo abierto y datos conservados', () => {
-    setup(() => throwError(() => new ApiError(0, 'NETWORK_ERROR', 'El servicio no está disponible.')));
+    setup(() =>
+      throwError(() => new ApiError(0, 'NETWORK_ERROR', 'El servicio no está disponible.')),
+    );
     fill();
     submit();
     expect(dialog().hasAttribute('open')).toBe(true);
-    expect(TestBed.inject(ToastService).toasts().map((t) => t.kind)).toEqual(['error']);
+    expect(
+      TestBed.inject(ToastService)
+        .toasts()
+        .map((t) => t.kind),
+    ).toEqual(['error']);
     expect(q<HTMLInputElement>('#pd-weight').value).toBe('74.5');
     expect(q<HTMLButtonElement>('[data-testid=pd-submit]').disabled).toBe(false);
   });
 
   it('otro error del servidor (422) se muestra dentro del diálogo', () => {
-    setup(() => throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'No se pudo completar la operación.')));
+    setup(() =>
+      throwError(
+        () => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'No se pudo completar la operación.'),
+      ),
+    );
     fill();
     submit();
     expect(q('[data-testid=pd-error]').textContent).toContain('No se pudo completar');

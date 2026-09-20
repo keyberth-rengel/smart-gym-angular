@@ -60,14 +60,20 @@
   @default {
     <section class="card history-card" aria-labelledby="history-title">
       <div class="card-head">
-        <h2 id="history-title" class="card-title">Historial de asistencia · DNI {{ shownDni() }}</h2>
+        <h2 id="history-title" class="card-title">
+          Historial de asistencia · DNI {{ shownDni() }}
+        </h2>
         <app-badge tone="gray"
-          ><span data-testid="count">{{ rows().length }}</span>&nbsp;{{
-            rows().length === 1 ? 'ingreso' : 'ingresos'
-          }}</app-badge
+          ><span data-testid="count">{{ rows().length }}</span
+          >&nbsp;{{ rows().length === 1 ? 'ingreso' : 'ingresos' }}</app-badge
         >
       </div>
-      <div class="table-responsive" tabindex="0" role="region" aria-label="Historial de asistencia">
+      <div
+        class="table-responsive"
+        tabindex="0"
+        role="region"
+        aria-label="Tabla: Historial de asistencia"
+      >
         <table class="table align-middle mb-0 history-table" data-testid="history-table">
           <thead>
             <tr>
@@ -83,7 +89,9 @@
                 <td>{{ r.date }}</td>
                 <td class="time">{{ r.time }}</td>
                 <td class="email" [attr.title]="r.email">{{ r.email }}</td>
-                <td><app-badge [tone]="r.tone">{{ r.roleLabel }}</app-badge></td>
+                <td>
+                  <app-badge [tone]="r.tone">{{ r.roleLabel }}</app-badge>
+                </td>
               </tr>
             }
           </tbody>

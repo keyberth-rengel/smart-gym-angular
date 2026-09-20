@@ -26,7 +26,10 @@ describe('Onboarding', () => {
     ...over,
   });
 
-  function setup(result: () => Observable<Me> = () => of(backendMe()), name: string | null = 'Ana Pérez') {
+  function setup(
+    result: () => Observable<Me> = () => of(backendMe()),
+    name: string | null = 'Ana Pérez',
+  ) {
     clerkUser = fakeUser({ name, email: 'Ana@Correo.com' });
     complete = vi.fn((_: OnboardingInput) => result());
     TestBed.configureTestingModule({
@@ -139,13 +142,16 @@ describe('Onboarding', () => {
   });
 
   describe('DNI', () => {
-    it.each(['1234567', '123456789', '1234567a', 'abcdefgh', '1234 567'])('"%s" no es válido', (dni) => {
-      setup();
-      fill('28', dni);
-      submit();
-      expect(text('[data-testid=dni-error]')).toBe('El DNI debe tener 8 dígitos.');
-      expect(complete).not.toHaveBeenCalled();
-    });
+    it.each(['1234567', '123456789', '1234567a', 'abcdefgh', '1234 567'])(
+      '"%s" no es válido',
+      (dni) => {
+        setup();
+        fill('28', dni);
+        submit();
+        expect(text('[data-testid=dni-error]')).toBe('El DNI debe tener 8 dígitos.');
+        expect(complete).not.toHaveBeenCalled();
+      },
+    );
 
     it('8 dígitos es válido', () => {
       setup();
@@ -214,7 +220,16 @@ describe('Onboarding', () => {
 
   it('DNI de otra cuenta: error en el campo, botón habilitado y sin navegar', () => {
     setup(() =>
-      throwError(() => new ApiError(409, 'CONFLICT', 'Este DNI ya está vinculado a otra cuenta.', {}, 'DNI already linked to another account')),
+      throwError(
+        () =>
+          new ApiError(
+            409,
+            'CONFLICT',
+            'Este DNI ya está vinculado a otra cuenta.',
+            {},
+            'DNI already linked to another account',
+          ),
+      ),
     );
     fill();
     submit();
@@ -224,7 +239,9 @@ describe('Onboarding', () => {
   });
 
   it('el error del servidor desaparece al corregir el campo', () => {
-    setup(() => throwError(() => new ApiError(409, 'CONFLICT', 'Este DNI ya está vinculado a otra cuenta.')));
+    setup(() =>
+      throwError(() => new ApiError(409, 'CONFLICT', 'Este DNI ya está vinculado a otra cuenta.')),
+    );
     fill();
     submit();
     expect(visible('[data-testid=dni-error]')).toBe(true);
@@ -233,7 +250,14 @@ describe('Onboarding', () => {
   });
 
   it('400 con campo desconocido: toast y el formulario sigue utilizable', () => {
-    setup(() => throwError(() => new ApiError(400, 'BAD_REQUEST', 'Revisa los datos ingresados.', { nickname: 'Este campo es obligatorio.' })));
+    setup(() =>
+      throwError(
+        () =>
+          new ApiError(400, 'BAD_REQUEST', 'Revisa los datos ingresados.', {
+            nickname: 'Este campo es obligatorio.',
+          }),
+      ),
+    );
     fill();
     submit();
     expect(TestBed.inject(ToastService).toasts()[0].message).toBe('Revisa los datos ingresados.');
@@ -251,7 +275,14 @@ describe('Onboarding', () => {
   });
 
   it('400 con errores por campo: se muestran junto al campo, sin toast', () => {
-    setup(() => throwError(() => new ApiError(400, 'BAD_REQUEST', 'Revisa los datos ingresados.', { age: 'Debe ser mayor o igual a 0.' })));
+    setup(() =>
+      throwError(
+        () =>
+          new ApiError(400, 'BAD_REQUEST', 'Revisa los datos ingresados.', {
+            age: 'Debe ser mayor o igual a 0.',
+          }),
+      ),
+    );
     fill();
     submit();
     expect(text('[data-testid=age-error]')).toBe('Debe ser mayor o igual a 0.');
@@ -259,7 +290,9 @@ describe('Onboarding', () => {
   });
 
   it('cuenta que ya tiene otro DNI (409): error en el campo del DNI', () => {
-    setup(() => throwError(() => new ApiError(409, 'CONFLICT', 'Tu cuenta ya tiene otro DNI vinculado.')));
+    setup(() =>
+      throwError(() => new ApiError(409, 'CONFLICT', 'Tu cuenta ya tiene otro DNI vinculado.')),
+    );
     fill();
     submit();
     expect(text('[data-testid=dni-error]')).toBe('Tu cuenta ya tiene otro DNI vinculado.');

@@ -77,9 +77,7 @@ describe('todayBookings', () => {
       [],
       now,
     );
-    expect(rows).toEqual([
-      { id: 1, time: '09:30', customer: 'otro@x.com', trainer: 'sin@x.com' },
-    ]);
+    expect(rows).toEqual([{ id: 1, time: '09:30', customer: 'otro@x.com', trainer: 'sin@x.com' }]);
   });
 
   it('medianoche: a las 00:00 y a las 23:59 "hoy" es el mismo día', () => {
@@ -119,7 +117,9 @@ describe('invitationOutcome', () => {
     expect(invitationOutcome(inv('INVITED'), 'a@x.com', false).text).toBe(
       'Invitación enviada a a@x.com.',
     );
-    expect(invitationOutcome(inv('ROLE_UPDATED'), 'a@x.com', false).text).toContain('a@x.com ya tenía cuenta');
+    expect(invitationOutcome(inv('ROLE_UPDATED'), 'a@x.com', false).text).toContain(
+      'a@x.com ya tenía cuenta',
+    );
     expect(invitationOutcome(inv('SKIPPED'), 'a@x.com', false).tone).toBe('warning');
     const failed = invitationOutcome(inv('FAILED'), 'a@x.com', false);
     expect(failed.tone).toBe('danger');
@@ -130,10 +130,38 @@ describe('invitationOutcome', () => {
 describe('reservas del admin', () => {
   const NOW = new Date(2026, 8, 19, 15, 10);
   const bookings: Booking[] = [
-    { id: 9, customer_email: 'miguel@x.com', trainer_email: 'lucia@x.com', date: '2026-09-18', time: '07:30', note: null },
-    { id: 14, customer_email: 'Carlos@x.com', trainer_email: 'Lucia@x.com', date: '2026-09-19', time: '16:30', note: ' Piernas ' },
-    { id: 13, customer_email: 'rosa@x.com', trainer_email: 'marco@x.com', date: '2026-09-19', time: '17:00', note: null },
-    { id: 12, customer_email: 'rosa@x.com', trainer_email: 'marco@x.com', date: '2026-09-19', time: '17:00:00', note: null },
+    {
+      id: 9,
+      customer_email: 'miguel@x.com',
+      trainer_email: 'lucia@x.com',
+      date: '2026-09-18',
+      time: '07:30',
+      note: null,
+    },
+    {
+      id: 14,
+      customer_email: 'Carlos@x.com',
+      trainer_email: 'Lucia@x.com',
+      date: '2026-09-19',
+      time: '16:30',
+      note: ' Piernas ',
+    },
+    {
+      id: 13,
+      customer_email: 'rosa@x.com',
+      trainer_email: 'marco@x.com',
+      date: '2026-09-19',
+      time: '17:00',
+      note: null,
+    },
+    {
+      id: 12,
+      customer_email: 'rosa@x.com',
+      trainer_email: 'marco@x.com',
+      date: '2026-09-19',
+      time: '17:00:00',
+      note: null,
+    },
   ];
   const customers = [
     { email: 'carlos@x.com', name: 'Carlos Mendoza' },
@@ -153,11 +181,19 @@ describe('reservas del admin', () => {
       expect(r.map((x) => x.id)).toEqual([9, 14]);
     });
     it('por fecha exacta', () => {
-      expect(filterBookings(bookings, { trainerEmail: '', date: '2026-09-18' }).map((x) => x.id)).toEqual([9]);
+      expect(
+        filterBookings(bookings, { trainerEmail: '', date: '2026-09-18' }).map((x) => x.id),
+      ).toEqual([9]);
     });
     it('combinados y sin coincidencias', () => {
-      expect(filterBookings(bookings, { trainerEmail: 'lucia@x.com', date: '2026-09-19' }).map((x) => x.id)).toEqual([14]);
-      expect(filterBookings(bookings, { trainerEmail: 'marco@x.com', date: '2026-09-18' })).toEqual([]);
+      expect(
+        filterBookings(bookings, { trainerEmail: 'lucia@x.com', date: '2026-09-19' }).map(
+          (x) => x.id,
+        ),
+      ).toEqual([14]);
+      expect(filterBookings(bookings, { trainerEmail: 'marco@x.com', date: '2026-09-18' })).toEqual(
+        [],
+      );
     });
     it('no modifica el original', () => {
       const copy = [...bookings];
@@ -246,8 +282,18 @@ describe('asistencia del admin', () => {
     });
     it('formatea fecha y hora y asigna etiqueta y tono del rol', () => {
       const rows = attendanceRows(records);
-      expect(rows[0]).toMatchObject({ date: '19 sep 2026', time: '06:45', roleLabel: 'Entrenador', tone: 'green' });
-      expect(rows[2]).toMatchObject({ date: '15 sep 2026', time: '07:05', roleLabel: 'Cliente', tone: 'blue' });
+      expect(rows[0]).toMatchObject({
+        date: '19 sep 2026',
+        time: '06:45',
+        roleLabel: 'Entrenador',
+        tone: 'green',
+      });
+      expect(rows[2]).toMatchObject({
+        date: '15 sep 2026',
+        time: '07:05',
+        roleLabel: 'Cliente',
+        tone: 'blue',
+      });
     });
     it('lista vacía', () => {
       expect(attendanceRows([])).toEqual([]);

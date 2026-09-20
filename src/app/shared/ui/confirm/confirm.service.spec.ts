@@ -9,7 +9,13 @@ describe('ConfirmService', () => {
   it('publica la petición con valores por defecto y se resuelve al confirmar', async () => {
     const p = service.confirm({ title: 'T', message: 'M' });
     await Promise.resolve();
-    expect(service.request()?.options).toEqual({ title: 'T', message: 'M', confirmLabel: 'Confirmar', cancelLabel: 'Volver', danger: false });
+    expect(service.request()?.options).toEqual({
+      title: 'T',
+      message: 'M',
+      confirmLabel: 'Confirmar',
+      cancelLabel: 'Volver',
+      danger: false,
+    });
     service.settle(true);
     await expect(p).resolves.toBe(true);
     expect(service.request()).toBeNull();
@@ -45,7 +51,9 @@ describe('ConfirmDialog', () => {
     const service = TestBed.inject(ConfirmService);
     const dialog = (fixture.nativeElement as HTMLElement).querySelector('dialog')!;
     // jsdom no implementa <dialog>: se simula lo mínimo de su API
-    dialog.showModal = function (this: HTMLDialogElement) { this.setAttribute('open', ''); };
+    dialog.showModal = function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
     dialog.close = function (this: HTMLDialogElement, value?: string) {
       this.removeAttribute('open');
       if (value !== undefined) this.returnValue = value;
@@ -54,7 +62,12 @@ describe('ConfirmDialog', () => {
     return { fixture, service, dialog, el: fixture.nativeElement as HTMLElement };
   }
   const open = async (f: Awaited<ReturnType<typeof setup>>, danger = false) => {
-    const p = f.service.confirm({ title: 'Titulo', message: 'Mensaje', danger, confirmLabel: 'Sí' });
+    const p = f.service.confirm({
+      title: 'Titulo',
+      message: 'Mensaje',
+      danger,
+      confirmLabel: 'Sí',
+    });
     await Promise.resolve();
     f.fixture.detectChanges();
     await f.fixture.whenStable();
@@ -86,7 +99,9 @@ describe('ConfirmDialog', () => {
     const f = await setup();
     const p = open(f, true);
     await new Promise((r) => setTimeout(r));
-    expect(f.el.querySelector('[data-testid=confirm-accept]')?.classList.contains('btn-outline-danger')).toBe(true);
+    expect(
+      f.el.querySelector('[data-testid=confirm-accept]')?.classList.contains('btn-outline-danger'),
+    ).toBe(true);
     f.el.querySelector<HTMLButtonElement>('[data-testid=confirm-cancel]')!.click();
     await expect(p).resolves.toBe(false);
   });

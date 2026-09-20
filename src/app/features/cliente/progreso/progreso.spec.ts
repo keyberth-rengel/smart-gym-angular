@@ -22,14 +22,23 @@ const LIST: ProgressList = {
     { date: '2026-09-15', weight_kg: 74.5, body_fat_pct: 18.2, muscle_pct: 42.1 },
   ],
 };
-const EMPTY: ProgressList = { items: [], total: 0, avg_weight_kg: 0, avg_body_fat_pct: 0, avg_muscle_pct: 0 };
+const EMPTY: ProgressList = {
+  items: [],
+  total: 0,
+  avg_weight_kg: 0,
+  avg_body_fat_pct: 0,
+  avg_muscle_pct: 0,
+};
 
 describe('ClienteProgreso', () => {
   let fixture: ComponentFixture<ClienteProgreso>;
   let el: HTMLElement;
   let list: ReturnType<typeof vi.fn<(dni: string) => Observable<ProgressList>>>;
 
-  function setup(result: () => Observable<ProgressList> = () => of(LIST), dni: string | null = '12345678') {
+  function setup(
+    result: () => Observable<ProgressList> = () => of(LIST),
+    dni: string | null = '12345678',
+  ) {
     list = vi.fn(() => result());
     TestBed.configureTestingModule({
       imports: [ClienteProgreso],
@@ -111,7 +120,11 @@ describe('ClienteProgreso', () => {
 
   it('el historial va del más reciente al más antiguo, con un decimal', () => {
     setup();
-    const rows = qa('[data-testid=progress-row]').map((r) => Array.from(r.querySelectorAll('td')).map((td) => td.textContent!.replace(/\s+/g, ' ').trim()).join(' '));
+    const rows = qa('[data-testid=progress-row]').map((r) =>
+      Array.from(r.querySelectorAll('td'))
+        .map((td) => td.textContent!.replace(/\s+/g, ' ').trim())
+        .join(' '),
+    );
     expect(rows).toEqual([
       '15 sep 2026 74.5 18.2 42.1',
       '31 ago 2026 75.6 19.3 41.4',
@@ -122,7 +135,9 @@ describe('ClienteProgreso', () => {
 
   it('muestra los promedios del API', () => {
     setup();
-    expect(text('[data-testid=averages]')).toBe('Promedio: 76.3 kg · 19.7 % grasa · 41.0 % músculo');
+    expect(text('[data-testid=averages]')).toBe(
+      'Promedio: 76.3 kg · 19.7 % grasa · 41.0 % músculo',
+    );
   });
 
   it('sin registros: estado vacío con un botón que abre el diálogo', () => {
@@ -134,7 +149,9 @@ describe('ClienteProgreso', () => {
   });
 
   it('el 422 de "no encontrado" también es estado vacío', () => {
-    setup(() => throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')));
+    setup(() =>
+      throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')),
+    );
     expect(text('[data-testid=empty-state]')).toContain('Aún no registras tu progreso');
   });
 
@@ -158,8 +175,25 @@ describe('ClienteProgreso', () => {
 
   it('tras guardar en el diálogo, refresca los datos sin mostrar el esqueleto', () => {
     let calls = 0;
-    setup(() => of(++calls === 1 ? LIST : { ...LIST, total: 5, items: [...LIST.items, { date: '2026-09-19', weight_kg: 74.0, body_fat_pct: 18.0, muscle_pct: 42.5 }] }));
-    (fixture.debugElement.query((d) => d.name === 'app-progress-dialog').componentInstance as { saved: { emit: () => void } }).saved.emit();
+    setup(() =>
+      of(
+        ++calls === 1
+          ? LIST
+          : {
+              ...LIST,
+              total: 5,
+              items: [
+                ...LIST.items,
+                { date: '2026-09-19', weight_kg: 74.0, body_fat_pct: 18.0, muscle_pct: 42.5 },
+              ],
+            },
+      ),
+    );
+    (
+      fixture.debugElement.query((d) => d.name === 'app-progress-dialog').componentInstance as {
+        saved: { emit: () => void };
+      }
+    ).saved.emit();
     fixture.detectChanges();
     expect(list).toHaveBeenCalledTimes(2);
     expect(metric('weight').textContent).toContain('74.0');

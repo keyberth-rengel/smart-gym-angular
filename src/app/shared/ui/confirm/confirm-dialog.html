@@ -4,7 +4,6 @@
   aria-labelledby="confirm-title"
   aria-describedby="confirm-message"
   (close)="onClosed()"
-  (click)="onBackdropClick($event)"
   data-testid="confirm-dialog"
 >
   @if (service.request(); as req) {
@@ -29,7 +28,11 @@
           data-testid="confirm-accept"
           (click)="close(true)"
         >
-          <i class="bi" [class]="req.options.danger ? 'bi-trash' : 'bi-check-lg'" aria-hidden="true"></i>
+          <i
+            class="bi"
+            [class]="req.options.danger ? 'bi-trash' : 'bi-check-lg'"
+            aria-hidden="true"
+          ></i>
           <span>{{ req.options.confirmLabel }}</span>
         </button>
       </div>

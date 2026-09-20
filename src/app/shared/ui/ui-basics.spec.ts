@@ -11,7 +11,15 @@ import { StatCard } from './stat-card/stat-card';
   imports: [Badge, EmptyState, PageHeader, StatCard, Loading],
   template: `
     <app-badge tone="red">Cancelada</app-badge>
-    <app-stat-card icon="calendar-event" tone="blue" label="Reservas" value="Hoy · 18:30" sub="con Marco" linkText="Ver" linkTo="/x" />
+    <app-stat-card
+      icon="calendar-event"
+      tone="blue"
+      label="Reservas"
+      value="Hoy · 18:30"
+      sub="con Marco"
+      linkText="Ver"
+      linkTo="/x"
+    />
     <app-stat-card icon="lightning-charge" label="Rutina" value="Cardio" />
     <app-empty-state title="Sin datos" text="Nada aún"><button>CTA</button></app-empty-state>
     <app-page-header title="Titulo" subtitle="Sub"><button actions>Acción</button></app-page-header>
@@ -63,14 +71,22 @@ describe('componentes UI básicos', () => {
   it('Loading: esqueleto de tabla con N filas y spinner accesible', () => {
     expect(el.querySelectorAll('[data-testid=loading-table] .sk-row')).toHaveLength(3);
     expect(el.querySelector('[data-testid=loading-table]')?.getAttribute('aria-busy')).toBe('true');
-    expect(el.querySelector('[data-testid=loading-spinner] .visually-hidden')?.textContent).toContain('Cargando');
+    expect(
+      el.querySelector('[data-testid=loading-spinner] .visually-hidden')?.textContent,
+    ).toContain('Cargando');
   });
 });
 
 describe('StatCard con estado', () => {
   @Component({
     imports: [StatCard],
-    template: `<app-stat-card icon="x" label="Progreso" [status]="status" value="74.5 kg" (retry)="retried = retried + 1" />`,
+    template: `<app-stat-card
+      icon="x"
+      label="Progreso"
+      [status]="status"
+      value="74.5 kg"
+      (retry)="retried = retried + 1"
+    />`,
   })
   class StatusHost {
     status: 'ready' | 'loading' | 'error' = 'ready';

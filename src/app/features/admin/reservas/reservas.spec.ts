@@ -14,9 +14,30 @@ import { AdminReservas } from './reservas';
 const err = (status: number, raw = '') => new ApiError(status, `HTTP_${status}`, raw, {}, raw);
 
 const BOOKINGS: Booking[] = [
-  { id: 9, customer_email: 'miguel@x.com', trainer_email: 'lucia@x.com', date: '2026-09-18', time: '07:30', note: null },
-  { id: 14, customer_email: 'carlos@x.com', trainer_email: 'lucia@x.com', date: '2026-09-19', time: '16:30', note: 'Piernas' },
-  { id: 13, customer_email: 'rosa@x.com', trainer_email: 'marco@x.com', date: '2026-09-19', time: '17:00', note: null },
+  {
+    id: 9,
+    customer_email: 'miguel@x.com',
+    trainer_email: 'lucia@x.com',
+    date: '2026-09-18',
+    time: '07:30',
+    note: null,
+  },
+  {
+    id: 14,
+    customer_email: 'carlos@x.com',
+    trainer_email: 'lucia@x.com',
+    date: '2026-09-19',
+    time: '16:30',
+    note: 'Piernas',
+  },
+  {
+    id: 13,
+    customer_email: 'rosa@x.com',
+    trainer_email: 'marco@x.com',
+    date: '2026-09-19',
+    time: '17:00',
+    note: null,
+  },
 ];
 const CUSTOMERS: Customer[] = [
   { email: 'carlos@x.com', name: 'Carlos Mendoza', age: 28 },
@@ -290,7 +311,9 @@ describe('AdminReservas', () => {
       setup();
       cancelRow();
       await flush();
-      expect(document.activeElement === document.body || document.activeElement?.id === 'bookings-title').toBe(true);
+      expect(
+        document.activeElement === document.body || document.activeElement?.id === 'bookings-title',
+      ).toBe(true);
     });
   });
 });

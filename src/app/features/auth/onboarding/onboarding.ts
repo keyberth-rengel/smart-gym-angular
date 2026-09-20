@@ -38,9 +38,17 @@ export class Onboarding {
   protected readonly form = inject(FormBuilder).nonNullable.group({
     name: [
       this.auth.clerkName() ?? '',
-      [Validators.required, Validators.minLength(2), Validators.maxLength(120), noAngleBracketsValidator],
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(120),
+        noAngleBracketsValidator,
+      ],
     ],
-    age: ['', [Validators.required, integerValidator, Validators.min(MIN_AGE), Validators.max(MAX_AGE)]],
+    age: [
+      '',
+      [Validators.required, integerValidator, Validators.min(MIN_AGE), Validators.max(MAX_AGE)],
+    ],
     dni: ['', [Validators.required, dniValidator]],
   });
 
@@ -60,32 +68,30 @@ export class Onboarding {
 
     const { name, age, dni } = this.form.getRawValue();
     this.submitting.set(true);
-    this.me
-      .completeOnboarding({ name: name.trim(), age: Number(age), dni: dni.trim() })
-      .subscribe({
-        next: (me) => {
-          this.auth.applyMe(me);
-          this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
-          void this.router.navigateByUrl(this.auth.home());
-        },
-        error: (err: unknown) => {
-          this.submitting.set(false);
-          if (!(err instanceof ApiError)) return;
-          if (err.status === 409) {
-            // DNI de otra cuenta, o cuenta que ya tiene otro DNI: se muestra junto al campo.
-            this.form.controls.dni.setErrors({ server: err.message });
-            this.form.controls.dni.markAsTouched();
-            return;
+    this.me.completeOnboarding({ name: name.trim(), age: Number(age), dni: dni.trim() }).subscribe({
+      next: (me) => {
+        this.auth.applyMe(me);
+        this.toast.success('Perfil completado. ¡Bienvenido a SmartGym!');
+        void this.router.navigateByUrl(this.auth.home());
+      },
+      error: (err: unknown) => {
+        this.submitting.set(false);
+        if (!(err instanceof ApiError)) return;
+        if (err.status === 409) {
+          // DNI de otra cuenta, o cuenta que ya tiene otro DNI: se muestra junto al campo.
+          this.form.controls.dni.setErrors({ server: err.message });
+          this.form.controls.dni.markAsTouched();
+          return;
+        }
+        if (err.status === 400) {
+          const unmatched = applyServerErrors(this.form, err);
+          if (unmatched.length || !Object.keys(err.fieldErrors).length) {
+            this.toast.error(err.message, 'Revisa los datos');
           }
-          if (err.status === 400) {
-            const unmatched = applyServerErrors(this.form, err);
-            if (unmatched.length || !Object.keys(err.fieldErrors).length) {
-              this.toast.error(err.message, 'Revisa los datos');
-            }
-            return;
-          }
-          notify(this.toast, err); // red caída, 5xx, 403...: el formulario sigue utilizable
-        },
-      });
+          return;
+        }
+        notify(this.toast, err); // red caída, 5xx, 403...: el formulario sigue utilizable
+      },
+    });
   }
 }

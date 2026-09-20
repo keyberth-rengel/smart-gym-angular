@@ -2,7 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, Subject, of, throwError } from 'rxjs';
 import { TrainersApi } from '../../../core/api/trainers.api';
 import { ApiError } from '../../../core/http/api-error';
-import { Invitation, InvitationStatus, Trainer, TrainerCreate, TrainerCreated } from '../../../core/models';
+import {
+  Invitation,
+  InvitationStatus,
+  Trainer,
+  TrainerCreate,
+  TrainerCreated,
+} from '../../../core/models';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { AdminEntrenadores } from './entrenadores';
 
@@ -148,7 +154,11 @@ describe('AdminEntrenadores', () => {
       setup();
       fillValid();
       submit();
-      expect(create.mock.calls[0][0]).toEqual({ name: 'Luis Ramírez', email: 'luis@x.com', age: 30 });
+      expect(create.mock.calls[0][0]).toEqual({
+        name: 'Luis Ramírez',
+        email: 'luis@x.com',
+        age: 30,
+      });
       const body = create.mock.calls[0][0];
       expect('specialty' in body).toBe(false);
       expect('dni' in body).toBe(false);
@@ -172,7 +182,9 @@ describe('AdminEntrenadores', () => {
       fillValid();
       submit();
       await flush();
-      expect(toastMessages()).toEqual(['success:Entrenador registrado. Invitación enviada por correo.']);
+      expect(toastMessages()).toEqual([
+        'success:Entrenador registrado. Invitación enviada por correo.',
+      ]);
       expect(q('[data-testid=invitation-notice]')).toBeNull();
       expect(q<HTMLInputElement>('#tr-name').value).toBe('');
       expect(list).toHaveBeenCalledTimes(2);
@@ -230,7 +242,14 @@ describe('AdminEntrenadores', () => {
     it('409 DNI ajeno: error en el DNI, no se recarga la tabla (no se creó)', async () => {
       setup({
         create: () =>
-          throwError(() => err(409, 'DNI already linked to another account', {}, 'Este DNI ya está vinculado a otra cuenta.')),
+          throwError(() =>
+            err(
+              409,
+              'DNI already linked to another account',
+              {},
+              'Este DNI ya está vinculado a otra cuenta.',
+            ),
+          ),
       });
       fillValid({ dni: '12345678' });
       submit();
@@ -242,7 +261,15 @@ describe('AdminEntrenadores', () => {
 
     it('409 correo repetido: error en el correo', async () => {
       setup({
-        create: () => throwError(() => err(409, 'Trainer already exists: luis@x.com', {}, 'Ya existe un entrenador con ese correo.')),
+        create: () =>
+          throwError(() =>
+            err(
+              409,
+              'Trainer already exists: luis@x.com',
+              {},
+              'Ya existe un entrenador con ese correo.',
+            ),
+          ),
       });
       fillValid();
       submit();
@@ -251,7 +278,10 @@ describe('AdminEntrenadores', () => {
     });
 
     it('400 con detalles por campo', async () => {
-      setup({ create: () => throwError(() => err(400, 'Validation failed', { specialty: 'Máximo 80 caracteres.' })) });
+      setup({
+        create: () =>
+          throwError(() => err(400, 'Validation failed', { specialty: 'Máximo 80 caracteres.' })),
+      });
       fillValid();
       submit();
       await flush();
@@ -259,7 +289,10 @@ describe('AdminEntrenadores', () => {
     });
 
     it('500: toast, datos conservados y botón libre', async () => {
-      setup({ create: () => throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')) });
+      setup({
+        create: () =>
+          throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')),
+      });
       fillValid();
       submit();
       await flush();
@@ -315,7 +348,12 @@ describe('AdminEntrenadores', () => {
     });
 
     it('404: avisa que el entrenador ya no existe y recarga la tabla', async () => {
-      setup({ invite: () => throwError(() => err(404, 'Trainer not found', {}, 'No encontramos un entrenador con esos datos.')) });
+      setup({
+        invite: () =>
+          throwError(() =>
+            err(404, 'Trainer not found', {}, 'No encontramos un entrenador con esos datos.'),
+          ),
+      });
       rowActions()[0].click();
       await flush();
       expect(toastMessages()).toEqual(['warning:El entrenador ya no existe.']);
@@ -323,7 +361,10 @@ describe('AdminEntrenadores', () => {
     });
 
     it('500: toast de servicio no disponible y el botón se libera', async () => {
-      setup({ invite: () => throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')) });
+      setup({
+        invite: () =>
+          throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')),
+      });
       rowActions()[0].click();
       await flush();
       expect(toasts.toasts()[0].title).toBe('Servicio no disponible');

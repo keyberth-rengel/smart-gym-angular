@@ -15,10 +15,27 @@ const TRAINERS: Trainer[] = [
   { email: 'lucia@smartgym.pe', name: 'Lucía Paredes', age: 33, specialty: 'Fuerza' },
   { email: 'marco@smartgym.pe', name: 'Marco Vílchez', age: 29, specialty: null },
 ];
-const avail = (email: string, times: string[]): TrainerAvailability => ({ date: '2026-09-19', booked_times: times });
+const avail = (email: string, times: string[]): TrainerAvailability => ({
+  date: '2026-09-19',
+  booked_times: times,
+});
 const BOOKINGS: Booking[] = [
-  { id: 1, customer_email: 'ana@correo.com', trainer_email: 'lucia@smartgym.pe', date: '2026-09-12', time: '17:00', note: null },
-  { id: 2, customer_email: 'ana@correo.com', trainer_email: 'marco@smartgym.pe', date: '2026-09-19', time: '18:30', note: 'Piernas' },
+  {
+    id: 1,
+    customer_email: 'ana@correo.com',
+    trainer_email: 'lucia@smartgym.pe',
+    date: '2026-09-12',
+    time: '17:00',
+    note: null,
+  },
+  {
+    id: 2,
+    customer_email: 'ana@correo.com',
+    trainer_email: 'marco@smartgym.pe',
+    date: '2026-09-19',
+    time: '18:30',
+    note: 'Piernas',
+  },
 ];
 const err = (status: number, raw = '') => new ApiError(status, `HTTP_${status}`, raw, {}, raw);
 
@@ -26,25 +43,36 @@ describe('ClienteReservas', () => {
   let fixture: ComponentFixture<ClienteReservas>;
   let el: HTMLElement;
   let trainersList: ReturnType<typeof vi.fn<() => Observable<Trainer[]>>>;
-  let availability: ReturnType<typeof vi.fn<(e: string, d?: string) => Observable<TrainerAvailability>>>;
+  let availability: ReturnType<
+    typeof vi.fn<(e: string, d?: string) => Observable<TrainerAvailability>>
+  >;
   let create: ReturnType<typeof vi.fn<(b: BookingCreate) => Observable<Booking>>>;
   let list: ReturnType<typeof vi.fn<() => Observable<Booking[]>>>;
   let toasts: ToastService;
 
-  function setup(o: {
-    trainers?: () => Observable<Trainer[]>;
-    availability?: (e: string) => Observable<TrainerAvailability>;
-    create?: (b: BookingCreate) => Observable<Booking>;
-    bookings?: () => Observable<Booking[]>;
-  } = {}) {
+  function setup(
+    o: {
+      trainers?: () => Observable<Trainer[]>;
+      availability?: (e: string) => Observable<TrainerAvailability>;
+      create?: (b: BookingCreate) => Observable<Booking>;
+      bookings?: () => Observable<Booking[]>;
+    } = {},
+  ) {
     trainersList = vi.fn(o.trainers ?? (() => of(TRAINERS)));
-    availability = vi.fn((e: string) => (o.availability ?? ((x: string) => of(avail(x, ['16:00', '18:00']))))(e));
-    create = vi.fn(o.create ?? ((b: BookingCreate) => of({ id: 9, ...b, date: '2026-09-19', note: b.note ?? null })));
+    availability = vi.fn((e: string) =>
+      (o.availability ?? ((x: string) => of(avail(x, ['16:00', '18:00']))))(e),
+    );
+    create = vi.fn(
+      o.create ??
+        ((b: BookingCreate) => of({ id: 9, ...b, date: '2026-09-19', note: b.note ?? null })),
+    );
     list = vi.fn(o.bookings ?? (() => of(BOOKINGS)));
     TestBed.configureTestingModule({
       imports: [ClienteReservas],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) })),
+        provideFakeClerk(
+          createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) }),
+        ),
         { provide: MeApi, useValue: {} },
         { provide: TrainersApi, useValue: { list: trainersList, availability } },
         { provide: BookingsApi, useValue: { create, list } },
@@ -89,7 +117,9 @@ describe('ClienteReservas', () => {
 
   it('carga entrenadores en el select con su especialidad y muestra la fecha de hoy', () => {
     setup();
-    const opts = qa('[data-testid=trainer-select] option').map((o) => o.textContent!.replace(/\s+/g, ' ').trim());
+    const opts = qa('[data-testid=trainer-select] option').map((o) =>
+      o.textContent!.replace(/\s+/g, ' ').trim(),
+    );
     expect(opts).toEqual(['Selecciona un entrenador', 'Lucía Paredes · Fuerza', 'Marco Vílchez']);
     expect(text('[data-testid=today-label]')).toBe('hoy, 19 sep 2026');
   });
@@ -203,7 +233,10 @@ describe('ClienteReservas', () => {
       time: '16:30',
       note: 'Reforzar piernas',
     });
-    expect(toasts.success).toHaveBeenCalledWith('Tu reserva de hoy a las 16:30 con Lucía Paredes quedó registrada.', 'Reserva creada');
+    expect(toasts.success).toHaveBeenCalledWith(
+      'Tu reserva de hoy a las 16:30 con Lucía Paredes quedó registrada.',
+      'Reserva creada',
+    );
     expect(availability).toHaveBeenCalledTimes(2);
     expect(list).toHaveBeenCalledTimes(2);
     expect(q<HTMLTextAreaElement>('[data-testid=note]').value).toBe('');
@@ -237,7 +270,8 @@ describe('ClienteReservas', () => {
   it('409: recarga la disponibilidad y limpia la hora (el toast lo pone el interceptor)', () => {
     let calls = 0;
     setup({
-      create: () => throwError(() => err(409, 'Trainer already has a booking at 2026-09-19 16:30.')),
+      create: () =>
+        throwError(() => err(409, 'Trainer already has a booking at 2026-09-19 16:30.')),
       availability: (e) => of(avail(e, ++calls > 1 ? ['16:30'] : [])),
     });
     chooseTrainer('lucia@smartgym.pe');

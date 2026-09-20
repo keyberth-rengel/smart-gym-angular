@@ -1,227 +1,186 @@
 # SmartGym · Frontend
 
-Aplicación Angular para SmartGym (clientes, entrenadores, rutinas, reservas, asistencia y progreso).
-Plan de trabajo: [PLAN.md](PLAN.md).
+Aplicación web para la gestión de un gimnasio: los **socios** consultan su rutina, registran su progreso, reservan con un
+entrenador y marcan su asistencia; los **entrenadores** ven sus citas, sus clientes y les asignan rutinas; el
+**personal de administración** gestiona clientes, entrenadores, reservas, rutinas y asistencia.
+
+Proyecto del curso *Soluciones Web y Aplicaciones Distribuidas* (UPN). El diseño, el mapa de navegación y los wireframes
+salen del informe del curso; el plan de trabajo y su estado están en [`PLAN.md`](PLAN.md).
+
+## Arquitectura
+
+```
+ Navegador ── Angular 21 (este repo) ──┐            ┌── Clerk (login, registro, sesión, roles)
+   Bootstrap 5, tema oscuro,           │  /api/v1   │
+   mobile-first                        ├──────────► Spring Boot (backend Java, H2)
+                                       │  Bearer JWT│   valida el JWT de Clerk (JWKS)
+                                       └────────────┘   aplica permisos por rol
+```
+
+- **Frontend:** Angular 21 (componentes standalone, signals, `OnPush`), Bootstrap 5 + Bootstrap Icons con un tema oscuro
+  propio (verde/azul), Reactive Forms.
+- **Auth:** [Clerk](https://clerk.com) con el paquete comunitario [`ngx-clerk`](https://github.com/anagstef/ngx-clerk)
+  (no hay SDK oficial para Angular). Clerk emite un JWT y el frontend lo envía en cada llamada al API.
+- **Backend:** repositorio aparte (Java 17+, Spring Boot 3, Maven, H2). Es un *resource server* OAuth2: valida el JWT y
+  decide qué puede ver cada rol. La UI **no es la barrera de seguridad**: oculta lo que no corresponde, pero el
+  backend responde 403 a lo ajeno.
+- **Sin NgRx:** el estado vive en signals dentro de servicios y componentes. La lógica se mantiene simple a propósito.
 
 ## Requisitos
 
-- Node.js 20.19+, 22.12+ o 24+ y npm
-- Backend SmartGym corriendo en `http://localhost:8080` (repo `smartgym` en Java)
+| Herramienta | Versión |
+|---|---|
+| Node.js | `^20.19`, `^22.12` o `>=24` (Angular 21) |
+| npm | 10 o superior |
+| Java (para el backend) | 17 o superior (probado con 25) |
+| Cuenta de Clerk | instancia de desarrollo gratuita |
 
-> Se usa **Angular 21** porque Angular 22 exige Node >= 24.15.
+> **Angular 21 y no 22:** Angular 22 exige Node `>=24.15` (o `^22.22.3`). Con Node 24.14 no instala. Cuando actualices
+> Node, se pasa a 22 con `ng update`.
 
-## Instalar
+## Cómo levantar todo
+
+**1. Backend** (en el repo del backend, puerto 8080):
+
+```bash
+./mvnw spring-boot:run
+# opcional: invitaciones reales a entrenadores
+CLERK_SECRET_KEY=sk_test_... ./mvnw spring-boot:run
+```
+
+Propiedades relevantes del backend (todas con valor por defecto para desarrollo):
+
+| Propiedad | Variable de entorno | Por defecto |
+|---|---|---|
+| `clerk.issuer` | `CLERK_ISSUER` | el issuer de la instancia de desarrollo |
+| `smartgym.cors.allowed-origins` | `SMARTGYM_CORS_ALLOWED_ORIGINS` | `http://localhost:4200` |
+| `clerk.secret-key` | `CLERK_SECRET_KEY` | vacía: las invitaciones quedan en `SKIPPED` |
+| `clerk.invitation-redirect-url` | `CLERK_INVITATION_REDIRECT_URL` | `http://localhost:4200/auth/sign-up` |
+
+**2. Frontend** (este repo, puerto 4200):
 
 ```bash
 npm install
+npm start          # ng serve; el proxy reenvía /api a http://localhost:8080
 ```
 
-## Comandos
+Abre <http://localhost:4200>. El proxy (`proxy.conf.json`) evita CORS en desarrollo.
+
+## Configuración de Clerk, paso a paso
+
+1. **Crear la aplicación** en el [Dashboard de Clerk](https://dashboard.clerk.com) y activar **correo + contraseña** y,
+   si se quiere, **Google** como métodos de inicio de sesión.
+2. **Claves** (*API keys*): la *publishable key* (`pk_test_...`) va en `src/environments/environment.development.ts`
+   (`clerkPublishableKey`). La *secret key* (`sk_test_...`) **solo** va en el backend, como variable de entorno.
+3. **Session token**: en *Sessions → Customize session token* agregar
+
+   ```json
+   { "role": "{{user.public_metadata.role}}", "email": "{{user.primary_email_address}}" }
+   ```
+
+   El backend lee `email` para saber quién es y `role` para saber qué puede hacer. Sin este paso `/me` responde 403.
+4. **Roles**: el rol vive en el `public_metadata` del usuario (`{"role": "entrenador"}` o `{"role": "admin"}`); sin rol
+   se es **cliente**. Se cambia en *Users → usuario → Public metadata*. El rol viaja dentro del token, así que
+   **el usuario debe cerrar sesión y volver a entrar** para que el cambio surta efecto.
+5. **Usuarios de prueba**: los correos con `+clerk_test` (por ejemplo `sg-admin+clerk_test@example.com`) aceptan siempre el
+   código de verificación `424242` en instancias de desarrollo. Los entrenadores se dan de alta desde el panel de
+   administración (`Entrenadores → Registrar e invitar`) con el **mismo correo** de su cuenta de Clerk.
+
+## Roles y permisos
+
+| Rol | Rutas | Puede |
+|---|---|---|
+| **Cliente** | `/cliente`, `/cliente/rutina`, `/cliente/progreso`, `/cliente/reservas`, `/cliente/asistencia` | Ver su rutina y su historial, registrar y ver su progreso, reservar con un entrenador (solo para hoy), marcar su asistencia |
+| **Entrenador** | `/entrenador`, `/entrenador/citas`, `/entrenador/clientes`, `/entrenador/rutinas` | Ver sus citas por semana, ver **sus** clientes (los que reservaron con él) con su progreso y rutina, asignarles rutina, marcar su asistencia |
+| **Admin** | `/admin`, `/admin/clientes`, `/admin/entrenadores`, `/admin/reservas`, `/admin/rutinas`, `/admin/asistencia` | Todo: alta de clientes y entrenadores (con invitación), ver y cancelar reservas, asignar rutinas y registrar ingresos por DNI |
+
+Un usuario que abre una ruta de otro rol vuelve a su inicio con el aviso "No tienes permisos para acceder a esa sección".
+En el primer ingreso, un cliente pasa por **Completar perfil** (nombre, edad y DNI de 8 dígitos).
+
+## Estructura del proyecto
+
+```
+src/
+├── app/
+│   ├── core/                 # lógica sin pantalla
+│   │   ├── api/              # un servicio por recurso (customers, trainers, bookings, routines, progress, attendance, me, health)
+│   │   ├── auth/             # AuthService (rol y perfil desde /me), guards, configuración de Clerk
+│   │   ├── http/             # interceptores (token y errores → toasts), traducción de mensajes del backend
+│   │   ├── models/           # tipos de las respuestas del API
+│   │   ├── nav/              # menú por rol
+│   │   ├── router/           # título de la pestaña por pantalla
+│   │   └── util/             # fechas, bloques de rutina, horarios, validadores y vistas puras (semana, filtros)
+│   ├── shared/
+│   │   ├── layout/           # shell, navbar y menú (sidebar en escritorio, pestañas en móvil)
+│   │   └── ui/               # badge, stat-card, empty-state, loading, day-pills, sparkline, plan-grid, toast, confirm...
+│   ├── features/
+│   │   ├── auth/             # inicio de sesión, registro, completar perfil, servicio no disponible
+│   │   ├── cliente/          # dashboard, rutina, progreso, reservas, asistencia
+│   │   ├── entrenador/       # dashboard, citas, clientes, rutinas
+│   │   └── admin/            # dashboard, clientes, entrenadores, reservas, rutinas, asistencia (+ shared/)
+│   └── testing/              # dobles de prueba (Clerk, /me, diálogos)
+├── environments/             # environment.ts (producción) y environment.development.ts
+└── styles/                   # tokens, overrides de Bootstrap y base del tema
+```
+
+Las rutas se cargan de forma diferida (un *chunk* por pantalla) y cada rama de rol usa `authGuard`, `roleGuard` y
+`profileCompleteGuard`.
+
+## Scripts
 
 | Comando | Qué hace |
 |---|---|
-| `npm start` | Servidor de desarrollo en http://localhost:4200. El proxy (`proxy.conf.json`) reenvía `/api` a `http://localhost:8080`, así que no hace falta CORS en desarrollo |
-| `npm test` | Pruebas unitarias (Vitest) |
-| `npm run build` | Build de producción en `dist/smartgym` |
+| `npm start` | Servidor de desarrollo en :4200 con proxy a :8080 |
+| `npm run build` | Build de producción en `dist/smartgym/browser` |
+| `npm test` | Pruebas unitarias (Vitest) en modo interactivo; `npx ng test --watch=false` para una sola pasada |
+| `npm run lint` | ESLint (`angular-eslint`) sobre TypeScript y plantillas |
+| `npm run format` / `format:check` | Prettier sobre `src` |
 
-## Configuración
+## Pruebas y verificación
 
-Las variables están en `src/environments/`:
+- **Unitarias:** 724 pruebas en 52 archivos (servicios, guards, interceptores, validadores, utilidades y componentes).
+- **Navegador real** (Chrome con Playwright, backend real y JWT reales de Clerk con las tres cuentas de rol), fase por fase:
+  escenarios de cada pantalla, errores del servidor (400/403/404/409/422/500 y red caída), estados vacío/cargando/error,
+  teclado y foco, contraste AA, 1280/768/390 px sin scroll horizontal.
+- **Barrido final (F7):** todas las rutas de los tres roles en los tres anchos con `axe-core` (WCAG 2 A/AA y buenas
+  prácticas): 0 violaciones; títulos de pestaña únicos por pantalla; cada pantalla con datos probada con el API en 500,
+  con listas vacías y con respuestas lentas; y un humo de extremo a extremo (el cliente reserva → el entrenador ve la
+  cita → el admin la cancela → la hora queda libre).
 
-- `apiBase`: prefijo del API (`/api/v1`).
-- `clerkPublishableKey`: publishable key de Clerk (`pk_test_...` en desarrollo, ya configurada; `pk_live_...` en producción, pendiente de completar en `environment.ts`).
+## Despliegue
 
-## Estructura de estilos
+`npm run build` genera archivos estáticos en `dist/smartgym/browser`. Tamaño del build inicial: ~700 kB sin comprimir
+(~137 kB transferidos); cada pantalla es un *chunk* aparte.
 
-Tema oscuro con Bootstrap 5 (CSS compilado) y overrides propios en `src/styles/`:
-`_tokens.scss` (variables `--sg-*`), `_bootstrap-overrides.scss` y `_base.scss`.
+1. **Publishable key de producción:** completa `clerkPublishableKey` en `src/environments/environment.ts` con la clave
+   `pk_live_...` de la instancia de producción de Clerk **antes** de compilar (es pública, no un secreto). Sin ella Clerk no inicia.
+2. **API:** `apiBase` es `/api/v1` (relativo). Sirve el frontend y el backend bajo el **mismo dominio** con un proxy inverso que
+   reenvíe `/api` al backend y devuelva `index.html` en cualquier otra ruta (es una SPA). Ejemplo con nginx:
 
-## Layout y componentes compartidos
+   ```nginx
+   server {
+     listen 80;
+     root /var/www/smartgym;            # contenido de dist/smartgym/browser
+     location /api/ { proxy_pass http://127.0.0.1:8080; }
+     location /      { try_files $uri /index.html; }
+   }
+   ```
 
-- `src/app/shared/layout/`: `Shell` (skip link + navbar + menú + `<main>`), `Navbar` y `NavMenu`. A partir de 768 px
-  el menú es un sidebar de 240 px; por debajo pasa a una barra de pestañas con scroll y la activa siempre visible.
-- `src/app/core/nav/nav-items.ts`: ítems de navegación por rol (cliente, entrenador, admin).
-- `src/app/shared/ui/`: `PageHeader`, `StatCard`, `Badge`, `EmptyState`, `Loading`, `DayPills`, `ConfirmService`
-  (diálogo sobre `<dialog>` nativo: `confirm({ title, message, danger }) -> Promise<boolean>`), toasts y
-  `PlaceholderPage` (marca las secciones que se construyen en fases posteriores).
-- Las tres ramas de rutas (`/cliente`, `/entrenador`, `/admin`) cuelgan de `Shell`; sus hijos aún sin construir usan
-  `PlaceholderPage`.
+   Si el backend vive en otro dominio, cambia `apiBase` por su URL completa y agrega ese origen del frontend en
+   `smartgym.cors.allowed-origins` del backend.
+3. **Backend en producción:** apunta `CLERK_ISSUER` al *Frontend API URL* de la instancia de producción y define
+   `CLERK_SECRET_KEY` solo allí.
+4. **Clerk en producción:** repite el session token con `role` y `email`, y agrega el dominio a los orígenes permitidos.
 
-## Autenticación (Clerk)
+## Limitaciones conocidas
 
-Login, registro y sesión los maneja [Clerk](https://clerk.com) con el paquete comunitario
-[`ngx-clerk`](https://github.com/anagstef/ngx-clerk) (no existe SDK oficial para Angular). Los textos
-de Clerk van en español (`@clerk/localizations`) y su apariencia sigue el tema oscuro
-(`src/app/core/auth/clerk.config.ts`).
-
-### Claves
-
-| Clave | Dónde | Notas |
-|---|---|---|
-| Publishable key (`pk_...`) | `src/environments/*.ts` | **Es pública**, se puede versionar. |
-| Secret key (`sk_...`) | Solo backend (variable de entorno) | **Nunca** en este repo ni en el frontend. |
-
-### Rutas y roles
-
-- `/` lleva al inicio del rol (o a `/auth/sign-in` sin sesión).
-- `/auth/sign-in/**` y `/auth/sign-up/**`: Clerk con *path routing*. Usa subrutas internas (verificación de
-  correo, `sso-callback` de Google...), por eso el matcher `catchAllRoute` consume todos los segmentos.
-- `/auth/onboarding`: primer ingreso de un cliente (nombre si Clerk no lo tiene, edad y DNI).
-- `/cliente`, `/entrenador`, `/admin`: cada una exige sesión, el rol correspondiente y, para clientes, el perfil
-  completo. Un rol no permitido vuelve a su propio inicio con un aviso.
-- **Rol**: lo devuelve el backend en `GET /me`, que lo toma del claim `role` del token de Clerk (es decir, de
-  `public_metadata.role` del usuario: `cliente`, `entrenador` o `admin`). Sin valor es `cliente`: cualquiera
-  puede registrarse; entrenadores y admins los asigna el administrador. El front no lee `public_metadata`.
-
-Para asignar un rol: Clerk Dashboard -> *Users* -> el usuario -> *Public metadata* -> `{"role": "admin"}`.
-**Un cambio de rol solo se ve al cerrar sesión y volver a entrar**, porque el rol viaja dentro del token de
-sesión, que Clerk refresca al iniciar sesión.
-
-### Token hacia el backend
-
-`auth-token.interceptor` agrega `Authorization: Bearer <JWT de Clerk>` a las peticiones a `apiBase`, y el backend
-lo valida (B1). Para que el token lleve el rol y el correo, en Clerk Dashboard -> *Sessions* -> *Customize
-session token* debe estar:
-
-```json
-{ "role": "{{user.public_metadata.role}}", "email": "{{user.primary_email_address}}" }
-```
-
-### Usuarios de prueba
-
-En la instancia de desarrollo, un correo con `+clerk_test` (por ejemplo `ana+clerk_test@example.com`) se verifica
-con el código `424242` sin enviar correo ([doc](https://clerk.com/docs/guides/development/testing/test-emails-and-phones)).
-El registro tiene protección contra bots (Cloudflare Turnstile): en pruebas automatizadas funciona con Chrome con
-ventana, no en headless.
-
-### Perfil desde el backend (`/me`)
-
-`core/api/me.api.ts` usa `GET /me` y `POST /me/onboarding`. `AuthService` carga `/me` una vez tras iniciar sesión
-(las llamadas simultáneas de los guards comparten una sola petición) y de ahí salen el **rol**, el **nombre**,
-el **DNI** y `profile_complete`; el DNI ya no se guarda en Clerk.
-
-| Respuesta de `/me` | Qué hace la app |
-|---|---|
-| Cliente con `profile_complete: false` | `/auth/onboarding` (nombre si falta, edad y DNI -> `POST /me/onboarding`) |
-| Cliente completo / admin | Su inicio (`/cliente`, `/admin`) |
-| Entrenador sin perfil registrado | `/auth/unavailable` ("Registro pendiente": lo registra el administrador) |
-| 401 | Cierra la sesión de Clerk y vuelve a `/auth/sign-in` |
-| 403 (el token no trae el correo) | `/auth/unavailable` ("Sesión incompleta") |
-| 5xx o sin red | `/auth/unavailable` con "Reintentar" |
-| Clerk no carga en 15 s (su script viene de un CDN) | `/auth/unavailable` ("No pudimos iniciar tu sesión"); "Reintentar" recarga la página. Antes los guards esperaban para siempre y la app quedaba en blanco |
-
-En el onboarding, un 409 (DNI de otra cuenta, o cuenta con otro DNI) se muestra junto al campo DNI.
-
-## Módulo Cliente
-
-| Ruta | Pantalla | Endpoints |
-|---|---|---|
-| `/cliente` | Dashboard: 4 tarjetas (rutina de hoy, próxima reserva, progreso, asistencia) y acceso rápido a asistencia | `GET /routines/history/{dni}`, `GET /bookings`, `GET /trainers`, `GET /progress/{dni}`, `GET /attendance/{dni}` |
-| `/cliente/rutina` | Mi Rutina: plan activo por día e historial | `GET /routines/history/{dni}` (una sola llamada; la última rutina es la activa) |
-| `/cliente/progreso` | Mi Progreso: métricas, gráfica, historial y registro | `GET /progress/{dni}`, `POST /progress` |
-| `/cliente/reservas` | Reservas: nueva reserva con un entrenador y "Mis reservas" | `GET /trainers`, `GET /trainers/{email}/availability`, `GET /bookings`, `POST /bookings` |
-| `/cliente/asistencia` | Asistencia: marcar ingreso e historial | `POST /access`, `GET /attendance/{dni}` |
-
-Cada pantalla tiene estados de carga (esqueleto), vacío y error con "Reintentar". `ApiError.isNotFound` cubre el
-404 actual y el 422 de versiones anteriores del backend, y se trata como vacío. El domingo no tiene plan y no se
-consulta al API. En el registro de progreso el 409 (un registro por día) se muestra dentro del diálogo.
-
-### Reservas y Dashboard
-
-- **Horas:** chips cada 30 minutos de 06:00 a 21:30 (`SLOT_START`, `SLOT_END`, `SLOT_STEP_MIN` en
-  `core/util/booking-slots.ts`). Las horas pasadas se ocultan según el reloj del navegador (el backend rechaza con
-  422 una hora anterior al instante actual, en la zona horaria del servidor) y se refrescan cada 30 s. Las ocupadas
-  vienen de `availability`, que solo devuelve horas y no expone datos de otros clientes.
-- **Fecha:** la fija el servidor (hoy); la pantalla solo la muestra.
-- **Errores al crear:** 409 (horario ocupado) y 422 (hora pasada) los avisa el interceptor con un toast y la pantalla
-  recarga la disponibilidad; 404 (el entrenador ya no existe) muestra un aviso y recarga la lista de entrenadores.
-- **Dashboard:** cada tarjeta carga y falla por separado (`StatCard` con `status`: esqueleto, "No disponible" con
-  "Reintentar"). Los toasts idénticos se funden en uno, para que un backend caído no apile cuatro avisos.
-
-## Módulo Entrenador
-
-| Ruta | Pantalla | Endpoints |
-|---|---|---|
-| `/entrenador` | Dashboard: citas de hoy, clientes asociados, próxima cita, agenda de hoy y "Marcar asistencia" | `GET /trainers/{email}/bookings?date=`, `GET /trainers/{email}/customers`, `POST /access` |
-| `/entrenador/citas` | Mis citas: tira semanal (lunes a domingo, con semana anterior/siguiente) y las citas del día elegido | `GET /trainers/{email}/bookings?from=&to=` (una llamada por semana), `GET /trainers/{email}/customers` (solo para los nombres) |
-| `/entrenador/clientes` | Mis clientes: tabla con búsqueda y detalle (último progreso y rutina activa) | `GET /trainers/{email}/customers`, `GET /progress/by-email/{email}`, `GET /routines/by-email/{email}/history` |
-| `/entrenador/rutinas` | Rutinas: elegir un cliente, ver su rutina activa e historial y asignar una nueva | `GET /trainers/{email}/customers`, `GET /routines/by-email/{email}/history`, `POST /routines/assign` (`{customer_email}`) |
-
-- **Quién es el entrenador:** el correo sale de la sesión (`AuthService.email()`), y el backend solo deja consultar
-  los endpoints del propio entrenador (otro o un cliente recibe **403**; el rol se valida antes que la existencia).
-  "Cliente asociado" es quien tiene al menos una reserva con él.
-- **Nombres:** las reservas solo traen correos; los nombres se resuelven con `GET /trainers/{email}/customers`. Si
-  esa lista no carga, se muestran los correos y la pantalla sigue funcionando.
-- **Dashboard:** la tercera tarjeta es "Próxima cita" y no "Rutinas activas" del diseño: no existe un endpoint
-  agregado y obtenerlo implicaría una llamada por cliente. "Marcar asistencia" usa el DNI de `/me`; si es `null`, el
-  botón queda deshabilitado con el aviso "Tu DNI no está vinculado; pídelo en recepción".
-- **Mis clientes:** el detalle carga el progreso y la rutina por separado con `SKIP_ERROR_TOAST` (cada bloque muestra
-  su propio error, "Sin acceso a este cliente" en 403 y "Reintentar"). Elegir otro cliente cancela las peticiones del
-  anterior. En pantallas < 992 px se oculta la columna del correo.
-- **Rutinas:** `?cliente=<correo>` preselecciona al cliente (solo si es suyo). Si ya tiene una rutina activa, se pide
-  confirmación (`ConfirmService`) porque la nueva reemplaza a la activa; el botón sigue habilitado mientras el
-  diálogo está abierto, para que este devuelva el foco a un control activo. 403 y 404 se muestran en pantalla; 5xx y
-  red caída, como toast.
-- **Componentes compartidos nuevos:** `PlanGrid` (plan lunes a sábado en 3 x 2) y `RoutineHistory` (historial con
-  Activa/Anterior), que también usa Mi Rutina del cliente.
-
-Los roles de las pruebas con navegador se simularon interceptando `GET /me` (los JWT de la cuenta de prueba
-traen `role: null`). Con un entrenador real de Clerk falta comprobar los datos reales de los endpoints del entrenador.
-
-## Módulo Admin
-
-| Ruta | Pantalla | Endpoints |
-|---|---|---|
-| `/admin` | Dashboard: estado del servicio, 5 accesos a módulos y reservas de hoy | `GET /health`, `GET /bookings`, `GET /customers` y `GET /trainers` (solo para los nombres) |
-| `/admin/clientes` | Clientes: registrar un cliente (DNI opcional) y consultar el padrón con búsqueda | `GET /customers`, `POST /customers` (`{name,email,age,dni?}`) |
-| `/admin/entrenadores` | Entrenadores: registrar e invitar por Clerk, consultar el equipo y reenviar invitaciones | `GET /trainers`, `POST /trainers` (`{name,email,age,specialty?,dni?}`), `POST /trainers/{email}/invite` |
-| `/admin/reservas` | Reservas: consultar con filtros (entrenador y fecha) y cancelar | `GET /bookings`, `DELETE /bookings/{id}`, `GET /customers` y `GET /trainers` (solo nombres) |
-| `/admin/rutinas` | Rutinas: asignar un plan semanal por DNI y ver la rutina activa y el historial | `POST /routines/assign` (`{dni}`), `GET /routines/history/{dni}`, `GET /identity/{dni}` (correo), `GET /customers/by-dni/{dni}` |
-| `/admin/asistencia` | Control de asistencia: registrar el ingreso de un socio o entrenador por DNI y ver su historial | `POST /access` (`{dni}`), `GET /attendance/{dni}` |
-
-- **Acceso:** el rol `admin` viene del claim `role` del token de Clerk (se fija en `public_metadata.role` del usuario).
-  Los endpoints de admin responden **403** a clientes y entrenadores; la pantalla lo muestra como error con
-  "Reintentar" (listas) o como toast "Sin permisos" (registro), sin perder lo escrito en el formulario.
-- **Estado del servicio:** `GET /health` se consulta sin toast; un fallo (red, 5xx o `status` distinto de `UP`) se
-  muestra como "Sin conexión" y un clic vuelve a comprobarlo.
-- **Reservas de hoy:** solo las de la fecha de hoy, por hora. Los nombres salen de `/customers` y `/trainers`; si
-  alguna de las dos llamadas falla, la tabla muestra los correos (sin error propio). Cada bloque carga por separado.
-- **Clientes y entrenadores comparten** `RegistryList` (tabla con búsqueda sin acentos ni mayúsculas, estados de
-  carga/vacío/error y una acción opcional por fila) y los estilos de `features/admin/shared/`. Por debajo de 1200 px el
-  formulario queda arriba y la tabla debajo.
-- **Errores del registro:** un 409 se muestra junto al campo (correo repetido, o DNI ya vinculado a otro correo: el
-  backend responde `DNI already linked to another email: <dni>` y no crea nada) y un 400 con `error.details` junto a cada
-  campo; red caída, 5xx y 403 salen como toast. Sin doble envío.
-- **Invitación de entrenadores:** `POST /trainers` devuelve `invitation.status` (`message` es un código estable, no
-  un texto): `INVITED` y `ROLE_UPDATED` => toast de éxito (este último avisa de que la persona debe cerrar y abrir
-  sesión), `SKIPPED` (el backend no tiene `CLERK_SECRET_KEY`) => aviso ámbar persistente en el formulario y `FAILED` =>
-  aviso rojo; en ambos el entrenador queda registrado y se puede reenviar la invitación desde la tabla.
-
-Verificado con las cuentas reales de Clerk (admin, entrenador y cliente) contra el backend real: `role` en el JWT,
-`/me`, altas, 409 reales y la matriz de permisos. Como el backend de pruebas no tiene `CLERK_SECRET_KEY`, los estados
-`INVITED`, `ROLE_UPDATED` y `FAILED` se comprobaron simulando solo esa respuesta.
-
-### Reservas, Rutinas y Asistencia
-
-- **Reservas:** una sola llamada a `GET /bookings` (el admin recibe todas; a clientes y entrenadores el backend
-  les filtra las suyas) y los filtros se aplican en el navegador: entrenador (la lista sale de `/trainers`; si falla, de
-  los correos de las reservas) y fecha (por defecto **hoy**; vaciarla muestra todas). "Filtrar" vuelve a pedir los
-  datos. Más reciente primero; los nombres se resuelven con `/customers` y `/trainers` y, si fallan, se ven los correos.
-  "Cancelar" abre una confirmación de peligro con el detalle ("Hoy 16:30 · Cliente con Entrenador"); Esc o "Volver" no
-  cancelan. Un 404 (ya cancelada por otro) avisa y recarga; red caída y 5xx dejan la fila y avisan por toast. Tras
-  cancelar, el foco pasa al título de la tarjeta. Un 403 en la carga habla de permisos, no de la conexión.
-- **`DniPanel`** (`features/admin/shared`) lo comparten Rutinas y Asistencia: campo de DNI de 8 dígitos validado antes de
-  enviar, dos acciones, indicador en la acción en curso y ambos botones deshabilitados mientras dura. El error del
-  servidor para ese DNI llega bajo el campo. **Enter** ejecuta la acción principal, salvo en Rutinas, donde consulta el
-  historial (para no asignar una rutina sin querer).
-- **Rutinas:** "Asignar rutina" (`{dni}`; si ya se muestra una rutina activa de ese DNI pide confirmación, porque la
-  reemplaza) y "Ver historial" (la última es la activa). El correo se resuelve con `/identity/{dni}` y, si no se puede,
-  se muestra el DNI. Si el historial viene vacío se comprueba con `/customers/by-dni/{dni}` que el DNI sea de un
-  cliente: el backend responde `200 []` también para el de un entrenador.
-- **Asistencia:** "Registrar ingreso" muestra la bienvenida en español (se arma con el nombre y el correo que trae el
-  texto en inglés del backend) y refresca el historial; el historial va más reciente primero con el rol (Cliente /
-  Entrenador).
-- **DNI no vinculado** (404) se marca bajo el campo; un DNI que no es de cliente, o un vínculo sin perfil, sale como
-  aviso general. En ambos casos se limpia el resultado anterior: lo que se ve siempre corresponde al DNI consultado.
-- **Tablas anchas:** `.table-responsive` es ahora el bloque contenedor de sus elementos absolutos (el `th` oculto de
-  "Acciones"); sin eso una tabla más ancha que su tarjeta ensanchaba toda la página.
+- **Las reservas son para hoy:** la fecha la fija el servidor (no hay agenda a futuro); los horarios pasados se ocultan.
+- **Horario del servidor:** las horas pasadas se ocultan con el reloj del navegador y el backend usa su propia zona
+  horaria (America/Lima); con zonas distintas puede haber desfase.
+- **Google Login:** configurado pero **sin probar** de extremo a extremo.
+- **Invitaciones de entrenadores:** las invitaciones reales dependen de `CLERK_SECRET_KEY` en el backend; sin ella el alta
+  funciona y la invitación queda como "no configurada". Los estados `INVITED`, `ROLE_UPDATED` y `FAILED` se probaron
+  simulando la respuesta del backend, no contra Clerk.
+- **Registro con Turnstile:** el registro de Clerk usa Cloudflare Turnstile, que bloquea los navegadores automatizados
+  en modo *headless*; las pruebas automatizadas inician sesión con cuentas ya creadas.
+- **Cambio de rol:** requiere cerrar y abrir sesión (el rol va dentro del token).

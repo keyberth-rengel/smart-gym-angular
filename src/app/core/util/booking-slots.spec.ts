@@ -1,4 +1,11 @@
-import { allSlotTimes, availableSlots, bookingMoment, isUpcoming, nextBooking, sortBookingsDesc } from './booking-slots';
+import {
+  allSlotTimes,
+  availableSlots,
+  bookingMoment,
+  isUpcoming,
+  nextBooking,
+  sortBookingsDesc,
+} from './booking-slots';
 
 const at = (h: number, m = 0, s = 0) => new Date(2026, 8, 19, h, m, s);
 
@@ -42,7 +49,9 @@ describe('booking-slots', () => {
 
   it('bookingMoment interpreta fecha y hora como locales', () => {
     const d = bookingMoment({ date: '2026-09-19', time: '16:30' });
-    expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()]).toEqual([2026, 8, 19, 16, 30]);
+    expect([d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()]).toEqual([
+      2026, 8, 19, 16, 30,
+    ]);
   });
 
   it('una reserva es próxima si su hora no pasó (borde exacto incluido)', () => {

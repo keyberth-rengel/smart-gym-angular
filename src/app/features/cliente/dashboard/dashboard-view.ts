@@ -1,4 +1,10 @@
-import { AttendanceRecord, Booking, ProgressList, RoutineHistoryItem, Trainer } from '../../../core/models';
+import {
+  AttendanceRecord,
+  Booking,
+  ProgressList,
+  RoutineHistoryItem,
+  Trainer,
+} from '../../../core/models';
 import { nextBooking } from '../../../core/util/booking-slots';
 import { trainerName } from '../../../core/util/booking-view';
 import { formatDayMonth, formatTime, relativeDay } from '../../../core/util/dates';
@@ -19,9 +25,13 @@ function dayAndTime(dayValue: string, time: string, now: Date): string {
 }
 
 /** Bloque de hoy de la rutina activa (el domingo es "Descanso"). */
-export function routineCard(history: readonly RoutineHistoryItem[], now: Date = new Date()): CardText {
+export function routineCard(
+  history: readonly RoutineHistoryItem[],
+  now: Date = new Date(),
+): CardText {
   const plan = activePlan(history);
-  if (!plan) return { value: 'Sin rutina asignada', sub: 'Tu entrenador o recepción te la asignará' };
+  if (!plan)
+    return { value: 'Sin rutina asignada', sub: 'Tu entrenador o recepción te la asignará' };
   const key = todayKey(now);
   const since = formatDayMonth(history[history.length - 1].created_at);
   return {
@@ -55,7 +65,10 @@ export function progressCard(list: Pick<ProgressList, 'items'>): CardText {
 }
 
 /** Último ingreso registrado. */
-export function attendanceCard(records: readonly AttendanceRecord[], now: Date = new Date()): CardText {
+export function attendanceCard(
+  records: readonly AttendanceRecord[],
+  now: Date = new Date(),
+): CardText {
   if (!records.length) return { value: 'Sin ingresos', sub: 'Marca tu asistencia al llegar' };
   const last = [...records].sort((a, b) => a.timestamp.localeCompare(b.timestamp)).at(-1)!;
   return {

@@ -52,11 +52,36 @@ export class AdminDashboard {
 
   protected readonly today = formatLongDate(new Date());
   protected readonly modules: readonly ModuleCard[] = [
-    { icon: 'people', title: 'Clientes', text: 'Registrar y consultar socios', path: '/admin/clientes' },
-    { icon: 'person-badge', title: 'Entrenadores', text: 'Registrar y consultar equipo', path: '/admin/entrenadores' },
-    { icon: 'calendar-event', title: 'Reservas', text: 'Consultar y cancelar sesiones', path: '/admin/reservas' },
-    { icon: 'lightning-charge', title: 'Rutinas', text: 'Asignar plan semanal por DNI', path: '/admin/rutinas' },
-    { icon: 'check2-circle', title: 'Asistencia', text: 'Registrar ingresos por DNI', path: '/admin/asistencia' },
+    {
+      icon: 'people',
+      title: 'Clientes',
+      text: 'Registrar y consultar socios',
+      path: '/admin/clientes',
+    },
+    {
+      icon: 'person-badge',
+      title: 'Entrenadores',
+      text: 'Registrar y consultar equipo',
+      path: '/admin/entrenadores',
+    },
+    {
+      icon: 'calendar-event',
+      title: 'Reservas',
+      text: 'Consultar y cancelar sesiones',
+      path: '/admin/reservas',
+    },
+    {
+      icon: 'lightning-charge',
+      title: 'Rutinas',
+      text: 'Asignar plan semanal por DNI',
+      path: '/admin/rutinas',
+    },
+    {
+      icon: 'check2-circle',
+      title: 'Asistencia',
+      text: 'Registrar ingresos por DNI',
+      path: '/admin/asistencia',
+    },
   ];
 
   protected readonly healthState = signal<HealthState>('checking');

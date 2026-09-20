@@ -25,13 +25,20 @@ async function render(role: string) {
 }
 
 describe('Shell', () => {
-  it.each(['cliente', 'entrenador', 'admin'] as const)('%s: renderiza exactamente su menú', async (role) => {
-    const el = await render(role);
-    const labels = Array.from(el.querySelectorAll('[data-testid=nav-item]')).map((a) => a.textContent?.trim());
-    expect(labels).toEqual(NAV_ITEMS[role].map((i) => i.label));
-    const hrefs = Array.from(el.querySelectorAll('[data-testid=nav-item]')).map((a) => a.getAttribute('href'));
-    expect(hrefs).toEqual(NAV_ITEMS[role].map((i) => i.path));
-  });
+  it.each(['cliente', 'entrenador', 'admin'] as const)(
+    '%s: renderiza exactamente su menú',
+    async (role) => {
+      const el = await render(role);
+      const labels = Array.from(el.querySelectorAll('[data-testid=nav-item]')).map((a) =>
+        a.textContent?.trim(),
+      );
+      expect(labels).toEqual(NAV_ITEMS[role].map((i) => i.label));
+      const hrefs = Array.from(el.querySelectorAll('[data-testid=nav-item]')).map((a) =>
+        a.getAttribute('href'),
+      );
+      expect(hrefs).toEqual(NAV_ITEMS[role].map((i) => i.path));
+    },
+  );
 
   it('tiene landmarks: header, nav con nombre, main enfocable y enlace para saltar al contenido', async () => {
     const el = await render('cliente');

@@ -28,7 +28,9 @@ describe('AdminClientes', () => {
     } = {},
   ) {
     list = vi.fn(opts.list ?? (() => of(LIST)));
-    create = vi.fn(opts.create ?? ((c: CustomerCreate) => of({ email: c.email, name: c.name, age: c.age })));
+    create = vi.fn(
+      opts.create ?? ((c: CustomerCreate) => of({ email: c.email, name: c.name, age: c.age })),
+    );
     TestBed.configureTestingModule({
       imports: [AdminClientes],
       providers: [{ provide: CustomersApi, useValue: { list, create } }],
@@ -207,7 +209,12 @@ describe('AdminClientes', () => {
       setup({
         create: () =>
           throwError(() =>
-            err(409, 'Customer already exists: ana@x.com', {}, 'Ya existe un cliente con ese correo.'),
+            err(
+              409,
+              'Customer already exists: ana@x.com',
+              {},
+              'Ya existe un cliente con ese correo.',
+            ),
           ),
       });
       fillValid();
@@ -223,7 +230,12 @@ describe('AdminClientes', () => {
       setup({
         create: () =>
           throwError(() =>
-            err(409, 'DNI already linked to another account', {}, 'Este DNI ya está vinculado a otra cuenta.'),
+            err(
+              409,
+              'DNI already linked to another account',
+              {},
+              'Este DNI ya está vinculado a otra cuenta.',
+            ),
           ),
       });
       fillValid('12345678');
@@ -237,7 +249,12 @@ describe('AdminClientes', () => {
     it('400 con detalles por campo: cada mensaje junto a su campo', async () => {
       setup({
         create: () =>
-          throwError(() => err(400, 'Validation failed', { name: 'Máximo 120 caracteres.', age: 'Debe ser mayor o igual a 0.' })),
+          throwError(() =>
+            err(400, 'Validation failed', {
+              name: 'Máximo 120 caracteres.',
+              age: 'Debe ser mayor o igual a 0.',
+            }),
+          ),
       });
       fillValid();
       submit();
@@ -248,7 +265,9 @@ describe('AdminClientes', () => {
     });
 
     it('400 con un campo que el formulario no tiene: toast', async () => {
-      setup({ create: () => throwError(() => err(400, 'Validation failed', { paymentMethod: 'x' })) });
+      setup({
+        create: () => throwError(() => err(400, 'Validation failed', { paymentMethod: 'x' })),
+      });
       fillValid();
       submit();
       await flush();
@@ -257,7 +276,10 @@ describe('AdminClientes', () => {
     });
 
     it('500 y red caída: toast y el formulario conserva los datos y se libera', async () => {
-      setup({ create: () => throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')) });
+      setup({
+        create: () =>
+          throwError(() => err(500, 'Unexpected error', {}, 'El servicio no está disponible.')),
+      });
       fillValid('12345678');
       submit();
       await flush();

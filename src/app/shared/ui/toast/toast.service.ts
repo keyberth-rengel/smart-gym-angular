@@ -47,7 +47,9 @@ export class ToastService {
   show(kind: ToastKind, message: string, title?: string): number {
     const finalTitle = title ?? DEFAULT_TITLES[kind];
     // Un aviso idéntico ya visible no se repite (p. ej. cuatro tarjetas que fallan a la vez): se reinicia su tiempo.
-    const same = this._toasts().find((t) => t.kind === kind && t.message === message && t.title === finalTitle);
+    const same = this._toasts().find(
+      (t) => t.kind === kind && t.message === message && t.title === finalTitle,
+    );
     if (same) {
       this.startTimer(same.id, kind);
       return same.id;

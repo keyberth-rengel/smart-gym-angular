@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   viewChild,
+  afterNextRender,
 } from '@angular/core';
 import { ConfirmService } from './confirm.service';
 
@@ -19,6 +20,11 @@ export class ConfirmDialog {
   protected readonly service = inject(ConfirmService);
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly cancelButton = viewChild<ElementRef<HTMLButtonElement>>('cancelButton');
+
+  /** El clic en el fondo se escucha desde TS: es un atajo de ratón; con teclado se cierra con Esc o el botón. */
+  private readonly backdropListener = afterNextRender(() => {
+    this.dialog().nativeElement.addEventListener('click', (event) => this.onBackdropClick(event));
+  });
 
   constructor() {
     effect(() => {

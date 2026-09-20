@@ -16,11 +16,31 @@ import { ClienteDashboard } from './dashboard';
 const err = (status: number, raw = '') => new ApiError(status, `HTTP_${status}`, raw, {}, raw);
 
 const DATA = {
-  history: () => of([{ created_at: '2026-09-08T10:00:00', plan: { saturday: 'Cardio', monday: 'Legs' } }]),
-  bookings: () => of([{ id: 1, customer_email: 'a@b.c', trainer_email: 'marco@smartgym.pe', date: '2026-09-19', time: '18:30', note: null }]),
-  trainers: () => of([{ email: 'marco@smartgym.pe', name: 'Marco Vílchez', age: 29, specialty: null }]),
-  progress: () => of({ items: [{ date: '2026-09-15', weight_kg: 74.5, body_fat_pct: 18.2, muscle_pct: 42.1 }], total: 1, avg_weight_kg: 74.5, avg_body_fat_pct: 18.2, avg_muscle_pct: 42.1 }),
-  attendance: () => of([{ id: 1, email: 'a@b.c', role: 'CUSTOMER', timestamp: '2026-09-19T06:45:00' }]),
+  history: () =>
+    of([{ created_at: '2026-09-08T10:00:00', plan: { saturday: 'Cardio', monday: 'Legs' } }]),
+  bookings: () =>
+    of([
+      {
+        id: 1,
+        customer_email: 'a@b.c',
+        trainer_email: 'marco@smartgym.pe',
+        date: '2026-09-19',
+        time: '18:30',
+        note: null,
+      },
+    ]),
+  trainers: () =>
+    of([{ email: 'marco@smartgym.pe', name: 'Marco Vílchez', age: 29, specialty: null }]),
+  progress: () =>
+    of({
+      items: [{ date: '2026-09-15', weight_kg: 74.5, body_fat_pct: 18.2, muscle_pct: 42.1 }],
+      total: 1,
+      avg_weight_kg: 74.5,
+      avg_body_fat_pct: 18.2,
+      avg_muscle_pct: 42.1,
+    }),
+  attendance: () =>
+    of([{ id: 1, email: 'a@b.c', role: 'CUSTOMER', timestamp: '2026-09-19T06:45:00' }]),
 };
 type Src = Partial<Record<keyof typeof DATA, () => Observable<unknown>>>;
 
@@ -36,13 +56,24 @@ describe('ClienteDashboard', () => {
       imports: [ClienteDashboard],
       providers: [
         provideRouter([]),
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) })),
+        provideFakeClerk(
+          createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) }),
+        ),
         { provide: MeApi, useValue: {} },
-        { provide: RoutinesApi, useValue: { history: (d: string) => (calls.history(d), s.history()) } },
+        {
+          provide: RoutinesApi,
+          useValue: { history: (d: string) => (calls.history(d), s.history()) },
+        },
         { provide: BookingsApi, useValue: { list: () => (calls.bookings(), s.bookings()) } },
         { provide: TrainersApi, useValue: { list: () => s.trainers() } },
-        { provide: ProgressApi, useValue: { list: (d: string) => (calls.progress(d), s.progress()) } },
-        { provide: AttendanceApi, useValue: { list: (d: string) => (calls.attendance(d), s.attendance()) } },
+        {
+          provide: ProgressApi,
+          useValue: { list: (d: string) => (calls.progress(d), s.progress()) },
+        },
+        {
+          provide: AttendanceApi,
+          useValue: { list: (d: string) => (calls.attendance(d), s.attendance()) },
+        },
       ],
     });
     TestBed.inject(AuthService).applyMe(testMe({ dni }));
@@ -75,9 +106,18 @@ describe('ClienteDashboard', () => {
     expect(cardText('progress')).toContain('74.5 kg');
     expect(cardText('progress')).toContain('18.2 % grasa · 42.1 % músculo');
     expect(cardText('attendance')).toContain('Hoy · 06:45');
-    const links = ['routine', 'booking', 'progress', 'attendance'].map((k) => card(k).querySelector('a')!.getAttribute('href'));
-    expect(links).toEqual(['/cliente/rutina', '/cliente/reservas', '/cliente/progreso', '/cliente/asistencia']);
-    expect(el.querySelector('[data-testid=banner-attendance]')!.getAttribute('href')).toBe('/cliente/asistencia');
+    const links = ['routine', 'booking', 'progress', 'attendance'].map((k) =>
+      card(k).querySelector('a')!.getAttribute('href'),
+    );
+    expect(links).toEqual([
+      '/cliente/rutina',
+      '/cliente/reservas',
+      '/cliente/progreso',
+      '/cliente/asistencia',
+    ]);
+    expect(el.querySelector('[data-testid=banner-attendance]')!.getAttribute('href')).toBe(
+      '/cliente/asistencia',
+    );
   });
 
   it('el domingo la rutina es Descanso', () => {

@@ -23,7 +23,10 @@ export interface TodayBookingRow {
   trainer: string;
 }
 
-type Named = { name: string; email: string };
+interface Named {
+  name: string;
+  email: string;
+}
 
 /** Reservas cuya fecha es hoy, por hora, con los nombres resueltos (o el correo si faltan). */
 export function todayBookings(
@@ -101,10 +104,7 @@ export interface BookingFilters {
 }
 
 /** Reservas que cumplen los filtros (correo sin distinguir mayúsculas; fecha exacta). */
-export function filterBookings(
-  bookings: readonly Booking[],
-  filters: BookingFilters,
-): Booking[] {
+export function filterBookings(bookings: readonly Booking[], filters: BookingFilters): Booking[] {
   const trainer = filters.trainerEmail.trim().toLowerCase();
   return bookings.filter(
     (b) =>
@@ -164,10 +164,7 @@ export function bookingSummary(row: AdminBookingRow): string {
  * Opciones del filtro de entrenador: la lista de entrenadores y, si esa carga falló, los correos
  * distintos que aparecen en las reservas (para poder seguir filtrando).
  */
-export function trainerOptions(
-  trainers: readonly Named[],
-  bookings: readonly Booking[],
-): Named[] {
+export function trainerOptions(trainers: readonly Named[], bookings: readonly Booking[]): Named[] {
   if (trainers.length) return sortByName(trainers);
   const seen = new Map<string, Named>();
   for (const b of bookings) {

@@ -9,8 +9,17 @@ import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fa
 import { testMe } from '../../../testing/test-me';
 import { ClienteAsistencia } from './asistencia';
 
-const rec = (id: number, timestamp: string): AttendanceRecord => ({ id, email: 'ana@correo.com', role: 'CUSTOMER', timestamp });
-const RECORDS = [rec(1, '2026-09-05T17:35:00'), rec(2, '2026-09-08T18:15:00'), rec(3, '2026-09-19T06:45:00')];
+const rec = (id: number, timestamp: string): AttendanceRecord => ({
+  id,
+  email: 'ana@correo.com',
+  role: 'CUSTOMER',
+  timestamp,
+});
+const RECORDS = [
+  rec(1, '2026-09-05T17:35:00'),
+  rec(2, '2026-09-08T18:15:00'),
+  rec(3, '2026-09-19T06:45:00'),
+];
 
 describe('ClienteAsistencia', () => {
   let fixture: ComponentFixture<ClienteAsistencia>;
@@ -20,7 +29,8 @@ describe('ClienteAsistencia', () => {
 
   function setup(
     result: () => Observable<AttendanceRecord[]> = () => of(RECORDS),
-    accessResult: () => Observable<string> = () => of('Welcome Ana! Access recorded for ana@correo.com.'),
+    accessResult: () => Observable<string> = () =>
+      of('Welcome Ana! Access recorded for ana@correo.com.'),
     dni: string | null = '12345678',
   ) {
     list = vi.fn(() => result());
@@ -28,7 +38,9 @@ describe('ClienteAsistencia', () => {
     TestBed.configureTestingModule({
       imports: [ClienteAsistencia],
       providers: [
-        provideFakeClerk(createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) })),
+        provideFakeClerk(
+          createFakeClerk({ user: fakeUser({ email: 'ana@correo.com', name: 'Ana Pérez' }) }),
+        ),
         { provide: MeApi, useValue: {} },
         { provide: AttendanceApi, useValue: { list, access } },
       ],
@@ -58,7 +70,11 @@ describe('ClienteAsistencia', () => {
 
   it('el historial va del más reciente al más antiguo, numerado desde el primer ingreso', () => {
     setup();
-    const rows = qa('[data-testid=att-row]').map((r) => Array.from(r.querySelectorAll('td')).map((td) => td.textContent!.replace(/\s+/g, ' ').trim()).join(' '));
+    const rows = qa('[data-testid=att-row]').map((r) =>
+      Array.from(r.querySelectorAll('td'))
+        .map((td) => td.textContent!.replace(/\s+/g, ' ').trim())
+        .join(' '),
+    );
     expect(rows).toEqual(['3 19 sep 2026 06:45', '2 08 sep 2026 18:15', '1 05 sep 2026 17:35']);
     expect(text('[data-testid=att-count]')).toBe('3 ingresos');
   });
@@ -101,7 +117,9 @@ describe('ClienteAsistencia', () => {
     button().click();
     fixture.detectChanges();
     expect(access).toHaveBeenCalledWith('12345678');
-    expect(text('[data-testid=att-success]')).toBe('¡Bienvenido Ana Pérez! Ingreso registrado hoy a las 06:45.');
+    expect(text('[data-testid=att-success]')).toBe(
+      '¡Bienvenido Ana Pérez! Ingreso registrado hoy a las 06:45.',
+    );
     expect(text('[data-testid=att-success]')).not.toContain('Welcome');
     expect(list).toHaveBeenCalledTimes(2);
     expect(qa('[data-testid=att-row]')).toHaveLength(3);
@@ -126,7 +144,9 @@ describe('ClienteAsistencia', () => {
 
   it('al fallar libera el botón, no muestra éxito y permite reintentar', () => {
     let fail = true;
-    setup(undefined, () => (fail ? throwError(() => new ApiError(500, 'INTERNAL_ERROR', 'x')) : of('ok')));
+    setup(undefined, () =>
+      fail ? throwError(() => new ApiError(500, 'INTERNAL_ERROR', 'x')) : of('ok'),
+    );
     button().click();
     fixture.detectChanges();
     expect(q('[data-testid=att-success]')).toBeNull();
@@ -139,7 +159,9 @@ describe('ClienteAsistencia', () => {
   });
 
   it('DNI no vinculado (422 de no encontrado): mensaje en la tarjeta', () => {
-    setup(undefined, () => throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')));
+    setup(undefined, () =>
+      throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')),
+    );
     button().click();
     fixture.detectChanges();
     expect(text('[data-testid=att-failure]')).toContain('no está vinculado');

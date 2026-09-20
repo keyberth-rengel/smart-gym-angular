@@ -2,18 +2,25 @@
   #dialog
   class="sg-dialog progress-dialog"
   aria-labelledby="pd-title"
-  (click)="onBackdropClick($event)"
   data-testid="progress-dialog"
 >
   <form class="sg-dialog-body" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="pd-head">
       <h2 id="pd-title" class="pd-title">Registrar progreso</h2>
-      <button type="button" class="btn-icon" aria-label="Cerrar" (click)="close()" data-testid="pd-close">
+      <button
+        type="button"
+        class="btn-icon"
+        aria-label="Cerrar"
+        (click)="close()"
+        data-testid="pd-close"
+      >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </button>
     </div>
 
-    <div class="pd-who"><i class="bi bi-person-vcard" aria-hidden="true"></i><span>{{ who() }}</span></div>
+    <div class="pd-who">
+      <i class="bi bi-person-vcard" aria-hidden="true"></i><span>{{ who() }}</span>
+    </div>
 
     <div>
       <label class="form-label" for="pd-weight">Peso (kg)</label>
@@ -30,7 +37,13 @@
         [attr.aria-invalid]="!!error('weightKg')"
         aria-describedby="pd-weight-msg"
       />
-      <div id="pd-weight-msg" class="form-text" [class.invalid-feedback]="!!error('weightKg')" [class.d-block]="!!error('weightKg')" data-testid="pd-weight-msg">
+      <div
+        id="pd-weight-msg"
+        class="form-text"
+        [class.invalid-feedback]="!!error('weightKg')"
+        [class.d-block]="!!error('weightKg')"
+        data-testid="pd-weight-msg"
+      >
         {{ error('weightKg') ?? 'Entre 0.1 y 400 kg' }}
       </div>
     </div>
@@ -50,7 +63,13 @@
           [attr.aria-invalid]="!!error('bodyFatPct')"
           aria-describedby="pd-fat-msg"
         />
-        <div id="pd-fat-msg" class="form-text" [class.invalid-feedback]="!!error('bodyFatPct')" [class.d-block]="!!error('bodyFatPct')" data-testid="pd-fat-msg">
+        <div
+          id="pd-fat-msg"
+          class="form-text"
+          [class.invalid-feedback]="!!error('bodyFatPct')"
+          [class.d-block]="!!error('bodyFatPct')"
+          data-testid="pd-fat-msg"
+        >
           {{ error('bodyFatPct') ?? 'Entre 0 y 100' }}
         </div>
       </div>
@@ -68,7 +87,13 @@
           [attr.aria-invalid]="!!error('musclePct')"
           aria-describedby="pd-muscle-msg"
         />
-        <div id="pd-muscle-msg" class="form-text" [class.invalid-feedback]="!!error('musclePct')" [class.d-block]="!!error('musclePct')" data-testid="pd-muscle-msg">
+        <div
+          id="pd-muscle-msg"
+          class="form-text"
+          [class.invalid-feedback]="!!error('musclePct')"
+          [class.d-block]="!!error('musclePct')"
+          data-testid="pd-muscle-msg"
+        >
           {{ error('musclePct') ?? 'Entre 0 y 100' }}
         </div>
       </div>
@@ -86,8 +111,20 @@
     }
 
     <div class="pd-actions">
-      <button type="button" class="btn btn-outline-secondary" (click)="close()" data-testid="pd-cancel">Cancelar</button>
-      <button type="submit" class="btn btn-primary" [disabled]="submitting()" data-testid="pd-submit">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="close()"
+        data-testid="pd-cancel"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="submitting()"
+        data-testid="pd-submit"
+      >
         @if (submitting()) {
           <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
           <span>Guardando…</span>

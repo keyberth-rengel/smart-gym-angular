@@ -36,9 +36,7 @@ describe('APIs del admin', () => {
     });
 
     it('create sin dni: el cuerpo no lleva la clave dni', () => {
-      TestBed.inject(CustomersApi)
-        .create({ email: 'a@x.com', name: 'Ana', age: 20 })
-        .subscribe();
+      TestBed.inject(CustomersApi).create({ email: 'a@x.com', name: 'Ana', age: 20 }).subscribe();
       const req = http.expectOne('/api/v1/customers');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ email: 'a@x.com', name: 'Ana', age: 20 });
@@ -61,7 +59,13 @@ describe('APIs del admin', () => {
     it('create devuelve el entrenador con el resultado de la invitación', () => {
       let result: unknown;
       TestBed.inject(TrainersApi)
-        .create({ email: 't@x.com', name: 'Luis', age: 30, specialty: 'Funcional', dni: '87654321' })
+        .create({
+          email: 't@x.com',
+          name: 'Luis',
+          age: 30,
+          specialty: 'Funcional',
+          dni: '87654321',
+        })
         .subscribe((v) => (result = v));
       const req = http.expectOne('/api/v1/trainers');
       expect(req.request.method).toBe('POST');
@@ -115,9 +119,27 @@ describe('APIs del admin', () => {
       const req = http.expectOne('/api/v1/bookings');
       expect(req.request.method).toBe('GET');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
-      req.flush(ok([{ id: 14, customer_email: 'a@x.com', trainer_email: 't@x.com', date: '2026-09-19', time: '16:30', note: null }]));
+      req.flush(
+        ok([
+          {
+            id: 14,
+            customer_email: 'a@x.com',
+            trainer_email: 't@x.com',
+            date: '2026-09-19',
+            time: '16:30',
+            note: null,
+          },
+        ]),
+      );
       expect(result).toEqual([
-        { id: 14, customer_email: 'a@x.com', trainer_email: 't@x.com', date: '2026-09-19', time: '16:30', note: null },
+        {
+          id: 14,
+          customer_email: 'a@x.com',
+          trainer_email: 't@x.com',
+          date: '2026-09-19',
+          time: '16:30',
+          note: null,
+        },
       ]);
     });
 

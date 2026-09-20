@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BookingsApi } from '../../../core/api/bookings.api';
@@ -59,12 +66,16 @@ export class ClienteReservas {
   protected readonly slotsState = signal<SlotsState>('idle');
   private readonly booked = signal<string[]>([]);
   protected readonly slots = computed(() => availableSlots(this.booked(), this.now()));
-  protected readonly noSlotsLeft = computed(() => this.slotsState() === 'ready' && this.slots().length === 0);
+  protected readonly noSlotsLeft = computed(
+    () => this.slotsState() === 'ready' && this.slots().length === 0,
+  );
 
   // --- mis reservas
   protected readonly bookingsState = signal<ListState>('loading');
   private readonly bookings = signal<Booking[]>([]);
-  protected readonly rows = computed(() => bookingRows(this.bookings(), this.trainers(), this.now()));
+  protected readonly rows = computed(() =>
+    bookingRows(this.bookings(), this.trainers(), this.now()),
+  );
 
   // --- formulario
   protected readonly selectedTime = signal('');

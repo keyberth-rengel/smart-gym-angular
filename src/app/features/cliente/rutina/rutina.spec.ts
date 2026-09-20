@@ -9,7 +9,14 @@ import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fa
 import { testMe } from '../../../testing/test-me';
 import { ClienteRutina } from './rutina';
 
-const week = { monday: 'Legs', tuesday: 'Chest', wednesday: 'Back', thursday: 'Shoulders', friday: 'Arms', saturday: 'Cardio' };
+const week = {
+  monday: 'Legs',
+  tuesday: 'Chest',
+  wednesday: 'Back',
+  thursday: 'Shoulders',
+  friday: 'Arms',
+  saturday: 'Cardio',
+};
 const HISTORY: RoutineHistoryItem[] = [
   { created_at: '2026-07-14T10:00:00', plan: { ...week, monday: 'Cardio', saturday: 'Legs' } },
   { created_at: '2026-09-08T09:15:00', plan: week },
@@ -20,7 +27,10 @@ describe('ClienteRutina', () => {
   let el: HTMLElement;
   let history: ReturnType<typeof vi.fn<(dni: string) => Observable<RoutineHistoryItem[]>>>;
 
-  function setup(result: () => Observable<RoutineHistoryItem[]> = () => of(HISTORY), dni: string | null = '12345678') {
+  function setup(
+    result: () => Observable<RoutineHistoryItem[]> = () => of(HISTORY),
+    dni: string | null = '12345678',
+  ) {
     history = vi.fn(() => result());
     TestBed.configureTestingModule({
       imports: [ClienteRutina],
@@ -56,7 +66,9 @@ describe('ClienteRutina', () => {
 
   it('muestra un esqueleto mientras carga', () => {
     setup(() => new Subject<RoutineHistoryItem[]>());
-    expect(qa('[data-testid=loading-card]').length + qa('[data-testid=loading-table]').length).toBeGreaterThan(0);
+    expect(
+      qa('[data-testid=loading-card]').length + qa('[data-testid=loading-table]').length,
+    ).toBeGreaterThan(0);
     expect(q('[data-testid=plan-card]')).toBeNull();
   });
 
@@ -120,7 +132,9 @@ describe('ClienteRutina', () => {
   });
 
   it('el 422 de "no encontrado" del backend también es estado vacío (no error)', () => {
-    setup(() => throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')));
+    setup(() =>
+      throwError(() => new ApiError(422, 'UNPROCESSABLE_ENTITY', 'x', {}, 'DNI not linked')),
+    );
     expect(text('[data-testid=empty-state]')).toContain('Aún no tienes una rutina asignada');
     expect(q('[data-testid=retry]')).toBeNull();
   });

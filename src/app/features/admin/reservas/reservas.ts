@@ -67,7 +67,9 @@ export class AdminReservas {
   protected readonly dateFilter = signal(toIsoDate(new Date()));
   protected readonly hasFilters = computed(() => !!this.trainerFilter() || !!this.dateFilter());
 
-  protected readonly trainerChoices = computed(() => trainerOptions(this.trainers(), this.bookings()));
+  protected readonly trainerChoices = computed(() =>
+    trainerOptions(this.trainers(), this.bookings()),
+  );
   protected readonly total = computed(() => this.bookings().length);
   protected readonly rows = computed(() =>
     adminBookingRows(

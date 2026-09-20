@@ -48,12 +48,17 @@ export function bookingMoment(booking: Pick<Booking, 'date' | 'time'>): Date {
 }
 
 /** Una reserva es "próxima" si su fecha y hora no han pasado. */
-export function isUpcoming(booking: Pick<Booking, 'date' | 'time'>, now: Date = new Date()): boolean {
+export function isUpcoming(
+  booking: Pick<Booking, 'date' | 'time'>,
+  now: Date = new Date(),
+): boolean {
   return bookingMoment(booking).getTime() >= now.getTime();
 }
 
 /** Más reciente primero (fecha y hora descendentes). */
-export function sortBookingsDesc<T extends Pick<Booking, 'date' | 'time'>>(list: readonly T[]): T[] {
+export function sortBookingsDesc<T extends Pick<Booking, 'date' | 'time'>>(
+  list: readonly T[],
+): T[] {
   return [...list].sort((a, b) => bookingMoment(b).getTime() - bookingMoment(a).getTime());
 }
 

@@ -17,7 +17,12 @@
         [attr.aria-invalid]="!!error('name')"
         aria-describedby="tr-name-err"
       />
-      <div id="tr-name-err" class="invalid-feedback d-block" [hidden]="!error('name')" data-testid="name-error">
+      <div
+        id="tr-name-err"
+        class="invalid-feedback d-block"
+        [hidden]="!error('name')"
+        data-testid="name-error"
+      >
         {{ error('name') }}
       </div>
     </div>
@@ -36,13 +41,20 @@
         [attr.aria-invalid]="!!error('email')"
         aria-describedby="tr-email-err"
       />
-      <div id="tr-email-err" class="invalid-feedback d-block" [hidden]="!error('email')" data-testid="email-error">
+      <div
+        id="tr-email-err"
+        class="invalid-feedback d-block"
+        [hidden]="!error('email')"
+        data-testid="email-error"
+      >
         {{ error('email') }}
       </div>
     </div>
 
     <div>
-      <label class="form-label" for="tr-specialty">Especialidad <span class="text-body-secondary fw-normal">(opcional)</span></label>
+      <label class="form-label" for="tr-specialty"
+        >Especialidad <span class="text-body-secondary fw-normal">(opcional)</span></label
+      >
       <input
         id="tr-specialty"
         class="form-control"
@@ -54,7 +66,12 @@
         [attr.aria-invalid]="!!error('specialty')"
         aria-describedby="tr-specialty-err"
       />
-      <div id="tr-specialty-err" class="invalid-feedback d-block" [hidden]="!error('specialty')" data-testid="specialty-error">
+      <div
+        id="tr-specialty-err"
+        class="invalid-feedback d-block"
+        [hidden]="!error('specialty')"
+        data-testid="specialty-error"
+      >
         {{ error('specialty') }}
       </div>
     </div>
@@ -74,12 +91,19 @@
           [attr.aria-invalid]="!!error('age')"
           aria-describedby="tr-age-err"
         />
-        <div id="tr-age-err" class="invalid-feedback d-block" [hidden]="!error('age')" data-testid="age-error">
+        <div
+          id="tr-age-err"
+          class="invalid-feedback d-block"
+          [hidden]="!error('age')"
+          data-testid="age-error"
+        >
           {{ error('age') }}
         </div>
       </div>
       <div class="col-6">
-        <label class="form-label" for="tr-dni">DNI <span class="text-body-secondary fw-normal">(opcional)</span></label>
+        <label class="form-label" for="tr-dni"
+          >DNI <span class="text-body-secondary fw-normal">(opcional)</span></label
+        >
         <input
           id="tr-dni"
           class="form-control"
@@ -92,7 +116,12 @@
           [attr.aria-invalid]="!!error('dni')"
           aria-describedby="tr-dni-err"
         />
-        <div id="tr-dni-err" class="invalid-feedback d-block" [hidden]="!error('dni')" data-testid="dni-error">
+        <div
+          id="tr-dni-err"
+          class="invalid-feedback d-block"
+          [hidden]="!error('dni')"
+          data-testid="dni-error"
+        >
           {{ error('dni') }}
         </div>
       </div>
@@ -112,7 +141,12 @@
       </div>
     }
 
-    <button type="submit" class="btn btn-primary w-100" [disabled]="submitting()" data-testid="submit">
+    <button
+      type="submit"
+      class="btn btn-primary w-100"
+      [disabled]="submitting()"
+      data-testid="submit"
+    >
       @if (submitting()) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
         <span>Registrando…</span>

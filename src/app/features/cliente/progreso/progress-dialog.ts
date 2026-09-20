@@ -8,6 +8,7 @@ import {
   output,
   signal,
   viewChild,
+  afterNextRender,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProgressApi } from '../../../core/api/progress.api';
@@ -43,11 +44,18 @@ export class ProgressDialog {
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly firstField = viewChild<ElementRef<HTMLInputElement>>('firstField');
 
+  /** El clic en el fondo se escucha desde TS: es un atajo de ratón; con teclado se cierra con Esc o el botón. */
+  private readonly backdropListener = afterNextRender(() => {
+    this.dialog().nativeElement.addEventListener('click', (event) => this.onBackdropClick(event));
+  });
+
   protected readonly submitting = signal(false);
   /** Mensaje del servidor que no pertenece a un campo (409 de "ya registraste hoy", 422...). */
   protected readonly formError = signal<string | null>(null);
 
-  protected readonly who = computed(() => `DNI ${this.auth.dni() ?? '—'} · ${this.auth.fullName() ?? ''}`);
+  protected readonly who = computed(
+    () => `DNI ${this.auth.dni() ?? '—'} · ${this.auth.fullName() ?? ''}`,
+  );
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     weightKg: ['', [Validators.required, weightValidator]],
@@ -113,7 +121,9 @@ export class ProgressDialog {
           }
           const unmatched = applyServerErrors(this.form, err);
           if (err.status === 409) {
-            this.formError.set('Ya registraste tu progreso hoy. Solo se permite un registro por día.');
+            this.formError.set(
+              'Ya registraste tu progreso hoy. Solo se permite un registro por día.',
+            );
           } else if (unmatched.length || !Object.keys(err.fieldErrors).length) {
             this.formError.set(err.message);
           }

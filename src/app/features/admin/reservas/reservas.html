@@ -5,9 +5,8 @@
     <h2 id="bookings-title" class="card-title" tabindex="-1">Sesiones programadas</h2>
     @if (status() === 'ready') {
       <app-badge tone="gray"
-        ><span data-testid="count">{{ rows().length }}</span>&nbsp;{{
-          rows().length === 1 ? 'reserva' : 'reservas'
-        }}</app-badge
+        ><span data-testid="count">{{ rows().length }}</span
+        >&nbsp;{{ rows().length === 1 ? 'reserva' : 'reservas' }}</app-badge
       >
     }
   </div>
@@ -97,7 +96,7 @@
           </button>
         </app-empty-state>
       } @else {
-        <div class="table-responsive" tabindex="0" role="region" aria-label="Reservas">
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Tabla: Reservas">
           <table class="table align-middle mb-0 bookings-table" data-testid="bookings-table">
             <thead>
               <tr>
@@ -107,7 +106,9 @@
                 <th scope="col">Cliente</th>
                 <th scope="col">Entrenador</th>
                 <th scope="col">Nota</th>
-                <th scope="col" class="action-col"><span class="visually-hidden">Acciones</span></th>
+                <th scope="col" class="action-col">
+                  <span class="visually-hidden">Acciones</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -119,13 +120,17 @@
                   <td>
                     <span class="person-name">{{ r.customer }}</span>
                     @if (r.customer !== r.customerEmail) {
-                      <span class="person-email" [attr.title]="r.customerEmail">{{ r.customerEmail }}</span>
+                      <span class="person-email" [attr.title]="r.customerEmail">{{
+                        r.customerEmail
+                      }}</span>
                     }
                   </td>
                   <td>
                     <span class="person-name">{{ r.trainer }}</span>
                     @if (r.trainer !== r.trainerEmail) {
-                      <span class="person-email" [attr.title]="r.trainerEmail">{{ r.trainerEmail }}</span>
+                      <span class="person-email" [attr.title]="r.trainerEmail">{{
+                        r.trainerEmail
+                      }}</span>
                     }
                   </td>
                   <td class="note muted">{{ r.note || '—' }}</td>

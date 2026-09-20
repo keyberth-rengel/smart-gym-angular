@@ -5,10 +5,23 @@ import { DayPick, DayPills } from './day-pills';
 
 @Component({
   imports: [DayPills],
-  template: `<app-day-pills [plan]="plan" [today]="today" [(selected)]="selected" (picked)="picks.push($event)" />`,
+  template: `<app-day-pills
+    [plan]="plan"
+    [today]="today"
+    [(selected)]="selected"
+    (picked)="picks.push($event)"
+  />`,
 })
 class Host {
-  plan = { monday: 'Legs', tuesday: 'Chest', wednesday: 'Back', thursday: 'Shoulders', friday: 'Arms', saturday: 'Cardio', sunday: null };
+  plan = {
+    monday: 'Legs',
+    tuesday: 'Chest',
+    wednesday: 'Back',
+    thursday: 'Shoulders',
+    friday: 'Arms',
+    saturday: 'Cardio',
+    sunday: null,
+  };
   today: WeekdayKey = 'saturday';
   selected = signal<WeekdayKey | null>(null);
   picks: DayPick[] = [];
@@ -35,7 +48,9 @@ describe('DayPills', () => {
 
   it('marca HOY solo en el día actual', () => {
     const { el } = setup();
-    const hoy = Array.from(el.querySelectorAll('button')).filter((b) => b.textContent?.includes('HOY'));
+    const hoy = Array.from(el.querySelectorAll('button')).filter((b) =>
+      b.textContent?.includes('HOY'),
+    );
     expect(hoy).toHaveLength(1);
     expect(hoy[0].getAttribute('data-day')).toBe('saturday');
   });
@@ -59,7 +74,10 @@ describe('DayPills', () => {
   it('las flechas mueven el foco, con vuelta al inicio y al final; Home y End', () => {
     const { el, btn } = setup();
     document.body.appendChild(el);
-    const key = (day: string, k: string) => btn(day).dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+    const key = (day: string, k: string) =>
+      btn(day).dispatchEvent(
+        new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }),
+      );
     btn('monday').focus();
     key('monday', 'ArrowRight');
     expect(document.activeElement).toBe(btn('tuesday'));

@@ -1,5 +1,9 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  TestRequest,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../shared/ui/toast/toast.service';
@@ -32,7 +36,10 @@ describe('MeApi', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(withInterceptors([errorInterceptor])), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(withInterceptors([errorInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
     ctrl = TestBed.inject(HttpTestingController);
     api = TestBed.inject(MeApi);
@@ -55,13 +62,20 @@ describe('MeApi', () => {
 
     it('cliente sin perfil: dni y profile nulos', async () => {
       const result = firstValueFrom(api.getMe());
-      flush(ctrl.expectOne('/api/v1/me'), ok({ ...clienteMe, name: null, dni: null, profile_complete: false, profile: null }));
+      flush(
+        ctrl.expectOne('/api/v1/me'),
+        ok({ ...clienteMe, name: null, dni: null, profile_complete: false, profile: null }),
+      );
       expect(await result).toMatchObject({ dni: null, profile_complete: false, profile: null });
     });
 
     it.each([
       [401, 'UNAUTHORIZED', 'Unauthorized'],
-      [403, 'FORBIDDEN', 'The token does not include the email; configure the session token in Clerk'],
+      [
+        403,
+        'FORBIDDEN',
+        'The token does not include the email; configure the session token in Clerk',
+      ],
       [500, 'INTERNAL_ERROR', 'Unexpected error'],
     ])('error %i: se propaga como ApiError y NO muestra toast', async (status, code, message) => {
       const result = firstValueFrom(api.getMe()).catch((e) => e);
@@ -100,7 +114,10 @@ describe('MeApi', () => {
 
     it.each([
       ['DNI already linked to another account', 'Este DNI ya está vinculado a otra cuenta.'],
-      ['This account is already linked to a different DNI', 'Tu cuenta ya tiene otro DNI vinculado.'],
+      [
+        'This account is already linked to a different DNI',
+        'Tu cuenta ya tiene otro DNI vinculado.',
+      ],
     ])('409 "%s": mensaje en español y sin toast automático', async (raw, expected) => {
       const result = firstValueFrom(api.completeOnboarding(input)).catch((e) => e);
       flush(ctrl.expectOne('/api/v1/me/onboarding'), fail('CONFLICT', raw), 409);

@@ -24,7 +24,11 @@ export class TrainersApi {
 
   /** Solo ADMIN: reintenta la invitación de un entrenador existente. */
   invite(email: string, context?: HttpContext): Observable<Invitation> {
-    return this.api.post<Invitation>(`/trainers/${encodeURIComponent(email)}/invite`, {}, { context });
+    return this.api.post<Invitation>(
+      `/trainers/${encodeURIComponent(email)}/invite`,
+      {},
+      { context },
+    );
   }
 
   /** Entrenadores ordenados por nombre; cualquier usuario autenticado. */

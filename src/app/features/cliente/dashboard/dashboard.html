@@ -1,4 +1,7 @@
-<app-page-header [title]="'Bienvenido' + (firstName() ? ', ' + firstName() : '')" [subtitle]="today" />
+<app-page-header
+  [title]="'Bienvenido' + (firstName() ? ', ' + firstName() : '')"
+  [subtitle]="today"
+/>
 
 <div class="dash-grid" data-testid="dash-grid">
   <app-stat-card

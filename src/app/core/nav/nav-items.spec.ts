@@ -29,12 +29,15 @@ describe('NAV_ITEMS', () => {
     ]);
   });
 
-  it.each(ROLES)('%s: el primer ítem es su inicio (exacto) y todas las rutas cuelgan de él', (role) => {
-    const [first, ...rest] = NAV_ITEMS[role];
-    expect(first.path).toBe(ROLE_HOME[role]);
-    expect(first.exact).toBe(true);
-    for (const item of rest) expect(item.path.startsWith(ROLE_HOME[role] + '/')).toBe(true);
-  });
+  it.each(ROLES)(
+    '%s: el primer ítem es su inicio (exacto) y todas las rutas cuelgan de él',
+    (role) => {
+      const [first, ...rest] = NAV_ITEMS[role];
+      expect(first.path).toBe(ROLE_HOME[role]);
+      expect(first.exact).toBe(true);
+      for (const item of rest) expect(item.path.startsWith(ROLE_HOME[role] + '/')).toBe(true);
+    },
+  );
 
   it.each(ROLES)('%s: sin rutas ni etiquetas repetidas', (role) => {
     const items = NAV_ITEMS[role];

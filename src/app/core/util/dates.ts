@@ -57,8 +57,18 @@ export function formatYear(value: string | Date): string {
 
 const WEEKDAYS_LONG = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const MONTHS_LONG = [
-  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
 ];
 
 /** "Sábado, 19 de septiembre de 2026" */
@@ -76,7 +86,11 @@ export function todayLabel(now: Date = new Date()): string {
  * Día de una reserva o ingreso: "Hoy", o "20 sep" (con el año si no es el actual).
  * `withYear` fuerza el año.
  */
-export function relativeDay(value: string | Date, now: Date = new Date(), withYear = false): string {
+export function relativeDay(
+  value: string | Date,
+  now: Date = new Date(),
+  withYear = false,
+): string {
   if (isToday(value, now)) return 'Hoy';
   const d = toDate(value);
   return withYear || d.getFullYear() !== now.getFullYear() ? formatDate(d) : formatDayMonth(d);

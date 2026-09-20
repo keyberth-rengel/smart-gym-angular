@@ -1,8 +1,18 @@
 import { RoutineHistoryItem } from '../../../core/models';
 import { activePlan, historyEntries, planSummary } from './routine-view';
 
-const week = { monday: 'Legs', tuesday: 'Chest', wednesday: 'Back', thursday: 'Shoulders', friday: 'Arms', saturday: 'Cardio' };
-const older: RoutineHistoryItem = { created_at: '2026-07-14T10:00:00', plan: { ...week, monday: 'Cardio', saturday: 'Legs' } };
+const week = {
+  monday: 'Legs',
+  tuesday: 'Chest',
+  wednesday: 'Back',
+  thursday: 'Shoulders',
+  friday: 'Arms',
+  saturday: 'Cardio',
+};
+const older: RoutineHistoryItem = {
+  created_at: '2026-07-14T10:00:00',
+  plan: { ...week, monday: 'Cardio', saturday: 'Legs' },
+};
 const latest: RoutineHistoryItem = { created_at: '2026-09-08T09:15:00', plan: week };
 
 describe('routine-view', () => {

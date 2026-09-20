@@ -11,9 +11,15 @@ import { Navbar, initialsOf } from './navbar';
 function setup(user: ReturnType<typeof fakeUser>, me: Partial<Me> = {}) {
   const clerk = createFakeClerk({ user });
   TestBed.configureTestingModule({
-    providers: [provideRouter([{ path: 'auth/sign-in', children: [] }]), provideFakeClerk(clerk), { provide: MeApi, useValue: { getMe: () => of({}) } }],
+    providers: [
+      provideRouter([{ path: 'auth/sign-in', children: [] }]),
+      provideFakeClerk(clerk),
+      { provide: MeApi, useValue: { getMe: () => of({}) } },
+    ],
   });
-  TestBed.inject(AuthService).applyMe(testMe({ email: user.primaryEmailAddress!.emailAddress.toLowerCase(), name: null, ...me }));
+  TestBed.inject(AuthService).applyMe(
+    testMe({ email: user.primaryEmailAddress!.emailAddress.toLowerCase(), name: null, ...me }),
+  );
   const fixture = TestBed.createComponent(Navbar);
   fixture.detectChanges();
   return { clerk, fixture, el: fixture.nativeElement as HTMLElement };

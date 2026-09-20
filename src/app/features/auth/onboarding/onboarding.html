@@ -22,7 +22,12 @@
         [attr.aria-invalid]="!!error('name')"
         aria-describedby="ob-name-err"
       />
-      <div id="ob-name-err" class="invalid-feedback d-block" [hidden]="!error('name')" data-testid="name-error">
+      <div
+        id="ob-name-err"
+        class="invalid-feedback d-block"
+        [hidden]="!error('name')"
+        data-testid="name-error"
+      >
         {{ error('name') }}
       </div>
     </div>
@@ -47,7 +52,12 @@
           [attr.aria-invalid]="!!error('age')"
           aria-describedby="ob-age-err"
         />
-        <div id="ob-age-err" class="invalid-feedback d-block" [hidden]="!error('age')" data-testid="age-error">
+        <div
+          id="ob-age-err"
+          class="invalid-feedback d-block"
+          [hidden]="!error('age')"
+          data-testid="age-error"
+        >
           {{ error('age') }}
         </div>
       </div>
@@ -65,7 +75,12 @@
           [attr.aria-invalid]="!!error('dni')"
           aria-describedby="ob-dni-err"
         />
-        <div id="ob-dni-err" class="invalid-feedback d-block" [hidden]="!error('dni')" data-testid="dni-error">
+        <div
+          id="ob-dni-err"
+          class="invalid-feedback d-block"
+          [hidden]="!error('dni')"
+          data-testid="dni-error"
+        >
           {{ error('dni') }}
         </div>
       </div>
@@ -75,7 +90,12 @@
       Tu DNI te identifica en recepción y solo se registra una vez.
     </p>
 
-    <button type="submit" class="btn btn-primary w-100" [disabled]="submitting()" data-testid="onboarding-submit">
+    <button
+      type="submit"
+      class="btn btn-primary w-100"
+      [disabled]="submitting()"
+      data-testid="onboarding-submit"
+    >
       @if (submitting()) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
         <span>Guardando…</span>

@@ -35,7 +35,9 @@
 <nav class="modules" aria-label="Módulos" data-testid="modules">
   @for (m of modules; track m.path) {
     <a class="card module" [routerLink]="m.path" data-testid="module">
-      <span class="module-icon" aria-hidden="true"><i class="bi" [class]="'bi-' + m.icon"></i></span>
+      <span class="module-icon" aria-hidden="true"
+        ><i class="bi" [class]="'bi-' + m.icon"></i
+      ></span>
       <span class="module-title">{{ m.title }}</span>
       <span class="module-text">{{ m.text }}</span>
     </a>
@@ -57,14 +59,24 @@
         title="No pudimos cargar las reservas"
         text="Revisa tu conexión e inténtalo de nuevo."
       >
-        <button type="button" class="btn btn-primary" (click)="loadBookings()" data-testid="bookings-retry">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="loadBookings()"
+          data-testid="bookings-retry"
+        >
           <i class="bi bi-arrow-clockwise" aria-hidden="true"></i><span>Reintentar</span>
         </button>
       </app-empty-state>
     }
     @default {
       @if (rows().length) {
-        <div class="table-responsive" tabindex="0" role="region" aria-label="Reservas de hoy">
+        <div
+          class="table-responsive"
+          tabindex="0"
+          role="region"
+          aria-label="Tabla: Reservas de hoy"
+        >
           <table class="table align-middle mb-0" data-testid="today-table">
             <thead>
               <tr>

@@ -42,9 +42,27 @@ describe('progress-stats', () => {
 
   it('con varios registros: último valor, cambio contra el anterior y tono', () => {
     const [weight, fat, muscle] = buildMetrics(SERIES);
-    expect(weight).toMatchObject({ key: 'weight', value: '74.5', unit: 'kg', delta: '−1.1 kg', tone: 'green' });
-    expect(fat).toMatchObject({ key: 'fat', value: '18.2', unit: '%', delta: '−1.1 pts', tone: 'green' });
-    expect(muscle).toMatchObject({ key: 'muscle', value: '42.1', unit: '%', delta: '+0.7 pts', tone: 'green' });
+    expect(weight).toMatchObject({
+      key: 'weight',
+      value: '74.5',
+      unit: 'kg',
+      delta: '−1.1 kg',
+      tone: 'green',
+    });
+    expect(fat).toMatchObject({
+      key: 'fat',
+      value: '18.2',
+      unit: '%',
+      delta: '−1.1 pts',
+      tone: 'green',
+    });
+    expect(muscle).toMatchObject({
+      key: 'muscle',
+      value: '42.1',
+      unit: '%',
+      delta: '+0.7 pts',
+      tone: 'green',
+    });
   });
 
   it('funciona aunque el API entregue los registros desordenados', () => {
@@ -54,7 +72,10 @@ describe('progress-stats', () => {
   });
 
   it('empeorar es azul: peso o grasa suben, músculo baja', () => {
-    const [weight, fat, muscle] = buildMetrics([item('2026-09-01', 70, 15, 45), item('2026-09-02', 71.2, 15.5, 44.4)]);
+    const [weight, fat, muscle] = buildMetrics([
+      item('2026-09-01', 70, 15, 45),
+      item('2026-09-02', 71.2, 15.5, 44.4),
+    ]);
     expect(weight).toMatchObject({ delta: '+1.2 kg', tone: 'blue' });
     expect(fat).toMatchObject({ delta: '+0.5 pts', tone: 'blue' });
     expect(muscle).toMatchObject({ delta: '−0.6 pts', tone: 'blue' });
@@ -66,7 +87,10 @@ describe('progress-stats', () => {
   });
 
   it('un cambio menor a una décima cuenta como "Sin cambios"', () => {
-    const [weight] = buildMetrics([item('2026-09-01', 70.02, 15, 45), item('2026-09-02', 70.04, 15, 45)]);
+    const [weight] = buildMetrics([
+      item('2026-09-01', 70.02, 15, 45),
+      item('2026-09-02', 70.04, 15, 45),
+    ]);
     expect(weight.delta).toBe('Sin cambios');
   });
 
@@ -78,7 +102,9 @@ describe('progress-stats', () => {
   });
 
   it('la serie del gráfico se limita a los últimos 12 registros', () => {
-    const many = Array.from({ length: 15 }, (_, i) => item(`2026-01-${String(i + 1).padStart(2, '0')}`, 80 - i, 20, 40));
+    const many = Array.from({ length: 15 }, (_, i) =>
+      item(`2026-01-${String(i + 1).padStart(2, '0')}`, 80 - i, 20, 40),
+    );
     const [weight] = buildMetrics(many);
     expect(weight.series).toHaveLength(12);
     expect(weight.series[0]).toBe(77);
@@ -86,7 +112,9 @@ describe('progress-stats', () => {
   });
 
   it('averagesText con datos del API', () => {
-    expect(averagesText(4, 76.3, 19.65, 40.975)).toBe('Promedio: 76.3 kg · 19.7 % grasa · 41.0 % músculo');
+    expect(averagesText(4, 76.3, 19.65, 40.975)).toBe(
+      'Promedio: 76.3 kg · 19.7 % grasa · 41.0 % músculo',
+    );
   });
 
   it('averagesText sin registros es null', () => {

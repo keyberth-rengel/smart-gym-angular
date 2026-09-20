@@ -6,7 +6,12 @@ const trainers: Trainer[] = [
   { email: 'lucia@smartgym.pe', name: 'Lucía Paredes', age: 33, specialty: 'Fuerza' },
 ];
 const b = (id: number, date: string, time: string, trainer = 'lucia@smartgym.pe'): Booking => ({
-  id, customer_email: 'ana@correo.com', trainer_email: trainer, date, time, note: null,
+  id,
+  customer_email: 'ana@correo.com',
+  trainer_email: trainer,
+  date,
+  time,
+  note: null,
 });
 const now = new Date(2026, 8, 19, 15, 10);
 
@@ -24,7 +29,11 @@ describe('booking-view', () => {
   });
 
   it('arma las filas: más recientes primero, próximas marcadas, hora sin segundos', () => {
-    const rows = bookingRows([b(1, '2026-09-12', '17:00'), b(2, '2026-09-19', '18:30:00'), b(3, '2026-09-19', '10:00')], trainers, now);
+    const rows = bookingRows(
+      [b(1, '2026-09-12', '17:00'), b(2, '2026-09-19', '18:30:00'), b(3, '2026-09-19', '10:00')],
+      trainers,
+      now,
+    );
     expect(rows.map((r) => [r.id, r.time, r.trainer, r.day, r.upcoming])).toEqual([
       [2, '18:30', 'Lucía Paredes', 'Hoy · 19 sep', true],
       [3, '10:00', 'Lucía Paredes', 'Hoy · 19 sep', false],

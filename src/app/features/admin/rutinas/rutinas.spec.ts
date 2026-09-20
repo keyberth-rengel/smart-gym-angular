@@ -30,10 +30,14 @@ const DNI = '74582136';
 describe('AdminRutinas', () => {
   let fixture: ComponentFixture<AdminRutinas>;
   let el: HTMLElement;
-  let history: ReturnType<typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<RoutineHistoryItem[]>>>;
+  let history: ReturnType<
+    typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<RoutineHistoryItem[]>>
+  >;
   let assign: ReturnType<typeof vi.fn<(dni: string) => Observable<RoutinePlan>>>;
   let resolve: ReturnType<typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<Identity>>>;
-  let confirm: ReturnType<typeof vi.fn<(o: { title: string; message: string }) => Promise<boolean>>>;
+  let confirm: ReturnType<
+    typeof vi.fn<(o: { title: string; message: string }) => Promise<boolean>>
+  >;
   let getByDni: ReturnType<typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<Customer>>>;
   let toasts: ToastService;
 
@@ -48,14 +52,12 @@ describe('AdminRutinas', () => {
   ) {
     history = vi.fn((dni: string, _ctx?: HttpContext) => (o.history ?? (() => of(HISTORY)))(dni));
     assign = vi.fn(o.assign ?? (() => of(WEEK)));
-    resolve = vi.fn(
-      (dni: string, _ctx?: HttpContext) =>
-        (o.resolve ?? ((d: string) => of({ dni: d, email: 'carlos@x.com' })))(dni),
+    resolve = vi.fn((dni: string, _ctx?: HttpContext) =>
+      (o.resolve ?? ((d: string) => of({ dni: d, email: 'carlos@x.com' })))(dni),
     );
     confirm = vi.fn(o.confirm ?? (() => Promise.resolve(true)));
-    getByDni = vi.fn(
-      (dni: string, _ctx?: HttpContext) =>
-        (o.customer ?? (() => of({ email: 'carlos@x.com', name: 'Carlos', age: 28 })))(dni),
+    getByDni = vi.fn((dni: string, _ctx?: HttpContext) =>
+      (o.customer ?? (() => of({ email: 'carlos@x.com', name: 'Carlos', age: 28 })))(dni),
     );
     TestBed.configureTestingModule({
       imports: [AdminRutinas],
@@ -259,7 +261,9 @@ describe('AdminRutinas', () => {
       expect(confirm).not.toHaveBeenCalled();
       expect(assign).toHaveBeenCalledWith(DNI);
       expect(toastTexts()).toEqual(['success:La nueva rutina semanal ya está activa.']);
-      expect(q('[data-testid=assign-success]').textContent).toContain('Rutina asignada a carlos@x.com.');
+      expect(q('[data-testid=assign-success]').textContent).toContain(
+        'Rutina asignada a carlos@x.com.',
+      );
       expect(title()).toBe('Rutina asignada');
       expect(history).toHaveBeenCalledTimes(1);
     });

@@ -51,9 +51,30 @@ export function buildMetrics(items: readonly ProgressItem[]): Metric[] {
     /** `true` si subir es mejorar (músculo); bajar es mejorar en peso y grasa. */
     higherIsBetter: boolean;
   }[] = [
-    { key: 'weight', label: 'Peso', unit: 'kg', deltaUnit: 'kg', pick: (i) => i.weight_kg, higherIsBetter: false },
-    { key: 'fat', label: 'Grasa corporal', unit: '%', deltaUnit: 'pts', pick: (i) => i.body_fat_pct, higherIsBetter: false },
-    { key: 'muscle', label: 'Músculo', unit: '%', deltaUnit: 'pts', pick: (i) => i.muscle_pct, higherIsBetter: true },
+    {
+      key: 'weight',
+      label: 'Peso',
+      unit: 'kg',
+      deltaUnit: 'kg',
+      pick: (i) => i.weight_kg,
+      higherIsBetter: false,
+    },
+    {
+      key: 'fat',
+      label: 'Grasa corporal',
+      unit: '%',
+      deltaUnit: 'pts',
+      pick: (i) => i.body_fat_pct,
+      higherIsBetter: false,
+    },
+    {
+      key: 'muscle',
+      label: 'Músculo',
+      unit: '%',
+      deltaUnit: 'pts',
+      pick: (i) => i.muscle_pct,
+      higherIsBetter: true,
+    },
   ];
 
   return defs.map((d) => {
@@ -72,7 +93,12 @@ export function buildMetrics(items: readonly ProgressItem[]): Metric[] {
 }
 
 /** Promedios que entrega el API, listos para mostrar; `null` si no hay registros. */
-export function averagesText(total: number, avgWeight: number, avgFat: number, avgMuscle: number): string | null {
+export function averagesText(
+  total: number,
+  avgWeight: number,
+  avgFat: number,
+  avgMuscle: number,
+): string | null {
   if (total <= 0) return null;
   return `Promedio: ${fmt(avgWeight)} kg · ${fmt(avgFat)} % grasa · ${fmt(avgMuscle)} % músculo`;
 }

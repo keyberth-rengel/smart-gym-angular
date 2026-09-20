@@ -11,14 +11,13 @@ import {
 import { Role } from './core/auth/roles';
 import { NAV_ITEMS, relativePath } from './core/nav/nav-items';
 
-/** Pantallas ya construidas, por ruta completa; el resto usa la página provisional. */
-const PAGES: Record<string, Route['loadComponent']> = {
+/** Pantalla de cada ítem del menú, por ruta completa. */
+const PAGES: Record<string, NonNullable<Route['loadComponent']>> = {
   '/cliente': () =>
     import('./features/cliente/dashboard/dashboard').then((m) => m.ClienteDashboard),
   '/cliente/reservas': () =>
     import('./features/cliente/reservas/reservas').then((m) => m.ClienteReservas),
-  '/cliente/rutina': () =>
-    import('./features/cliente/rutina/rutina').then((m) => m.ClienteRutina),
+  '/cliente/rutina': () => import('./features/cliente/rutina/rutina').then((m) => m.ClienteRutina),
   '/cliente/progreso': () =>
     import('./features/cliente/progreso/progreso').then((m) => m.ClienteProgreso),
   '/cliente/asistencia': () =>
@@ -44,8 +43,7 @@ const PAGES: Record<string, Route['loadComponent']> = {
 };
 
 /**
- * Rama de un rol: el shell como padre y un hijo por ítem del menú. Cada hijo apunta a una
- * página provisional hasta que su fase la reemplace (basta con cambiar su `loadComponent`).
+ * Rama de un rol: el shell como padre y un hijo por ítem del menú, con su pantalla y su título.
  */
 function roleBranch(role: Role): Route {
   return {
@@ -55,11 +53,8 @@ function roleBranch(role: Role): Route {
     children: NAV_ITEMS[role].map((item) => ({
       path: relativePath(item),
       pathMatch: item.exact ? ('full' as const) : ('prefix' as const),
-      data: { title: item.label },
-      loadComponent:
-        PAGES[item.path] ??
-        (() =>
-          import('./shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage)),
+      title: item.label,
+      loadComponent: PAGES[item.path],
     })),
   };
 }
@@ -74,22 +69,26 @@ export const routes: Routes = [
       // el matcher consume todos los segmentos que empiezan por sign-in / sign-up.
       {
         matcher: catchAllRoute('sign-in'),
+        title: 'Iniciar sesión',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/sign-in/sign-in').then((m) => m.SignIn),
       },
       {
         matcher: catchAllRoute('sign-up'),
+        title: 'Crear cuenta',
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/sign-up/sign-up').then((m) => m.SignUp),
       },
       {
         path: 'onboarding',
+        title: 'Completar perfil',
         canActivate: [authGuard, onboardingGuard],
         loadComponent: () =>
           import('./features/auth/onboarding/onboarding').then((m) => m.Onboarding),
       },
       {
         path: 'unavailable',
+        title: 'Servicio no disponible',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/auth/unavailable/unavailable').then((m) => m.Unavailable),

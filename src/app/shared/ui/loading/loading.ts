@@ -6,14 +6,26 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   template: `
     @switch (variant()) {
       @case ('card') {
-        <div class="card skeleton-card" role="status" aria-busy="true" [attr.aria-label]="label()" data-testid="loading-card">
+        <div
+          class="card skeleton-card"
+          role="status"
+          aria-busy="true"
+          [attr.aria-label]="label()"
+          data-testid="loading-card"
+        >
           <div class="sk sk-title"></div>
           <div class="sk sk-line"></div>
           <div class="sk sk-line short"></div>
         </div>
       }
       @case ('table') {
-        <div class="card skeleton-table" role="status" aria-busy="true" [attr.aria-label]="label()" data-testid="loading-table">
+        <div
+          class="card skeleton-table"
+          role="status"
+          aria-busy="true"
+          [attr.aria-label]="label()"
+          data-testid="loading-table"
+        >
           <div class="sk sk-title"></div>
           @for (row of rowList(); track row) {
             <div class="sk sk-row"></div>
@@ -47,7 +59,12 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
     }
     .sk {
       border-radius: 8px;
-      background: linear-gradient(90deg, var(--sg-surface-2) 25%, var(--sg-line) 50%, var(--sg-surface-2) 75%);
+      background: linear-gradient(
+        90deg,
+        var(--sg-surface-2) 25%,
+        var(--sg-line) 50%,
+        var(--sg-surface-2) 75%
+      );
       background-size: 200% 100%;
       animation: shimmer 1.4s linear infinite;
     }

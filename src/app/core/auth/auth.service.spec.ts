@@ -25,7 +25,11 @@ describe('AuthService', () => {
     clerk = createFakeClerk({ user });
     getMe = vi.fn(result);
     TestBed.configureTestingModule({
-      providers: [provideRouter([]), provideFakeClerk(clerk), { provide: MeApi, useValue: { getMe } }],
+      providers: [
+        provideRouter([]),
+        provideFakeClerk(clerk),
+        { provide: MeApi, useValue: { getMe } },
+      ],
     });
     return TestBed.inject(AuthService);
   }
@@ -81,7 +85,9 @@ describe('AuthService', () => {
     });
 
     it('cliente sin perfil: profileComplete false y dni null', async () => {
-      const auth = setup(fakeUser(), () => of(me({ profile_complete: false, dni: null, name: null, profile: null })));
+      const auth = setup(fakeUser(), () =>
+        of(me({ profile_complete: false, dni: null, name: null, profile: null })),
+      );
       await auth.loadMe();
       expect(auth.profileComplete()).toBe(false);
       expect(auth.dni()).toBeNull();
@@ -98,7 +104,9 @@ describe('AuthService', () => {
 
   describe('nombre para mostrar', () => {
     it('prefiere el del backend', async () => {
-      const auth = setup(fakeUser({ name: 'Nombre Clerk' }), () => of(me({ name: 'Nombre Backend' })));
+      const auth = setup(fakeUser({ name: 'Nombre Clerk' }), () =>
+        of(me({ name: 'Nombre Backend' })),
+      );
       await auth.loadMe();
       expect(auth.fullName()).toBe('Nombre Backend');
     });
@@ -179,7 +187,9 @@ describe('AuthService', () => {
 
     it('un fallo no queda en caché: tras fallar se puede reintentar y limpia el error', async () => {
       let fail = true;
-      const auth = setup(fakeUser(), () => (fail ? throwError(() => new ApiError(500, 'X', 'x')) : of(me())));
+      const auth = setup(fakeUser(), () =>
+        fail ? throwError(() => new ApiError(500, 'X', 'x')) : of(me()),
+      );
       await expect(auth.loadMe()).rejects.toBeDefined();
       fail = false;
       await auth.loadMe();

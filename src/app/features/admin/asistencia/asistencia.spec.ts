@@ -21,7 +21,9 @@ describe('AdminAsistencia', () => {
   let fixture: ComponentFixture<AdminAsistencia>;
   let el: HTMLElement;
   let access: ReturnType<typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<string>>>;
-  let list: ReturnType<typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<AttendanceRecord[]>>>;
+  let list: ReturnType<
+    typeof vi.fn<(dni: string, ctx?: HttpContext) => Observable<AttendanceRecord[]>>
+  >;
 
   function setup(
     o: {
@@ -130,7 +132,9 @@ describe('AdminAsistencia', () => {
     });
 
     it('vínculo sin perfil (Identity not recognized): aviso general', async () => {
-      setup({ access: () => throwError(() => err(404, 'Identity not recognized for the linked email')) });
+      setup({
+        access: () => throwError(() => err(404, 'Identity not recognized for the linked email')),
+      });
       await register();
       expect(failure()).toContain('sin perfil de cliente ni de entrenador');
       expect(fieldError()).toBeNull();

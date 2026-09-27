@@ -6,6 +6,9 @@
 /out-tsc
 /bazel-out
 
+# Capturas de pruebas de integración (para informes, no versionar)
+/pruebas-integracion
+
 # Node
 /node_modules
 npm-debug.log

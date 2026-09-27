@@ -87,6 +87,20 @@ Abre <http://localhost:4200>. El proxy (`proxy.conf.json`) evita CORS en desarro
    código de verificación `424242` en instancias de desarrollo. Los entrenadores se dan de alta desde el panel de
    administración (`Entrenadores → Registrar e invitar`) con el **mismo correo** de su cuenta de Clerk.
 
+## Cuentas de prueba
+
+Creadas en la instancia de desarrollo de Clerk para las pruebas de integración (login + dashboard) de cada rol,
+usando los correos ya sembrados en `data.sql` del backend cuando aplica:
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Cliente | `alice@example.com` | `Smartgym2026Test!` |
+| Entrenador | `mike@smartgym.com` | `Smartgym2026Test!` |
+| Admin | `admin@smartgym.com` | `Smartgym2026Test!` |
+
+> Son cuentas de una instancia de **desarrollo** de Clerk (`pk_test_...`), no de producción. Si este repo se publica,
+> hay que rotar/eliminar estas cuentas y regenerar la Secret Key de Clerk (ver `PLAN.md` → Pendiente).
+
 ## Roles y permisos
 
 | Rol | Rutas | Puede |

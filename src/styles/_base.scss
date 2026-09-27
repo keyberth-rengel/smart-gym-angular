@@ -21,8 +21,11 @@ a {
 /* Chrome vuelve enfocable un contenedor con scroll */
 /* Contiene los elementos absolutos de la tabla (como el `th` visually-hidden de "Acciones"): sin esto
    quedan fuera del scroll y estiran la página cuando la tabla es más ancha que su tarjeta. */
+/* Con muchas filas, la tabla hace scroll interno en vez de estirar la tarjeta y salirse de la vista. */
 .table-responsive {
   position: relative;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 .table-responsive:focus-visible {

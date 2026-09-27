@@ -37,6 +37,8 @@ export interface RoutineHistoryRow {
       list-style: none;
       margin: 0;
       padding: 0;
+      max-height: 480px;
+      overflow-y: auto;
     }
     .hist-row {
       display: flex;

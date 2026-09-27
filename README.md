@@ -94,12 +94,17 @@ usando los correos ya sembrados en `data.sql` del backend cuando aplica:
 
 | Rol | Correo | Contraseña |
 |---|---|---|
-| Cliente | `alice@example.com` | `Smartgym2026Test!` |
-| Entrenador | `mike@smartgym.com` | `Smartgym2026Test!` |
-| Admin | `admin@smartgym.com` | `Smartgym2026Test!` |
+| Cliente | `alice+clerk_test@example.com` | `Smartgym2026Test!` |
+| Entrenador | `mike+clerk_test@smartgym.com` | `Smartgym2026Test!` |
+| Admin | `admin+clerk_test@smartgym.com` | `Smartgym2026Test!` |
 
 > Son cuentas de una instancia de **desarrollo** de Clerk (`pk_test_...`), no de producción. Si este repo se publica,
 > hay que rotar/eliminar estas cuentas y regenerar la Secret Key de Clerk (ver `PLAN.md` → Pendiente).
+
+**Verificación de "dispositivo nuevo":** Clerk pide un código por correo la primera vez que inicias sesión desde un
+navegador nuevo. Los tres correos usan el sufijo `+clerk_test`, que acepta siempre el código fijo **`424242`** en la
+instancia de desarrollo (sin depender de un inbox real). El correo de cliente y entrenador coincide exactamente con
+el que sembró `data.sql` del backend, para que el login quede vinculado a esos registros.
 
 ## Roles y permisos
 

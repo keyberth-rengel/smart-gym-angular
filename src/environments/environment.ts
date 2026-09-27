@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   apiBase: 'https://smart-gym-oop.onrender.com/api/v1',
-  // Publishable key de la instancia de PRODUCCIÓN de Clerk (pk_live_...). Es pública, pero
-  // hay que completarla antes de desplegar: sin ella Clerk no inicia y la app no arranca.
-  clerkPublishableKey: '',
+  // Por ahora reutiliza la instancia de DESARROLLO de Clerk (pk_test_...); no hay una instancia
+  // de producción separada todavía. Es pública, así que es seguro tenerla en el repo.
+  clerkPublishableKey: 'pk_test_YnJhdmUtc2F3ZmlzaC00MzMwLmNsZXJrLmFjY291bnRzLmRldiQ',
 };

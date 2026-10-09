@@ -12,6 +12,7 @@ import { ApiError } from '../../../core/http/api-error';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
 import { testMe } from '../../../testing/test-me';
 import { ClienteDashboard } from './dashboard';
+import { serverTimestamp } from '../../../testing/server-timestamp';
 
 const err = (status: number, raw = '') => new ApiError(status, `HTTP_${status}`, raw, {}, raw);
 
@@ -40,7 +41,14 @@ const DATA = {
       avg_muscle_pct: 42.1,
     }),
   attendance: () =>
-    of([{ id: 1, email: 'a@b.c', role: 'CUSTOMER', timestamp: '2026-09-19T06:45:00' }]),
+    of([
+      {
+        id: 1,
+        email: 'a@b.c',
+        role: 'CUSTOMER',
+        timestamp: serverTimestamp('2026-09-19T06:45:00'),
+      },
+    ]),
 };
 type Src = Partial<Record<keyof typeof DATA, () => Observable<unknown>>>;
 

@@ -4,6 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { ApiError } from './api-error';
 import { SKIP_ERROR_TOAST, errorInterceptor } from './error.interceptor';
+import { environment } from '../../../environments/environment';
+const API = environment.apiBase;
 
 describe('errorInterceptor', () => {
   let http: HttpClient;
@@ -30,11 +32,11 @@ describe('errorInterceptor', () => {
     options: { url?: string; context?: HttpContext } = {},
   ): { error: ApiError | unknown } {
     const out: { error: ApiError | unknown } = { error: null };
-    http.get(options.url ?? '/api/v1/x', { context: options.context }).subscribe({
+    http.get(options.url ?? `${API}/x`, { context: options.context }).subscribe({
       error: (e) => (out.error = e),
     });
     ctrl
-      .expectOne(options.url ?? '/api/v1/x')
+      .expectOne(options.url ?? `${API}/x`)
       .flush(body as string | object, { status, statusText: 'err' });
     return out;
   }
@@ -113,8 +115,8 @@ describe('errorInterceptor', () => {
 
   it('status 0 (red caída) muestra servicio no disponible', () => {
     const out: { error: unknown } = { error: null };
-    http.get('/api/v1/x').subscribe({ error: (e) => (out.error = e) });
-    ctrl.expectOne('/api/v1/x').error(new ProgressEvent('error'));
+    http.get(`${API}/x`).subscribe({ error: (e) => (out.error = e) });
+    ctrl.expectOne(`${API}/x`).error(new ProgressEvent('error'));
     const e = out.error as ApiError;
     expect(e.isNetwork).toBe(true);
     expect(e.code).toBe('NETWORK_ERROR');

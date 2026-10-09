@@ -36,7 +36,7 @@ export class TrainersApi {
     return this.api.get<Trainer[]>('/trainers', { context });
   }
 
-  /** Horas ocupadas del entrenador; `date` (yyyy-MM-dd) por defecto es hoy en el servidor. */
+  /** Horas ocupadas del entrenador; `date` (yyyy-MM-dd) conviene enviarla siempre (hoy local del cliente). */
   availability(email: string, date?: string): Observable<TrainerAvailability> {
     return this.api.get<TrainerAvailability>(
       `/trainers/${encodeURIComponent(email)}/availability`,

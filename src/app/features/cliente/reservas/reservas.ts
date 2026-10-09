@@ -15,7 +15,7 @@ import { ApiError } from '../../../core/http/api-error';
 import { Booking, Trainer } from '../../../core/models';
 import { availableSlots } from '../../../core/util/booking-slots';
 import { bookingRows, trainerName } from '../../../core/util/booking-view';
-import { todayLabel } from '../../../core/util/dates';
+import { todayLabel, toIsoDate, utcOffsetMinutes } from '../../../core/util/dates';
 import { NOTE_MAX_LENGTH, applyServerErrors, errorMessage } from '../../../core/util/validators';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
@@ -65,6 +65,8 @@ export class ClienteReservas {
   // --- horas ocupadas del entrenador elegido
   protected readonly slotsState = signal<SlotsState>('idle');
   private readonly booked = signal<string[]>([]);
+  /** Día local (yyyy-MM-dd) para el que se cargó `booked`; es el que se envía al reservar. */
+  private bookedDate = toIsoDate();
   protected readonly slots = computed(() => availableSlots(this.booked(), this.now()));
   protected readonly noSlotsLeft = computed(
     () => this.slotsState() === 'ready' && this.slots().length === 0,
@@ -87,11 +89,21 @@ export class ClienteReservas {
   constructor() {
     this.loadTrainers();
     this.loadBookings();
-    const timer = setInterval(() => this.now.set(new Date()), TICK_MS);
+    const timer = setInterval(() => this.tick(), TICK_MS);
     this.destroyRef.onDestroy(() => clearInterval(timer));
     this.form.controls.note.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((v) => this.noteLength.set(v.length));
+  }
+
+  /** Refresca el reloj; si cruzó la medianoche local, las horas elegidas y ocupadas ya no valen. */
+  private tick(): void {
+    const now = new Date();
+    this.now.set(now);
+    if (toIsoDate(now) !== this.bookedDate && this.form.controls.trainer.value) {
+      this.pickTime('');
+      this.loadAvailability();
+    }
   }
 
   protected error(name: 'trainer' | 'time' | 'note'): string | null {
@@ -140,14 +152,17 @@ export class ClienteReservas {
       return;
     }
     this.slotsState.set('loading');
+    const requestedAt = new Date();
+    const requestedDate = toIsoDate(requestedAt);
     this.trainersApi
-      .availability(email)
+      .availability(email, requestedDate)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (a) => {
           // La respuesta de un entrenador anterior no debe pisar la del actual.
           if (this.form.controls.trainer.value !== email) return;
           this.booked.set(a.booked_times);
+          this.bookedDate = requestedDate;
           this.now.set(new Date());
           this.slotsState.set('ready');
           const time = this.form.controls.time.value;
@@ -192,6 +207,15 @@ export class ClienteReservas {
     const email = this.auth.email();
     if (this.form.invalid || !email) return;
 
+    const at = new Date(); // fecha y desfase salen del mismo instante
+    if (toIsoDate(at) !== this.bookedDate) {
+      // Cruzó la medianoche local: las horas mostradas son de ayer.
+      this.now.set(at);
+      this.pickTime('');
+      this.failure.set('Cambió el día. Elige de nuevo la hora.');
+      this.loadAvailability();
+      return;
+    }
     const { trainer, time, note } = this.form.getRawValue();
     const trainerLabel = trainerName(this.trainers(), trainer);
     this.submitting.set(true);
@@ -200,6 +224,8 @@ export class ClienteReservas {
       .create({
         customer_email: email,
         trainer_email: trainer,
+        date: this.bookedDate,
+        utcOffsetMinutes: utcOffsetMinutes(at),
         time,
         ...(note.trim() ? { note: note.trim() } : {}),
       })

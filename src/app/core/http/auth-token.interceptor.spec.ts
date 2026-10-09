@@ -3,6 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { FakeClerk, createFakeClerk, fakeUser, provideFakeClerk } from '../../testing/fake-clerk';
 import { authTokenInterceptor } from './auth-token.interceptor';
+import { environment } from '../../../environments/environment';
+const API = environment.apiBase;
 
 describe('authTokenInterceptor', () => {
   let clerk: FakeClerk;
@@ -26,17 +28,17 @@ describe('authTokenInterceptor', () => {
 
   it('el header lleva exactamente el JWT de la sesión', async () => {
     setup(true);
-    http.get('/api/v1/health').subscribe();
+    http.get(`${API}/health`).subscribe();
     await vi.waitFor(() => {
-      const req = ctrl.match('/api/v1/health')[0];
+      const req = ctrl.match(`${API}/health`)[0];
       expect(req.request.headers.get('Authorization')).toBe('Bearer jwt-de-prueba');
     });
   });
 
   it('sin sesión no agrega nada ni pide token', () => {
     setup(false);
-    http.get('/api/v1/health').subscribe();
-    const req = ctrl.expectOne('/api/v1/health');
+    http.get(`${API}/health`).subscribe();
+    const req = ctrl.expectOne(`${API}/health`);
     expect(req.request.headers.has('Authorization')).toBe(false);
     expect(clerk.getTokenCalls).toBe(0);
   });
@@ -52,9 +54,9 @@ describe('authTokenInterceptor', () => {
   it('si Clerk no entrega token, la petición sale sin header', async () => {
     setup(true);
     clerk.token = null;
-    http.get('/api/v1/health').subscribe();
+    http.get(`${API}/health`).subscribe();
     await vi.waitFor(() => {
-      const req = ctrl.match('/api/v1/health')[0];
+      const req = ctrl.match(`${API}/health`)[0];
       expect(req).toBeDefined();
       expect(req.request.headers.has('Authorization')).toBe(false);
     });

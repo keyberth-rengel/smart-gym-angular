@@ -134,7 +134,7 @@ describe('ClienteReservas', () => {
   it('al elegir entrenador muestra las horas futuras y deshabilita las ocupadas', () => {
     setup();
     chooseTrainer('lucia@smartgym.pe');
-    expect(availability).toHaveBeenCalledWith('lucia@smartgym.pe');
+    expect(availability).toHaveBeenCalledWith('lucia@smartgym.pe', '2026-09-19');
     expect(chips()[0].textContent!.trim()).toBe('15:30'); // las anteriores a las 15:10 no aparecen
     expect(chips().some((c) => c.textContent!.trim() === '09:00')).toBe(false);
     expect(chip('16:00').disabled).toBe(true);
@@ -161,7 +161,7 @@ describe('ClienteReservas', () => {
     chip('16:30').click();
     fixture.detectChanges();
     chooseTrainer('marco@smartgym.pe');
-    expect(availability).toHaveBeenLastCalledWith('marco@smartgym.pe');
+    expect(availability).toHaveBeenLastCalledWith('marco@smartgym.pe', '2026-09-19');
     expect(chip('16:30').disabled).toBe(true);
     expect(chips().filter((c) => c.getAttribute('aria-pressed') === 'true')).toHaveLength(0);
   });
@@ -230,6 +230,8 @@ describe('ClienteReservas', () => {
     expect(create).toHaveBeenCalledWith({
       customer_email: 'ana@correo.com',
       trainer_email: 'lucia@smartgym.pe',
+      date: '2026-09-19', // hoy local del cliente
+      utcOffsetMinutes: -new Date().getTimezoneOffset() || 0,
       time: '16:30',
       note: 'Reforzar piernas',
     });

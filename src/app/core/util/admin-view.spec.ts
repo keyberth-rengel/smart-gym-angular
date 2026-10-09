@@ -12,6 +12,7 @@ import {
   trainerOptions,
   welcomeMessage,
 } from './admin-view';
+import { serverTimestamp } from '../../testing/server-timestamp';
 
 const b = (id: number, date: string, time: string, c: string, t: string): Booking => ({
   id,
@@ -271,9 +272,24 @@ describe('asistencia del admin', () => {
 
   describe('attendanceRows', () => {
     const records: AttendanceRecord[] = [
-      { id: 1, email: 'carlos@x.com', role: 'CUSTOMER', timestamp: '2026-09-15T07:05:00' },
-      { id: 3, email: 'lucia@x.com', role: 'TRAINER', timestamp: '2026-09-19T06:45:10' },
-      { id: 2, email: 'carlos@x.com', role: 'CUSTOMER', timestamp: '2026-09-19T06:45:10' },
+      {
+        id: 1,
+        email: 'carlos@x.com',
+        role: 'CUSTOMER',
+        timestamp: serverTimestamp('2026-09-15T07:05:00'),
+      },
+      {
+        id: 3,
+        email: 'lucia@x.com',
+        role: 'TRAINER',
+        timestamp: serverTimestamp('2026-09-19T06:45:10'),
+      },
+      {
+        id: 2,
+        email: 'carlos@x.com',
+        role: 'CUSTOMER',
+        timestamp: serverTimestamp('2026-09-19T06:45:10'),
+      },
     ];
     it('más reciente primero (timestamp y luego id) sin modificar el original', () => {
       const rows = attendanceRows(records);

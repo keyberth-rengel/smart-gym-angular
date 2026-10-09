@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
 import { testMe } from '../../../testing/test-me';
 import { ClienteAsistencia } from './asistencia';
+import { serverTimestamp } from '../../../testing/server-timestamp';
 
 const rec = (id: number, timestamp: string): AttendanceRecord => ({
   id,
@@ -16,9 +17,9 @@ const rec = (id: number, timestamp: string): AttendanceRecord => ({
   timestamp,
 });
 const RECORDS = [
-  rec(1, '2026-09-05T17:35:00'),
-  rec(2, '2026-09-08T18:15:00'),
-  rec(3, '2026-09-19T06:45:00'),
+  rec(1, serverTimestamp('2026-09-05T17:35:00')),
+  rec(2, serverTimestamp('2026-09-08T18:15:00')),
+  rec(3, serverTimestamp('2026-09-19T06:45:00')),
 ];
 
 describe('ClienteAsistencia', () => {

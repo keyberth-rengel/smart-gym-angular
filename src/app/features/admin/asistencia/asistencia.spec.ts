@@ -6,15 +6,31 @@ import { ApiError } from '../../../core/http/api-error';
 import { SKIP_ERROR_TOAST } from '../../../core/http/error.interceptor';
 import { AttendanceRecord } from '../../../core/models';
 import { AdminAsistencia } from './asistencia';
+import { serverTimestamp } from '../../../testing/server-timestamp';
 
 const err = (status: number, raw = '') => new ApiError(status, `HTTP_${status}`, raw, {}, raw);
 const NOT_LINKED = 'Este DNI no está vinculado a ninguna cuenta de SmartGym.';
 const DNI = '74582136';
 const WELCOME = 'Welcome Carlos Mendoza! Access recorded for carlos@x.com.';
 const RECORDS: AttendanceRecord[] = [
-  { id: 1, email: 'carlos@x.com', role: 'CUSTOMER', timestamp: '2026-09-15T07:05:00' },
-  { id: 2, email: 'carlos@x.com', role: 'CUSTOMER', timestamp: '2026-09-19T06:45:00' },
-  { id: 3, email: 'lucia@x.com', role: 'TRAINER', timestamp: '2026-09-17T18:20:00' },
+  {
+    id: 1,
+    email: 'carlos@x.com',
+    role: 'CUSTOMER',
+    timestamp: serverTimestamp('2026-09-15T07:05:00'),
+  },
+  {
+    id: 2,
+    email: 'carlos@x.com',
+    role: 'CUSTOMER',
+    timestamp: serverTimestamp('2026-09-19T06:45:00'),
+  },
+  {
+    id: 3,
+    email: 'lucia@x.com',
+    role: 'TRAINER',
+    timestamp: serverTimestamp('2026-09-17T18:20:00'),
+  },
 ];
 
 describe('AdminAsistencia', () => {

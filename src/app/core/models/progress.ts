@@ -4,6 +4,10 @@ export interface ProgressCreate {
   weightKg: number;
   bodyFatPct: number;
   musclePct: number;
+  /** yyyy-MM-dd: el "hoy" local del cliente (opcional en el backend). */
+  date?: string;
+  /** Desfase del cliente respecto de UTC en minutos (positivo al este; Lima = -300). */
+  utcOffsetMinutes?: number;
 }
 
 /** Lo que se RECIBE del backend: snake_case. */

@@ -9,6 +9,8 @@ import { HealthApi } from './health.api';
 import { IdentityApi } from './identity.api';
 import { RoutinesApi } from './routines.api';
 import { TrainersApi } from './trainers.api';
+import { environment } from '../../../environments/environment';
+const API = environment.apiBase;
 
 const ok = (data: unknown) => ({ success: true, data, timestamp: 't', path: 'p' });
 
@@ -29,7 +31,7 @@ describe('APIs del admin', () => {
       TestBed.inject(CustomersApi)
         .list()
         .subscribe((v) => (result = v));
-      const req = http.expectOne('/api/v1/customers');
+      const req = http.expectOne(`${API}/customers`);
       expect(req.request.method).toBe('GET');
       req.flush(ok([{ email: 'a@x.com', name: 'Ana', age: 20 }]));
       expect(result).toEqual([{ email: 'a@x.com', name: 'Ana', age: 20 }]);
@@ -37,7 +39,7 @@ describe('APIs del admin', () => {
 
     it('create sin dni: el cuerpo no lleva la clave dni', () => {
       TestBed.inject(CustomersApi).create({ email: 'a@x.com', name: 'Ana', age: 20 }).subscribe();
-      const req = http.expectOne('/api/v1/customers');
+      const req = http.expectOne(`${API}/customers`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ email: 'a@x.com', name: 'Ana', age: 20 });
       expect('dni' in req.request.body).toBe(false);
@@ -48,7 +50,7 @@ describe('APIs del admin', () => {
       TestBed.inject(CustomersApi)
         .create({ email: 'a@x.com', name: 'Ana', age: 20, dni: '12345678' }, skipErrorToast())
         .subscribe();
-      const req = http.expectOne('/api/v1/customers');
+      const req = http.expectOne(`${API}/customers`);
       expect(req.request.body.dni).toBe('12345678');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok({}));
@@ -67,7 +69,7 @@ describe('APIs del admin', () => {
           dni: '87654321',
         })
         .subscribe((v) => (result = v));
-      const req = http.expectOne('/api/v1/trainers');
+      const req = http.expectOne(`${API}/trainers`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
         email: 't@x.com',
@@ -94,7 +96,7 @@ describe('APIs del admin', () => {
       TestBed.inject(TrainersApi)
         .invite('lucía+1@smartgym.pe', skipErrorToast())
         .subscribe((v) => (result = v));
-      const req = http.expectOne('/api/v1/trainers/luc%C3%ADa%2B1%40smartgym.pe/invite');
+      const req = http.expectOne(`${API}/trainers/luc%C3%ADa%2B1%40smartgym.pe/invite`);
       expect(req.request.method).toBe('POST');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok({ status: 'INVITED', message: 'ok' }));
@@ -105,7 +107,7 @@ describe('APIs del admin', () => {
   describe('HealthApi', () => {
     it('check propaga el contexto para no mostrar toast', () => {
       TestBed.inject(HealthApi).check(skipErrorToast()).subscribe();
-      const req = http.expectOne('/api/v1/health');
+      const req = http.expectOne(`${API}/health`);
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok({ status: 'UP', uptimeSeconds: 1, startedAt: 't' }));
     });
@@ -116,7 +118,7 @@ describe('APIs del admin', () => {
       TestBed.inject(BookingsApi)
         .list(skipErrorToast())
         .subscribe((v) => (result = v));
-      const req = http.expectOne('/api/v1/bookings');
+      const req = http.expectOne(`${API}/bookings`);
       expect(req.request.method).toBe('GET');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(
@@ -148,7 +150,7 @@ describe('APIs del admin', () => {
       TestBed.inject(BookingsApi)
         .cancel(14)
         .subscribe({ complete: () => (done = true) });
-      const req = http.expectOne('/api/v1/bookings/14');
+      const req = http.expectOne(`${API}/bookings/14`);
       expect(req.request.method).toBe('DELETE');
       req.flush(null, { status: 204, statusText: 'No Content' });
       expect(done).toBe(true);
@@ -160,7 +162,7 @@ describe('APIs del admin', () => {
         .cancel(99)
         .subscribe({ error: (e) => (status = e.status) });
       http
-        .expectOne('/api/v1/bookings/99')
+        .expectOne(`${API}/bookings/99`)
         .flush({ success: false }, { status: 404, statusText: 'Not Found' });
       expect(status).toBe(404);
     });
@@ -172,7 +174,7 @@ describe('APIs del admin', () => {
       TestBed.inject(RoutinesApi)
         .assign('74582136', skipErrorToast())
         .subscribe((v) => (plan = v));
-      const req = http.expectOne('/api/v1/routines/assign');
+      const req = http.expectOne(`${API}/routines/assign`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ dni: '74582136' });
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
@@ -182,7 +184,7 @@ describe('APIs del admin', () => {
 
     it('history: GET /routines/history/{dni} con el DNI codificado', () => {
       TestBed.inject(RoutinesApi).history('7458 2136', skipErrorToast()).subscribe();
-      const req = http.expectOne('/api/v1/routines/history/7458%202136');
+      const req = http.expectOne(`${API}/routines/history/7458%202136`);
       expect(req.request.method).toBe('GET');
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok([]));
@@ -193,7 +195,7 @@ describe('APIs del admin', () => {
       TestBed.inject(IdentityApi)
         .resolve('74582136', skipErrorToast())
         .subscribe((v) => (id = v));
-      const req = http.expectOne('/api/v1/identity/74582136');
+      const req = http.expectOne(`${API}/identity/74582136`);
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok({ dni: '74582136', email: 'a@x.com' }));
       expect(id).toEqual({ dni: '74582136', email: 'a@x.com' });
@@ -206,7 +208,7 @@ describe('APIs del admin', () => {
       TestBed.inject(AttendanceApi)
         .access('74582136')
         .subscribe((v) => (msg = v));
-      const req = http.expectOne('/api/v1/access');
+      const req = http.expectOne(`${API}/access`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ dni: '74582136' });
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(false);
@@ -216,7 +218,7 @@ describe('APIs del admin', () => {
 
     it('list: GET /attendance/{dni} y propaga el contexto', () => {
       TestBed.inject(AttendanceApi).list('74582136', skipErrorToast()).subscribe();
-      const req = http.expectOne('/api/v1/attendance/74582136');
+      const req = http.expectOne(`${API}/attendance/74582136`);
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok([]));
     });
@@ -225,7 +227,7 @@ describe('APIs del admin', () => {
   describe('TrainersApi.list', () => {
     it('propaga el contexto (las cargas de apoyo no muestran toast)', () => {
       TestBed.inject(TrainersApi).list(skipErrorToast()).subscribe();
-      const req = http.expectOne('/api/v1/trainers');
+      const req = http.expectOne(`${API}/trainers`);
       expect(req.request.context.get(SKIP_ERROR_TOAST)).toBe(true);
       req.flush(ok([]));
     });

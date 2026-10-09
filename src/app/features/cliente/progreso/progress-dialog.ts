@@ -15,6 +15,7 @@ import { ProgressApi } from '../../../core/api/progress.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { SKIP_ERROR_TOAST } from '../../../core/http/error.interceptor';
+import { toIsoDate, utcOffsetMinutes } from '../../../core/util/dates';
 import {
   applyServerErrors,
   errorMessage,
@@ -92,6 +93,7 @@ export class ProgressDialog {
     if (this.form.invalid || !dni) return;
 
     const v = this.form.getRawValue();
+    const at = new Date(); // fecha y desfase salen del mismo instante
     this.submitting.set(true);
     this.formError.set(null);
     this.api
@@ -101,6 +103,8 @@ export class ProgressDialog {
           weightKg: Number(v.weightKg),
           bodyFatPct: Number(v.bodyFatPct),
           musclePct: Number(v.musclePct),
+          date: toIsoDate(at),
+          utcOffsetMinutes: utcOffsetMinutes(at),
         },
         // El error se muestra dentro del diálogo; los cortes de servicio siguen avisando con toast.
         { context: new HttpContext().set(SKIP_ERROR_TOAST, true) },

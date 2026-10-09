@@ -11,7 +11,7 @@ import { AttendanceApi } from '../../../core/api/attendance.api';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ApiError } from '../../../core/http/api-error';
 import { AttendanceRecord } from '../../../core/models';
-import { formatDayMonth, formatTime, formatYear } from '../../../core/util/dates';
+import { formatDayMonth, formatTime, formatYear, toTimestamp } from '../../../core/util/dates';
 import { Badge } from '../../../shared/ui/badge/badge';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { Loading } from '../../../shared/ui/loading/loading';
@@ -48,7 +48,9 @@ export class ClienteAsistencia {
 
   /** Más reciente primero; la numeración cuenta desde el primer ingreso. */
   protected readonly rows = computed(() => {
-    const sorted = [...this.records()].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    const sorted = [...this.records()].sort(
+      (a, b) => toTimestamp(a.timestamp) - toTimestamp(b.timestamp),
+    );
     return sorted
       .map((r, i) => ({
         key: r.id,

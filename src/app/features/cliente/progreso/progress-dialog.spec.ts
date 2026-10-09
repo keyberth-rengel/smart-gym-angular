@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { createFakeClerk, fakeUser, provideFakeClerk } from '../../../testing/fake-clerk';
 import { testMe } from '../../../testing/test-me';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
+import { toIsoDate, utcOffsetMinutes } from '../../../core/util/dates';
 import { ProgressDialog } from './progress-dialog';
 
 const SAVED: ProgressItem = {
@@ -155,7 +156,14 @@ describe('ProgressDialog', () => {
     submit();
     expect(add).toHaveBeenCalledTimes(1);
     const [payload, options] = add.mock.calls[0];
-    expect(payload).toEqual({ dni: '12345678', weightKg: 74.5, bodyFatPct: 18.2, musclePct: 42.1 });
+    expect(payload).toEqual({
+      dni: '12345678',
+      weightKg: 74.5,
+      bodyFatPct: 18.2,
+      musclePct: 42.1,
+      date: toIsoDate(), // el "hoy" local del cliente, no el del servidor
+      utcOffsetMinutes: utcOffsetMinutes(),
+    });
     expect(options.context.get(SKIP_ERROR_TOAST)).toBe(true);
     expect(dialog().hasAttribute('open')).toBe(false);
     expect(toast.toasts().map((t) => t.kind)).toEqual(['success']);

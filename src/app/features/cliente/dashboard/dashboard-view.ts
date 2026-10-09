@@ -7,7 +7,7 @@ import {
 } from '../../../core/models';
 import { nextBooking } from '../../../core/util/booking-slots';
 import { trainerName } from '../../../core/util/booking-view';
-import { formatDayMonth, formatTime, relativeDay } from '../../../core/util/dates';
+import { formatDayMonth, formatTime, relativeDay, toTimestamp } from '../../../core/util/dates';
 import { blockLabel, hasRoutineFor, todayKey } from '../../../core/util/routine-blocks';
 import { fmt, sortAscending } from '../progreso/progress-stats';
 import { activePlan } from '../rutina/routine-view';
@@ -70,7 +70,9 @@ export function attendanceCard(
   now: Date = new Date(),
 ): CardText {
   if (!records.length) return { value: 'Sin ingresos', sub: 'Marca tu asistencia al llegar' };
-  const last = [...records].sort((a, b) => a.timestamp.localeCompare(b.timestamp)).at(-1)!;
+  const last = [...records]
+    .sort((a, b) => toTimestamp(a.timestamp) - toTimestamp(b.timestamp))
+    .at(-1)!;
   return {
     value: dayAndTime(last.timestamp, formatTime(last.timestamp), now),
     sub: 'Último ingreso registrado',

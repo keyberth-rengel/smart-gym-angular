@@ -1,5 +1,5 @@
 import { AttendanceRecord, Booking, Invitation } from '../models';
-import { formatDate, formatTime, relativeDay, toIsoDate } from './dates';
+import { formatDate, formatTime, relativeDay, toIsoDate, toTimestamp } from './dates';
 import { customerName, filterCustomers } from './trainer-view';
 
 /** Edad máxima que acepta el formulario del admin (el backend solo exige >= 0). */
@@ -214,7 +214,7 @@ export interface AttendanceRow {
 /** Ingresos más recientes primero, con la etiqueta del rol (Cliente azul, Entrenador verde). */
 export function attendanceRows(records: readonly AttendanceRecord[]): AttendanceRow[] {
   return [...records]
-    .sort((a, b) => b.timestamp.localeCompare(a.timestamp) || b.id - a.id)
+    .sort((a, b) => toTimestamp(b.timestamp) - toTimestamp(a.timestamp) || b.id - a.id)
     .map((r) => ({
       id: r.id,
       date: formatDate(r.timestamp),

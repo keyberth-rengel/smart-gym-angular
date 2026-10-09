@@ -8,7 +8,7 @@ import { ApiClient } from './api-client';
 export class BookingsApi {
   private readonly api = inject(ApiClient);
 
-  /** La fecha la asigna el servidor (hoy). */
+  /** El cuerpo lleva `date` (hoy local del cliente) para no depender del día UTC del servidor. */
   create(booking: BookingCreate, context?: HttpContext): Observable<Booking> {
     return this.api.post<Booking>('/bookings', booking, { context });
   }

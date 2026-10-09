@@ -1,5 +1,6 @@
 import { AttendanceRecord, Booking, RoutineHistoryItem, Trainer } from '../../../core/models';
 import { attendanceCard, nextBookingCard, progressCard, routineCard } from './dashboard-view';
+import { serverTimestamp } from '../../../testing/server-timestamp';
 
 const sat = new Date(2026, 8, 19, 15, 10); // sábado
 const sun = new Date(2026, 8, 20, 9, 0); // domingo
@@ -98,9 +99,17 @@ describe('dashboard-view', () => {
     });
     it('último ingreso de hoy y de otro día', () => {
       expect(
-        attendanceCard([rec('2026-09-12T17:40:00'), rec('2026-09-19T06:45:00')], sat).value,
+        attendanceCard(
+          [
+            rec(serverTimestamp('2026-09-12T17:40:00')),
+            rec(serverTimestamp('2026-09-19T06:45:00')),
+          ],
+          sat,
+        ).value,
       ).toBe('Hoy · 06:45');
-      expect(attendanceCard([rec('2026-09-12T17:40:00')], sat).value).toBe('12 sep · 17:40');
+      expect(attendanceCard([rec(serverTimestamp('2026-09-12T17:40:00'))], sat).value).toBe(
+        '12 sep · 17:40',
+      );
     });
     it('sin ingresos', () => {
       expect(attendanceCard([], sat)).toEqual({

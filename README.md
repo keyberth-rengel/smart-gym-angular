@@ -4,8 +4,7 @@ Aplicación web para la gestión de un gimnasio: los **socios** consultan su rut
 entrenador y marcan su asistencia; los **entrenadores** ven sus citas, sus clientes y les asignan rutinas; el
 **personal de administración** gestiona clientes, entrenadores, reservas, rutinas y asistencia.
 
-Proyecto del curso *Soluciones Web y Aplicaciones Distribuidas* (UPN). El diseño, el mapa de navegación y los wireframes
-salen del informe del curso; el plan de trabajo y su estado están en [`PLAN.md`](PLAN.md).
+El diseño, el mapa de navegación y los wireframes salen del informe del curso; el plan de trabajo y su estado están en [`PLAN.md`](PLAN.md).
 
 ## Arquitectura
 

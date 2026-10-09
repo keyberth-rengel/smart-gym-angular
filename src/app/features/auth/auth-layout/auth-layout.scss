@@ -35,10 +35,6 @@
   line-height: 1.5;
 }
 
-.auth-credit {
-  font-size: 0.875rem;
-}
-
 .auth-main {
   flex: 1;
   min-width: 0;
@@ -70,8 +66,7 @@
     }
   }
 
-  .auth-lead,
-  .auth-credit {
+  .auth-lead {
     display: none;
   }
 

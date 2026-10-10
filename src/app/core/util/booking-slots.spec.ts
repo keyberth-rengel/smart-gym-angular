@@ -10,16 +10,16 @@ import {
 const at = (h: number, m = 0, s = 0) => new Date(2026, 8, 19, h, m, s);
 
 describe('booking-slots', () => {
-  it('genera 32 horas de 06:00 a 21:30 cada 30 minutos', () => {
+  it('genera 36 horas de 06:00 a 23:30 cada 30 minutos', () => {
     const all = allSlotTimes();
-    expect(all).toHaveLength(32);
+    expect(all).toHaveLength(36);
     expect(all[0]).toBe('06:00');
     expect(all[1]).toBe('06:30');
-    expect(all.at(-1)).toBe('21:30');
+    expect(all.at(-1)).toBe('23:30');
   });
 
   it('antes de abrir se ofrecen todas las horas', () => {
-    expect(availableSlots([], at(5, 0))).toHaveLength(32);
+    expect(availableSlots([], at(5, 0))).toHaveLength(36);
   });
 
   it('oculta las horas pasadas y también la del minuto actual (el servidor la rechaza por los segundos)', () => {
@@ -30,10 +30,10 @@ describe('booking-slots', () => {
     expect(times(at(15, 30, 1))[0]).toBe('16:00');
   });
 
-  it('a las 21:30 ya no queda ninguna y a las 21:29:59 queda la última', () => {
-    expect(availableSlots([], at(21, 30))).toEqual([]);
-    expect(availableSlots([], at(21, 45))).toEqual([]);
-    expect(availableSlots([], at(21, 29, 59)).map((s) => s.time)).toEqual(['21:30']);
+  it('a las 23:30 ya no queda ninguna y a las 23:29:59 queda la última', () => {
+    expect(availableSlots([], at(23, 30))).toEqual([]);
+    expect(availableSlots([], at(23, 45))).toEqual([]);
+    expect(availableSlots([], at(23, 29, 59)).map((s) => s.time)).toEqual(['23:30']);
     expect(availableSlots([], at(23, 59, 59))).toEqual([]);
   });
 

@@ -2,7 +2,7 @@ import { Booking } from '../models';
 
 /** Horario de reservas del gimnasio (hora de pared, cada `SLOT_STEP_MIN` minutos). */
 export const SLOT_START = '06:00';
-export const SLOT_END = '21:30';
+export const SLOT_END = '23:30';
 export const SLOT_STEP_MIN = 30;
 
 export interface Slot {

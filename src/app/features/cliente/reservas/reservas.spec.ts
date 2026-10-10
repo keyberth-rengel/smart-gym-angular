@@ -166,8 +166,8 @@ describe('ClienteReservas', () => {
     expect(chips().filter((c) => c.getAttribute('aria-pressed') === 'true')).toHaveLength(0);
   });
 
-  it('a las 21:45 ya no quedan horarios: estado vacío', () => {
-    vi.setSystemTime(new Date(2026, 8, 19, 21, 45));
+  it('a las 23:45 ya no quedan horarios: estado vacío', () => {
+    vi.setSystemTime(new Date(2026, 8, 19, 23, 45));
     setup();
     chooseTrainer('lucia@smartgym.pe');
     expect(el.textContent).toContain('Ya no hay horarios disponibles hoy');
@@ -175,10 +175,10 @@ describe('ClienteReservas', () => {
   });
 
   it('con todas las horas ocupadas se muestran deshabilitadas', () => {
-    vi.setSystemTime(new Date(2026, 8, 19, 21, 0));
-    setup({ availability: (e) => of(avail(e, ['21:00', '21:30'])) });
+    vi.setSystemTime(new Date(2026, 8, 19, 23, 0));
+    setup({ availability: (e) => of(avail(e, ['23:00', '23:30'])) });
     chooseTrainer('lucia@smartgym.pe');
-    expect(chips().map((c) => [c.textContent!.trim(), c.disabled])).toEqual([['21:30', true]]);
+    expect(chips().map((c) => [c.textContent!.trim(), c.disabled])).toEqual([['23:30', true]]);
   });
 
   it('error al cargar horarios: aviso con Reintentar', () => {
